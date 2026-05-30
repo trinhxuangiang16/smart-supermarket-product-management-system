@@ -1,0 +1,15 @@
+{
+  "name": "smart-supermarket",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.12.1",
+  "scripts": {
+    "dev": "corepack pnpm -r --parallel dev",
+    "dev:api": "corepack pnpm --filter @smart-supermarket/api dev",
+    "dev:web": "corepack pnpm --filter @smart-supermarket/web dev",
+    "build": "corepack pnpm -r build",
+    "lint": "corepack pnpm -r lint",
+    "db:migrate": "corepack pnpm --filter @smart-supermarket/api exec prisma migrate deploy",
+    "db:seed": "corepack pnpm --filter @smart-supermarket/api exec prisma db seed"
+  }
+}

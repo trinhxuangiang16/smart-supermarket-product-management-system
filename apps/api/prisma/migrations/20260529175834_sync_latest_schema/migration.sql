@@ -1,0 +1,12 @@
+-- AlterTable
+ALTER TABLE `InventoryTransaction` ADD COLUMN `deliveredAt` DATETIME(3) NULL,
+    ADD COLUMN `deliveredByName` VARCHAR(191) NULL,
+    ADD COLUMN `invoiceNumber` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `Product` ADD COLUMN `brand` VARCHAR(191) NULL,
+    ADD COLUMN `manufacturer` VARCHAR(191) NULL,
+    ADD COLUMN `productionDate` DATETIME(3) NULL;
+
+-- AlterTable
+ALTER TABLE `User` MODIFY `role` ENUM('ADMIN', 'MANAGER', 'WAREHOUSE_STAFF', 'CASHIER', 'SALE_DEPARTMENT', 'FINANCE_DEPARTMENT') NOT NULL;

@@ -1,0 +1,28 @@
+import { Router } from "express";
+import authRoutes from "../modules/auth/auth.routes.js";
+import approvalRoutes from "../modules/approvals/approvals.routes.js";
+import auditRoutes from "../modules/audit/audit.routes.js";
+import categoryRoutes from "../modules/categories/categories.routes.js";
+import supplierRoutes from "../modules/suppliers/suppliers.routes.js";
+import productRoutes from "../modules/products/products.routes.js";
+import inventoryRoutes from "../modules/inventory/inventory.routes.js";
+import dashboardRoutes from "../modules/dashboard/dashboard.routes.js";
+import expiryRoutes from "../modules/expiry/expiry.routes.js";
+import reportsRoutes from "../modules/reports/reports.routes.js";
+import usersRoutes from "../modules/users/users.routes.js";
+import settingsRoutes from "../modules/settings/settings.routes.js";
+
+const router = Router();
+router.use("/auth", authRoutes);
+router.use("/approvals", approvalRoutes);
+router.use("/audit", auditRoutes);
+router.use("/categories", categoryRoutes);
+router.use("/suppliers", supplierRoutes);
+router.use("/products", productRoutes);
+router.use("/inventory", inventoryRoutes);
+router.use("/dashboard", dashboardRoutes);
+router.use("/expiry", expiryRoutes);
+router.use("/reports", reportsRoutes);
+router.use("/users", usersRoutes);
+router.use("/settings", settingsRoutes);
+export default router;
