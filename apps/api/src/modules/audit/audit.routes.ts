@@ -12,6 +12,7 @@ const querySchema = z.object({
   search: z.string().optional(),
   action: z.string().optional(),
   entity: z.string().optional(),
+  requestId: z.string().optional(),
   userId: z.string().optional(),
   from: z.string().date().optional(),
   to: z.string().date().optional(),
@@ -33,18 +34,20 @@ router.get("/actions", requireAuth, async (req, res) => {
       },
     });
   }
-  const { page, pageSize, search, action, entity, userId, from, to } = parsed.data;
+  const { page, pageSize, search, action, entity, requestId, userId, from, to } = parsed.data;
   const where: any = {};
   if (search) {
     where.OR = [
       { action: { contains: search } },
       { entity: { contains: search } },
+      { requestId: { contains: search } },
       { user: { name: { contains: search } } },
       { user: { email: { contains: search } } },
     ];
   }
   if (action) where.action = action;
   if (entity) where.entity = entity;
+  if (requestId) where.requestId = requestId;
   if (userId) where.userId = userId;
   if (from || to) {
     where.createdAt = {
@@ -76,18 +79,20 @@ router.get("/actions/export.csv", requireAuth, async (req, res) => {
       },
     });
   }
-  const { search, action, entity, userId, from, to } = parsed.data;
+  const { search, action, entity, requestId, userId, from, to } = parsed.data;
   const where: any = {};
   if (search) {
     where.OR = [
       { action: { contains: search } },
       { entity: { contains: search } },
+      { requestId: { contains: search } },
       { user: { name: { contains: search } } },
       { user: { email: { contains: search } } },
     ];
   }
   if (action) where.action = action;
   if (entity) where.entity = entity;
+  if (requestId) where.requestId = requestId;
   if (userId) where.userId = userId;
   if (from || to) {
     where.createdAt = {
@@ -103,9 +108,10 @@ router.get("/actions/export.csv", requireAuth, async (req, res) => {
     take: 5000,
   });
   const csv = toCsv(
-    ["created_at", "action", "entity", "entity_id", "actor_name", "actor_email", "actor_role"],
+    ["created_at", "request_id", "action", "entity", "entity_id", "actor_name", "actor_email", "actor_role"],
     rows.map((row: any) => [
       new Date(row.createdAt).toISOString(),
+      row.requestId ?? "-",
       row.action,
       row.entity,
       row.entityId,
@@ -148,6 +154,16 @@ router.get("/transaction/:id", requireAuth, async (req, res) => {
   });
   if (!tx) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Transaction not found" } });
   return res.json(ok(tx));
+});
+
+router.get("/timeline/:requestId", requireAuth, async (req, res) => {
+  const items = await prisma.auditLog.findMany({
+    where: { requestId: req.params.requestId },
+    include: { user: { select: { id: true, name: true, email: true, role: true } } },
+    orderBy: { createdAt: "asc" },
+    take: 300,
+  });
+  return res.json(ok(items));
 });
 
 export default router;

@@ -17,19 +17,22 @@ export const HistoryActionsPage = () => {
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("");
   const [entityFilter, setEntityFilter] = useState("");
+  const [requestIdFilter, setRequestIdFilter] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
-  const query = new URLSearchParams({
+  const queryParams = new URLSearchParams({
     page: String(page),
     pageSize: "20",
-    search,
-    action: actionFilter,
-    entity: entityFilter,
-    from,
-    to,
-  }).toString();
+  });
+  if (search.trim()) queryParams.set("search", search.trim());
+  if (actionFilter.trim()) queryParams.set("action", actionFilter.trim());
+  if (entityFilter.trim()) queryParams.set("entity", entityFilter.trim());
+  if (requestIdFilter.trim()) queryParams.set("requestId", requestIdFilter.trim());
+  if (from) queryParams.set("from", from);
+  if (to) queryParams.set("to", to);
+  const query = queryParams.toString();
 
   const actions = useQuery({
     queryKey: ["audit-actions", query],
@@ -40,6 +43,12 @@ export const HistoryActionsPage = () => {
     queryKey: ["action-detail", selectedActionId],
     queryFn: () => api<any>(`/audit/actions/${selectedActionId}`),
     enabled: Boolean(selectedActionId),
+  });
+  const requestId = actionDetail.data?.data?.requestId as string | undefined;
+  const timeline = useQuery({
+    queryKey: ["audit-timeline", requestId],
+    queryFn: () => api<any>(`/audit/timeline/${requestId}`),
+    enabled: Boolean(requestId),
   });
   const actionDiffs = buildFieldDiffs(actionDetail.data?.data?.before, actionDetail.data?.data?.after);
   const exportCsv = async () => {
@@ -69,7 +78,7 @@ export const HistoryActionsPage = () => {
         </Card>
       ) : null}
       <Card>
-        <div className="grid gap-2 md:grid-cols-5">
+        <div className="grid gap-2 md:grid-cols-6">
           <Input
             placeholder="Search by action, entity, user..."
             value={search}
@@ -80,6 +89,7 @@ export const HistoryActionsPage = () => {
           />
           <Input placeholder="Action" value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(1); }} />
           <Input placeholder="Entity" value={entityFilter} onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }} />
+          <Input placeholder="Request ID" value={requestIdFilter} onChange={(e) => { setRequestIdFilter(e.target.value); setPage(1); }} />
           <Input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
           <Input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} />
         </div>
@@ -91,11 +101,12 @@ export const HistoryActionsPage = () => {
       </Card>
       <Card>
         <div className="overflow-auto">
-          <table className="w-full min-w-[920px] text-sm">
+          <table className="w-full min-w-[1080px] text-sm">
             <thead>
               <tr className="border-b bg-slate-50">
                 <th className="px-3 py-2 text-left">Action</th>
                 <th className="px-3 py-2 text-left">Entity</th>
+                <th className="px-3 py-2 text-left">Request ID</th>
                 <th className="px-3 py-2 text-left">By</th>
                 <th className="px-3 py-2 text-left">At</th>
                 <th className="px-3 py-2 text-left">Detail</th>
@@ -103,7 +114,7 @@ export const HistoryActionsPage = () => {
             </thead>
             <tbody>
               {actions.isLoading ? (
-                <tr><td colSpan={5} className="px-3 py-8 text-center text-slate-500">Loading history...</td></tr>
+                <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-500">Loading history...</td></tr>
               ) : null}
               {rows.map((row: any) => (
                 <tr key={row.id} className="border-b last:border-0">
@@ -113,6 +124,7 @@ export const HistoryActionsPage = () => {
                     </span>
                   </td>
                   <td className="px-3 py-2">{row.entity}</td>
+                  <td className="px-3 py-2 text-xs text-slate-600">{row.requestId ?? "-"}</td>
                   <td className="px-3 py-2">{actorLabel(row)}</td>
                   <td className="px-3 py-2">{new Date(row.createdAt).toLocaleString("en-US")}</td>
                   <td className="px-3 py-2">
@@ -126,7 +138,7 @@ export const HistoryActionsPage = () => {
                 </tr>
               ))}
               {!actions.isLoading && !rows.length ? (
-                <tr><td colSpan={5} className="px-3 py-8 text-center text-slate-500">No audit actions found.</td></tr>
+                <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-500">No audit actions found.</td></tr>
               ) : null}
             </tbody>
           </table>
@@ -197,6 +209,10 @@ export const HistoryActionsPage = () => {
                     <div className="text-xs text-slate-500">Entity ID</div>
                     <div className="break-all font-medium">{actionDetail.data?.data?.entityId ?? "-"}</div>
                   </div>
+                  <div className="rounded border bg-slate-50 p-3 text-sm md:col-span-2">
+                    <div className="text-xs text-slate-500">Request ID</div>
+                    <div className="break-all font-medium">{actionDetail.data?.data?.requestId ?? "-"}</div>
+                  </div>
                 </div>
 
                 {actionDiffs.length ? (
@@ -221,6 +237,21 @@ export const HistoryActionsPage = () => {
                           ))}
                         </tbody>
                       </table>
+                    </div>
+                  </section>
+                ) : null}
+
+                {requestId ? (
+                  <section className="rounded border">
+                    <div className="border-b bg-slate-50 px-3 py-2 text-sm font-semibold">Request Timeline</div>
+                    <div className="max-h-64 overflow-auto p-3">
+                      {(timeline.data?.data ?? []).map((item: any) => (
+                        <div key={item.id} className="mb-2 rounded border bg-white p-2 text-xs last:mb-0">
+                          <div className="font-medium">{actionLabel(item.action)}</div>
+                          <div className="text-slate-500">{new Date(item.createdAt).toLocaleString("en-US")} • {item.user?.name ?? item.user?.email ?? "-"}</div>
+                        </div>
+                      ))}
+                      {timeline.isLoading ? <div className="text-xs text-slate-500">Loading timeline...</div> : null}
                     </div>
                   </section>
                 ) : null}

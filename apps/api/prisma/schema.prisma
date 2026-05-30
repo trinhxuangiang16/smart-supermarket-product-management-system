@@ -82,6 +82,7 @@ model User {
   priceHistories PriceHistory[]
   requestedApprovals ApprovalRequest[] @relation("approvalRequestedBy")
   reviewedApprovals  ApprovalRequest[] @relation("approvalReviewedBy")
+  sessions       UserSession[]
 }
 
 model Category {
@@ -89,9 +90,14 @@ model Category {
   name        String   @unique
   description String?
   isActive    Boolean  @default(true)
+  parentId    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   products    Product[]
+  parent      Category? @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+
+  @@index([parentId])
 }
 
 model Supplier {
@@ -157,6 +163,7 @@ model ApprovalRequest {
   requestedById    String
   reviewedById     String?
   reason           String                @db.Text
+  reviewNote       String?               @db.Text
   requestedChanges Json?
   before           Json?
   createdAt        DateTime              @default(now())
@@ -187,13 +194,16 @@ model InventoryTransaction {
   destroyReason DestroyReason?
   performedById String
   approvedById  String?
+  warehouseId   String?
   createdAt     DateTime        @default(now())
   product       Product         @relation(fields: [productId], references: [id])
   performedBy   User            @relation("performedBy", fields: [performedById], references: [id])
   approvedBy    User?           @relation("approvedBy", fields: [approvedById], references: [id])
+  warehouse     Warehouse?      @relation(fields: [warehouseId], references: [id])
 
   @@index([type])
   @@index([createdAt])
+  @@index([warehouseId, createdAt])
 }
 
 model AuditLog {
@@ -201,11 +211,14 @@ model AuditLog {
   action    String
   entity    String
   entityId  String
+  requestId String?
   before    Json?
   after     Json?
   userId    String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+
+  @@index([requestId, createdAt])
 }
 
 model PriceHistory {
@@ -222,4 +235,34 @@ model PriceHistory {
 
   @@index([productId, createdAt])
   @@index([changedById, createdAt])
+}
+
+model UserSession {
+  id            String   @id @default(cuid())
+  userId        String
+  refreshToken  String   @unique @db.VarChar(512)
+  userAgent     String?
+  ipAddress     String?
+  deviceLabel   String?
+  lastActiveAt  DateTime @default(now())
+  revokedAt     DateTime?
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([userId, revokedAt])
+}
+
+model Warehouse {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  address     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  transactions InventoryTransaction[]
+
+  @@index([name])
+  @@index([isActive])
 }

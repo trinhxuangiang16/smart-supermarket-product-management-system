@@ -204,6 +204,7 @@ async function main() {
   await prisma.approvalRequest.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.product.deleteMany();
+  await prisma.warehouse.deleteMany();
   await prisma.category.deleteMany();
   await prisma.supplier.deleteMany();
   await prisma.user.deleteMany();
@@ -219,6 +220,11 @@ async function main() {
   ]);
 
   const catRows = await Promise.all(categories.map((name) => prisma.category.create({ data: { name } })));
+  const warehouseRows = await Promise.all([
+    prisma.warehouse.create({ data: { name: "Main Warehouse", code: "WH-MAIN", address: "1201 Market St, San Francisco, CA 94103", isActive: true } }),
+    prisma.warehouse.create({ data: { name: "Cold Storage", code: "WH-COLD", address: "233 W Washington St, Chicago, IL 60606", isActive: true } }),
+    prisma.warehouse.create({ data: { name: "Reserve Warehouse", code: "WH-RESERVE", address: "4100 Main St, Houston, TX 77002", isActive: true } }),
+  ]);
   const supRows = await Promise.all(
     suppliers.map((supplier, index) =>
       prisma.supplier.create({
@@ -293,6 +299,7 @@ async function main() {
         reason: type === "ADJUSTMENT" ? "Periodic count correction" : undefined,
         destroyReason: type === "DESTROY" ? "DAMAGED" : undefined,
         performedById: random([admin, manager, warehouse, cashier, sale, finance]).id,
+        warehouseId: random(warehouseRows).id,
       },
     });
     await prisma.auditLog.create({

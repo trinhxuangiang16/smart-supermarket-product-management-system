@@ -4,9 +4,13 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middleware/error-handler.js";
+import { requestIdMiddleware } from "./middleware/request-id.js";
+import { requestContextMiddleware } from "./middleware/request-context.js";
 import routes from "./routes/index.js";
 
 export const app = express();
+app.use(requestIdMiddleware);
+app.use(requestContextMiddleware);
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);

@@ -9,6 +9,7 @@ import { createAuditLog } from "../audit/audit.service.js";
 const router = Router();
 const txSchema = z.object({
   productId: z.string(),
+  warehouseId: z.string().optional().nullable(),
   quantity: z.number().refine((value) => value !== 0, "Quantity must not be zero"),
   unitPrice: z.number().nonnegative().optional(),
   reason: z.string().optional(),
@@ -37,6 +38,7 @@ const listQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
   type: z.enum(["IN", "OUT", "ADJUSTMENT", "DESTROY"]).optional(),
   productId: z.string().optional(),
+  warehouseId: z.string().optional(),
   search: z.string().trim().optional(),
   from: z.string().date().optional(),
   to: z.string().date().optional(),
@@ -48,6 +50,10 @@ const createTx = (type: TxType) => async (req: AuthRequest, res: any) => {
   if (!p.success) return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Invalid request payload", details: p.error.flatten() } });
   const product = await prisma.product.findFirst({ where: { id: p.data.productId, isDeleted: false } });
   if (!product) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Product not found" } });
+  if (p.data.warehouseId) {
+    const warehouse = await prisma.warehouse.findFirst({ where: { id: p.data.warehouseId, isActive: true } });
+    if (!warehouse) return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Warehouse not found or inactive" } });
+  }
   if (product.expiryStatus === "DESTROYED") {
     return res.status(400).json({ error: { code: "INVALID_OPERATION", message: "Destroyed products cannot be transacted" } });
   }
@@ -99,6 +105,7 @@ const createTx = (type: TxType) => async (req: AuthRequest, res: any) => {
         reason: p.data.reason ? normalizeReason(p.data.reason) : null,
         destroyReason: p.data.destroyReason,
         performedById: req.user!.id,
+        warehouseId: p.data.warehouseId || null,
       },
     });
     return { updatedProduct, transaction };
@@ -128,6 +135,7 @@ router.get("/transactions", requireAuth, async (req, res) => {
   const where: any = {};
   if (q.type) where.type = q.type;
   if (q.productId) where.productId = q.productId;
+  if (q.warehouseId) where.warehouseId = q.warehouseId;
   if (q.from || q.to) {
     where.createdAt = {
       ...(q.from ? { gte: new Date(`${q.from}T00:00:00.000Z`) } : {}),
@@ -151,7 +159,7 @@ router.get("/transactions", requireAuth, async (req, res) => {
       where,
       skip: (q.page - 1) * q.pageSize,
       take: q.pageSize,
-      include: { product: true, performedBy: true },
+      include: { product: true, performedBy: true, warehouse: true },
       orderBy: { createdAt: q.sortOrder },
     }),
   ]);
@@ -180,6 +188,7 @@ router.get("/history/:productId", requireAuth, async (req, res) => {
       take: q.pageSize,
       include: {
         performedBy: { select: { id: true, name: true, email: true, role: true } },
+        warehouse: true,
       },
     }),
   ]);

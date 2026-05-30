@@ -8,7 +8,9 @@ type CategoryRow = {
   name: string;
   description?: string | null;
   isActive?: boolean;
-  _count?: { products: number };
+  parentId?: string | null;
+  parent?: { id: string; name: string } | null;
+  _count?: { products: number; children: number };
 };
 
 export const CategoriesPage = () => {
@@ -17,6 +19,7 @@ export const CategoriesPage = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [parentId, setParentId] = useState("");
   const [editing, setEditing] = useState<CategoryRow | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +30,7 @@ export const CategoriesPage = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: { name: string; description?: string; isActive?: boolean }) =>
+    mutationFn: (payload: { name: string; description?: string; isActive?: boolean; parentId?: string | null }) =>
       api("/categories", { method: "POST", body: JSON.stringify(payload) }),
     onSuccess: async () => {
       setMessage("Category created");
@@ -35,16 +38,17 @@ export const CategoriesPage = () => {
       setName("");
       setDescription("");
       setIsActive(true);
+      setParentId("");
       await qc.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: (e) => setError((e as Error).message),
   });
 
   const updateMutation = useMutation({
-    mutationFn: (payload: { id: string; name: string; description?: string; isActive?: boolean }) =>
+    mutationFn: (payload: { id: string; name: string; description?: string; isActive?: boolean; parentId?: string | null }) =>
       api(`/categories/${payload.id}`, {
         method: "PUT",
-        body: JSON.stringify({ name: payload.name, description: payload.description, isActive: payload.isActive }),
+        body: JSON.stringify({ name: payload.name, description: payload.description, isActive: payload.isActive, parentId: payload.parentId }),
       }),
     onSuccess: async () => {
       setMessage("Category updated");
@@ -52,6 +56,7 @@ export const CategoriesPage = () => {
       setName("");
       setDescription("");
       setIsActive(true);
+      setParentId("");
       setEditing(null);
       await qc.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -96,10 +101,10 @@ export const CategoriesPage = () => {
       return;
     }
     if (editing) {
-      updateMutation.mutate({ id: editing.id, name: name.trim(), description: description.trim() || undefined, isActive });
+      updateMutation.mutate({ id: editing.id, name: name.trim(), description: description.trim() || undefined, isActive, parentId: parentId || null });
       return;
     }
-    createMutation.mutate({ name: name.trim(), description: description.trim() || undefined, isActive });
+    createMutation.mutate({ name: name.trim(), description: description.trim() || undefined, isActive, parentId: parentId || null });
   };
 
   const startEdit = (row: CategoryRow) => {
@@ -107,6 +112,7 @@ export const CategoriesPage = () => {
     setName(row.name);
     setDescription(row.description ?? "");
     setIsActive(row.isActive ?? true);
+    setParentId(row.parentId ?? "");
     setError("");
     setMessage("");
   };
@@ -116,18 +122,25 @@ export const CategoriesPage = () => {
     setName("");
     setDescription("");
     setIsActive(true);
+    setParentId("");
   };
 
   return (
     <div className="space-y-4">
       <Card>
-        <div className="grid gap-2 md:grid-cols-[1.2fr_1fr_auto_auto]">
+        <div className="grid gap-2 md:grid-cols-[1.1fr_1fr_1fr_auto_auto]">
           <Input placeholder="Category name" value={name} onChange={(e) => setName(e.target.value)} />
           <Input
             placeholder="Description (optional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <select className="h-11 rounded border px-3 text-sm" value={parentId} onChange={(e) => setParentId(e.target.value)}>
+            <option value="">No parent (root)</option>
+            {(q.data?.data ?? []).filter((c) => !editing || c.id !== editing.id).map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
           <label className="inline-flex h-11 items-center gap-2 rounded border px-3 text-sm">
             <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
             Active
@@ -164,7 +177,9 @@ export const CategoriesPage = () => {
                 <th className="text-left py-2">Name</th>
                 <th className="text-left py-2">Description</th>
                 <th className="text-left py-2">Status</th>
+                <th className="text-left py-2">Parent</th>
                 <th className="text-left py-2">Products</th>
+                <th className="text-left py-2">Children</th>
                 <th className="text-left py-2">Actions</th>
               </tr>
             </thead>
@@ -178,7 +193,9 @@ export const CategoriesPage = () => {
                       {c.isActive !== false ? "Active" : "Hidden"}
                     </span>
                   </td>
+                  <td className="py-2 text-slate-600">{c.parent?.name ?? "-"}</td>
                   <td className="py-2">{c._count?.products ?? 0}</td>
+                  <td className="py-2">{c._count?.children ?? 0}</td>
                   <td className="py-2">
                     <div className="flex gap-2">
                       <Button className="h-9 px-3" onClick={() => startEdit(c)}>
@@ -204,7 +221,7 @@ export const CategoriesPage = () => {
               ))}
               {!rows.length ? (
                 <tr>
-                  <td className="py-6 text-slate-500" colSpan={5}>
+                  <td className="py-6 text-slate-500" colSpan={7}>
                     No categories found.
                   </td>
                 </tr>

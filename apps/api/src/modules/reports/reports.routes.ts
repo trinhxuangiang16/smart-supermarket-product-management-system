@@ -4,8 +4,9 @@ import PDFDocument from "pdfkit";
 import * as XLSX from "xlsx";
 import { prisma } from "../../lib/prisma.js";
 import { ok } from "../../lib/response.js";
-import { requireAuth } from "../../middleware/require-auth.js";
+import { AuthRequest, requireAuth } from "../../middleware/require-auth.js";
 import { getSystemSettings } from "../settings/settings.store.js";
+import { createAuditLog } from "../audit/audit.service.js";
 const router = Router();
 
 const rangeSchema = z.object({
@@ -240,7 +241,228 @@ router.get("/profit-by-category", requireAuth, async (req, res) => {
   );
 });
 
-router.get("/inventory-snapshot.csv", requireAuth, async (req, res) => {
+router.get("/trends/transactions-daily", requireAuth, async (req, res) => {
+  const parsed = z.object({ days: z.coerce.number().int().min(3).max(60).default(14) }).safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Invalid query params", details: parsed.error.flatten() } });
+  }
+  const days = parsed.data.days;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - (days - 1));
+
+  const txs = await prisma.inventoryTransaction.findMany({
+    where: { createdAt: { gte: start } },
+    select: { type: true, createdAt: true, totalValue: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const byDay = new Map<string, { date: string; IN: number; OUT: number; ADJUSTMENT: number; DESTROY: number; totalValue: number }>();
+  for (let i = 0; i < days; i += 1) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    const key = d.toISOString().slice(0, 10);
+    byDay.set(key, { date: key, IN: 0, OUT: 0, ADJUSTMENT: 0, DESTROY: 0, totalValue: 0 });
+  }
+
+  for (const tx of txs) {
+    const key = tx.createdAt.toISOString().slice(0, 10);
+    const row = byDay.get(key);
+    if (!row) continue;
+    const txType = tx.type as "IN" | "OUT" | "ADJUSTMENT" | "DESTROY";
+    row[txType] += 1;
+    row.totalValue += Number(tx.totalValue ?? 0);
+  }
+
+  return res.json(ok({ days, items: Array.from(byDay.values()) }));
+});
+
+router.get("/supplier-performance", requireAuth, async (req, res) => {
+  const parsed = z.object({
+    from: z.string().date().optional(),
+    to: z.string().date().optional(),
+  }).safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Invalid query params", details: parsed.error.flatten() } });
+  }
+  const range = {
+    ...(parsed.data.from ? { gte: new Date(`${parsed.data.from}T00:00:00.000Z`) } : {}),
+    ...(parsed.data.to ? { lte: new Date(`${parsed.data.to}T23:59:59.999Z`) } : {}),
+  };
+  const createdAt = Object.keys(range).length ? range : undefined;
+
+  const [suppliers, products, inTx, outTx, destroyTx] = await Promise.all([
+    prisma.supplier.findMany({ orderBy: { name: "asc" } }),
+    prisma.product.findMany({
+      where: { isDeleted: false },
+      select: { id: true, supplierId: true, costPrice: true, sellingPrice: true },
+    }),
+    prisma.inventoryTransaction.findMany({
+      where: { type: "IN", createdAt, supplierName: { not: null } },
+      select: { supplierName: true, quantity: true, totalValue: true },
+    }),
+    prisma.inventoryTransaction.findMany({
+      where: { type: "OUT", createdAt },
+      select: { productId: true, quantity: true, totalValue: true, unitPrice: true },
+    }),
+    prisma.inventoryTransaction.findMany({
+      where: { type: "DESTROY", createdAt },
+      select: { productId: true, totalValue: true },
+    }),
+  ]);
+
+  const productById = new Map<string, any>(products.map((p: any) => [p.id, p]));
+  const resultMap = new Map<string, any>();
+
+  for (const supplier of suppliers) {
+    resultMap.set(supplier.name, {
+      supplierId: supplier.id,
+      supplierName: supplier.name,
+      totalProducts: 0,
+      inTransactions: 0,
+      inQuantity: 0,
+      inValue: 0,
+      outRevenue: 0,
+      outCostEstimate: 0,
+      wasteValue: 0,
+    });
+  }
+
+  for (const product of products) {
+    if (!product.supplierId) continue;
+    const supplier = suppliers.find((s: any) => s.id === product.supplierId);
+    if (!supplier) continue;
+    const row = resultMap.get(supplier.name);
+    if (row) row.totalProducts += 1;
+  }
+
+  for (const tx of inTx) {
+    const key = tx.supplierName ?? "";
+    const row = resultMap.get(key);
+    if (!row) continue;
+    row.inTransactions += 1;
+    row.inQuantity += Number(tx.quantity);
+    row.inValue += Number(tx.totalValue ?? 0);
+  }
+
+  for (const tx of outTx) {
+    const product = productById.get(tx.productId);
+    if (!product?.supplierId) continue;
+    const supplier = suppliers.find((s: any) => s.id === product.supplierId);
+    if (!supplier) continue;
+    const row = resultMap.get(supplier.name);
+    if (!row) continue;
+    const qty = Number(tx.quantity);
+    row.outRevenue += Number(tx.totalValue ?? (Number(tx.unitPrice ?? product.sellingPrice) * qty));
+    row.outCostEstimate += Number(product.costPrice) * qty;
+  }
+
+  for (const tx of destroyTx) {
+    const product = productById.get(tx.productId);
+    if (!product?.supplierId) continue;
+    const supplier = suppliers.find((s: any) => s.id === product.supplierId);
+    if (!supplier) continue;
+    const row = resultMap.get(supplier.name);
+    if (!row) continue;
+    row.wasteValue += Number(tx.totalValue ?? 0);
+  }
+
+  const items = Array.from(resultMap.values()).map((row) => ({
+    ...row,
+    grossProfitEstimate: row.outRevenue - row.outCostEstimate,
+    marginPercent: row.outCostEstimate > 0 ? ((row.outRevenue - row.outCostEstimate) / row.outCostEstimate) * 100 : 0,
+  })).sort((a, b) => b.grossProfitEstimate - a.grossProfitEstimate);
+
+  return res.json(ok({ items }));
+});
+
+router.get("/warehouse-overview", requireAuth, async (req, res) => {
+  const parsed = z.object({
+    from: z.string().date().optional(),
+    to: z.string().date().optional(),
+  }).safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Invalid query params", details: parsed.error.flatten() } });
+  }
+  const range = {
+    ...(parsed.data.from ? { gte: new Date(`${parsed.data.from}T00:00:00.000Z`) } : {}),
+    ...(parsed.data.to ? { lte: new Date(`${parsed.data.to}T23:59:59.999Z`) } : {}),
+  };
+  const createdAt = Object.keys(range).length ? range : undefined;
+
+  const [warehouses, txs] = await Promise.all([
+    prisma.warehouse.findMany({ orderBy: [{ isActive: "desc" }, { name: "asc" }] }),
+    prisma.inventoryTransaction.findMany({
+      where: { createdAt },
+      select: { type: true, warehouseId: true, quantity: true, totalValue: true },
+    }),
+  ]);
+
+  const map = new Map<string, any>();
+  for (const wh of warehouses) {
+    map.set(wh.id, {
+      warehouseId: wh.id,
+      warehouseName: wh.name,
+      warehouseCode: wh.code,
+      isActive: wh.isActive,
+      txCount: 0,
+      inCount: 0,
+      outCount: 0,
+      adjustmentCount: 0,
+      destroyCount: 0,
+      inQty: 0,
+      outQty: 0,
+      adjustmentQty: 0,
+      destroyQty: 0,
+      movementValue: 0,
+    });
+  }
+
+  const unassignedKey = "UNASSIGNED";
+  map.set(unassignedKey, {
+    warehouseId: unassignedKey,
+    warehouseName: "Unassigned",
+    warehouseCode: "-",
+    isActive: true,
+    txCount: 0,
+    inCount: 0,
+    outCount: 0,
+    adjustmentCount: 0,
+    destroyCount: 0,
+    inQty: 0,
+    outQty: 0,
+    adjustmentQty: 0,
+    destroyQty: 0,
+    movementValue: 0,
+  });
+
+  for (const tx of txs) {
+    const key = tx.warehouseId ?? unassignedKey;
+    const row = map.get(key);
+    if (!row) continue;
+    row.txCount += 1;
+    const qty = Number(tx.quantity);
+    if (tx.type === "IN") {
+      row.inCount += 1;
+      row.inQty += qty;
+    } else if (tx.type === "OUT") {
+      row.outCount += 1;
+      row.outQty += qty;
+    } else if (tx.type === "ADJUSTMENT") {
+      row.adjustmentCount += 1;
+      row.adjustmentQty += qty;
+    } else if (tx.type === "DESTROY") {
+      row.destroyCount += 1;
+      row.destroyQty += qty;
+    }
+    row.movementValue += Number(tx.totalValue ?? 0);
+  }
+
+  const items = Array.from(map.values()).sort((a, b) => b.txCount - a.txCount);
+  return res.json(ok({ items }));
+});
+
+router.get("/inventory-snapshot.csv", requireAuth, async (req: AuthRequest, res) => {
   const dateRange = toDateRange(req.query);
   const products = await prisma.product.findMany({
     where: { isDeleted: false },
@@ -301,10 +523,17 @@ router.get("/inventory-snapshot.csv", requireAuth, async (req, res) => {
   );
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", 'attachment; filename="inventory-snapshot.csv"');
+  await createAuditLog({
+    action: "REPORT_EXPORT_CSV",
+    entity: "Report",
+    entityId: "inventory-snapshot",
+    userId: req.user!.id,
+    after: { format: "csv", report: "inventory-snapshot", query: req.query },
+  });
   res.send(csv);
 });
 
-router.get("/inventory-snapshot.xlsx", requireAuth, async (req, res) => {
+router.get("/inventory-snapshot.xlsx", requireAuth, async (req: AuthRequest, res) => {
   const dateRange = toDateRange(req.query);
   const products = await prisma.product.findMany({
     where: { isDeleted: false },
@@ -346,10 +575,17 @@ router.get("/inventory-snapshot.xlsx", requireAuth, async (req, res) => {
   const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   res.setHeader("Content-Disposition", 'attachment; filename="inventory-snapshot.xlsx"');
+  await createAuditLog({
+    action: "REPORT_EXPORT_XLSX",
+    entity: "Report",
+    entityId: "inventory-snapshot",
+    userId: req.user!.id,
+    after: { format: "xlsx", report: "inventory-snapshot", query: req.query },
+  });
   res.send(buffer);
 });
 
-router.get("/management-report.html", requireAuth, async (req, res) => {
+router.get("/management-report.html", requireAuth, async (req: AuthRequest, res) => {
   const dateRange = toDateRange(req.query);
   const { systemSettings, products, destroyed, recentTransactions, totalStockValue, lowStock, expiringSoon, expired, wasteTotal, profitRows } = await buildReportData(dateRange);
 
@@ -501,10 +737,17 @@ router.get("/management-report.html", requireAuth, async (req, res) => {
   const safeTo = (req.query as any)?.to ? String((req.query as any).to).replaceAll("/", "-") : "all";
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Content-Disposition", `attachment; filename="management-report-${safeFrom}-to-${safeTo}.html"`);
+  await createAuditLog({
+    action: "REPORT_EXPORT_HTML",
+    entity: "Report",
+    entityId: "management-report",
+    userId: req.user!.id,
+    after: { format: "html", report: "management-report", query: req.query },
+  });
   res.send(html);
 });
 
-router.get("/management-report.pdf", requireAuth, async (req, res) => {
+router.get("/management-report.pdf", requireAuth, async (req: AuthRequest, res) => {
   const dateRange = toDateRange(req.query);
   const { systemSettings, products, destroyed, recentTransactions, totalStockValue, lowStock, expiringSoon, expired, wasteTotal, profitRows } = await buildReportData(dateRange);
 
@@ -580,6 +823,13 @@ router.get("/management-report.pdf", requireAuth, async (req, res) => {
   doc.moveDown(0.8);
   doc.fontSize(9).fillColor("#64748b").text(systemSettings.reports.footerNote || "Generated by Smart Supermarket Product Management System.");
 
+  await createAuditLog({
+    action: "REPORT_EXPORT_PDF",
+    entity: "Report",
+    entityId: "management-report",
+    userId: req.user!.id,
+    after: { format: "pdf", report: "management-report", query: req.query },
+  });
   doc.end();
 });
 export default router;

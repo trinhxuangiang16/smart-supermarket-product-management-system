@@ -34,8 +34,58 @@ const requestSchema = z.object({
   reason: z.string().trim().min(8, "Reason must be at least 8 characters"),
   requestedChanges: productUpdateSchema.optional(),
 });
+const approveSchema = z.object({
+  reviewNote: z.string().trim().min(3).max(500).optional(),
+});
+const rejectSchema = z.object({
+  reviewNote: z.string().trim().min(3).max(500),
+});
 
 const jsonSafe = (value: unknown) => JSON.parse(JSON.stringify(value));
+
+type WorkflowRole = "MANAGER" | "ADMIN";
+type WorkflowApproval = { userId: string; role: WorkflowRole; at: string };
+type ApprovalWorkflow = { requiredRoles: WorkflowRole[]; approvedBy: WorkflowApproval[] };
+
+const pickWorkflowRoles = (requesterRole: string, type: "PRODUCT_UPDATE" | "PRODUCT_DELETE"): WorkflowRole[] => {
+  if (type === "PRODUCT_DELETE") {
+    if (requesterRole === "ADMIN") return ["ADMIN"];
+    if (requesterRole === "MANAGER") return ["ADMIN"];
+    return ["MANAGER", "ADMIN"];
+  }
+  if (requesterRole === "ADMIN") return ["ADMIN"];
+  if (requesterRole === "MANAGER") return ["ADMIN"];
+  return ["MANAGER"];
+};
+
+const readWorkflow = (raw: unknown, fallbackRoles: WorkflowRole[]): ApprovalWorkflow => {
+  const base = { requiredRoles: fallbackRoles, approvedBy: [] as WorkflowApproval[] };
+  if (!raw || typeof raw !== "object") return base;
+  const candidate = (raw as any).__workflow;
+  if (!candidate || typeof candidate !== "object") return base;
+  const requiredRoles = Array.isArray(candidate.requiredRoles)
+    ? candidate.requiredRoles.filter((role: string) => role === "MANAGER" || role === "ADMIN")
+    : fallbackRoles;
+  const approvedBy = Array.isArray(candidate.approvedBy)
+    ? candidate.approvedBy.filter((item: any) => item?.userId && (item?.role === "MANAGER" || item?.role === "ADMIN") && item?.at)
+    : [];
+  return {
+    requiredRoles: requiredRoles.length ? requiredRoles : fallbackRoles,
+    approvedBy,
+  };
+};
+
+const withWorkflow = (payload: Record<string, unknown>, workflow: ApprovalWorkflow) => ({
+  ...payload,
+  __workflow: workflow,
+});
+
+const canUserActOnRequest = (request: any, userRole: string) => {
+  const fallbackRoles = pickWorkflowRoles(request.requestedBy?.role ?? "WAREHOUSE_STAFF", request.type);
+  const workflow = readWorkflow(request.requestedChanges, fallbackRoles);
+  const nextRequiredRole = workflow.requiredRoles[workflow.approvedBy.length] ?? null;
+  return nextRequiredRole === userRole;
+};
 
 const normalizeProductUpdate = (changes: z.infer<typeof productUpdateSchema>) => {
   const data: Record<string, unknown> = {};
@@ -73,13 +123,17 @@ router.post("/product", requireAuth, requireRole("ADMIN", "MANAGER", "WAREHOUSE_
     return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Update request requires changes" } });
   }
 
+  const workflow: ApprovalWorkflow = {
+    requiredRoles: pickWorkflowRoles(req.user!.role, parsed.data.type),
+    approvedBy: [],
+  };
   const request = await prisma.approvalRequest.create({
     data: {
       type: parsed.data.type,
       productId: product.id,
       requestedById: req.user!.id,
       reason: parsed.data.reason,
-      requestedChanges: parsed.data.type === "PRODUCT_UPDATE" ? jsonSafe(parsed.data.requestedChanges) : undefined,
+      requestedChanges: jsonSafe(withWorkflow((parsed.data.type === "PRODUCT_UPDATE" ? (parsed.data.requestedChanges ?? {}) : {}), workflow)),
       before: jsonSafe(product),
     },
     include: {
@@ -99,12 +153,18 @@ router.post("/product", requireAuth, requireRole("ADMIN", "MANAGER", "WAREHOUSE_
   return res.status(201).json(ok(request, "Approval request sent"));
 });
 
-router.get("/pending-count", requireAuth, requireRole("ADMIN", "MANAGER"), async (_req, res) => {
-  const count = await prisma.approvalRequest.count({ where: { status: "PENDING" } });
+router.get("/pending-count", requireAuth, requireRole("ADMIN", "MANAGER"), async (req: AuthRequest, res) => {
+  const rows = await prisma.approvalRequest.findMany({
+    where: { status: "PENDING" },
+    include: { requestedBy: { select: { role: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 200,
+  });
+  const count = rows.filter((item: any) => canUserActOnRequest(item, req.user!.role)).length;
   return res.json(ok({ count }));
 });
 
-router.get("/pending", requireAuth, requireRole("ADMIN", "MANAGER"), async (_req, res) => {
+router.get("/pending", requireAuth, requireRole("ADMIN", "MANAGER"), async (req: AuthRequest, res) => {
   const items = await prisma.approvalRequest.findMany({
     where: { status: "PENDING" },
     include: {
@@ -114,16 +174,76 @@ router.get("/pending", requireAuth, requireRole("ADMIN", "MANAGER"), async (_req
     orderBy: { createdAt: "desc" },
     take: 30,
   });
-  return res.json(ok(items));
+  const enriched = items.map((item: any) => {
+    const fallbackRoles = pickWorkflowRoles(item.requestedBy.role, item.type);
+    const workflow = readWorkflow(item.requestedChanges, fallbackRoles);
+    const nextRequiredRole = workflow.requiredRoles[workflow.approvedBy.length] ?? null;
+    return { ...item, workflow, nextRequiredRole };
+  }).filter((item: any) => item.nextRequiredRole === req.user!.role);
+  return res.json(ok(enriched));
 });
 
 router.post("/:id/approve", requireAuth, requireRole("ADMIN", "MANAGER"), async (req: AuthRequest, res) => {
+  const approveParsed = approveSchema.safeParse(req.body ?? {});
+  if (!approveParsed.success) {
+    return res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Invalid approval payload",
+        details: approveParsed.error.flatten(),
+      },
+    });
+  }
   const request = await prisma.approvalRequest.findUnique({
     where: { id: req.params.id },
     include: { product: true, requestedBy: { select: { id: true, name: true, email: true, role: true } } },
   });
   if (!request) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Approval request not found" } });
   if (request.status !== "PENDING") return res.status(409).json({ error: { code: "ALREADY_REVIEWED", message: "Approval request already reviewed" } });
+  if (request.requestedById === req.user!.id) return res.status(403).json({ error: { code: "FORBIDDEN", message: "Requester cannot approve own request" } });
+
+  const fallbackRoles = pickWorkflowRoles(request.requestedBy.role, request.type);
+  const workflow = readWorkflow(request.requestedChanges, fallbackRoles);
+  const stepIndex = workflow.approvedBy.length;
+  const requiredRole = workflow.requiredRoles[stepIndex];
+  if (!requiredRole) {
+    return res.status(409).json({ error: { code: "WORKFLOW_ERROR", message: "Approval workflow is already complete" } });
+  }
+  if (req.user!.role !== requiredRole) {
+    return res.status(403).json({ error: { code: "FORBIDDEN", message: `This step requires ${requiredRole} approval` } });
+  }
+  if (workflow.approvedBy.some((entry) => entry.userId === req.user!.id)) {
+    return res.status(409).json({ error: { code: "ALREADY_REVIEWED", message: "You already approved this request" } });
+  }
+
+  const nextWorkflow: ApprovalWorkflow = {
+    ...workflow,
+    approvedBy: [...workflow.approvedBy, { userId: req.user!.id, role: req.user!.role as WorkflowRole, at: new Date().toISOString() }],
+  };
+  const isFinalStep = nextWorkflow.approvedBy.length >= nextWorkflow.requiredRoles.length;
+
+  if (!isFinalStep) {
+    const waiting = await prisma.approvalRequest.update({
+      where: { id: request.id },
+      data: {
+        requestedChanges: jsonSafe(withWorkflow((request.requestedChanges as any) ?? {}, nextWorkflow)),
+        ...(approveParsed.data.reviewNote ? { reviewNote: approveParsed.data.reviewNote } : {}),
+      },
+      include: {
+        product: true,
+        requestedBy: { select: { id: true, name: true, email: true, role: true } },
+      },
+    });
+    await createAuditLog({
+      action: "APPROVAL_STEP_APPROVE",
+      entity: "ApprovalRequest",
+      entityId: request.id,
+      userId: req.user!.id,
+      before: request,
+      after: waiting,
+    });
+    return res.json(ok({ ...waiting, workflow: nextWorkflow, nextRequiredRole: nextWorkflow.requiredRoles[nextWorkflow.approvedBy.length] ?? null }, "Step approved, waiting for next role"));
+  }
 
   const result = await prisma.$transaction(async (tx: any) => {
     let productAfter: unknown = null;
@@ -161,7 +281,13 @@ router.post("/:id/approve", requireAuth, requireRole("ADMIN", "MANAGER"), async 
 
     const reviewed = await tx.approvalRequest.update({
       where: { id: request.id },
-      data: { status: "APPROVED", reviewedById: req.user!.id, reviewedAt: new Date() },
+      data: {
+        status: "APPROVED",
+        reviewedById: req.user!.id,
+        reviewedAt: new Date(),
+        ...(approveParsed.data.reviewNote ? { reviewNote: approveParsed.data.reviewNote } : {}),
+        requestedChanges: jsonSafe(withWorkflow((request.requestedChanges as any) ?? {}, nextWorkflow)),
+      },
       include: {
         product: true,
         requestedBy: { select: { id: true, name: true, email: true, role: true } },
@@ -187,13 +313,23 @@ router.post("/:id/approve", requireAuth, requireRole("ADMIN", "MANAGER"), async 
 });
 
 router.post("/:id/reject", requireAuth, requireRole("ADMIN", "MANAGER"), async (req: AuthRequest, res) => {
+  const rejectParsed = rejectSchema.safeParse(req.body ?? {});
+  if (!rejectParsed.success) {
+    return res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Reject requires review note",
+        details: rejectParsed.error.flatten(),
+      },
+    });
+  }
   const request = await prisma.approvalRequest.findUnique({ where: { id: req.params.id } });
   if (!request) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Approval request not found" } });
   if (request.status !== "PENDING") return res.status(409).json({ error: { code: "ALREADY_REVIEWED", message: "Approval request already reviewed" } });
 
   const reviewed = await prisma.approvalRequest.update({
     where: { id: request.id },
-    data: { status: "REJECTED", reviewedById: req.user!.id, reviewedAt: new Date() },
+    data: { status: "REJECTED", reviewedById: req.user!.id, reviewedAt: new Date(), reviewNote: rejectParsed.data.reviewNote },
     include: {
       product: true,
       requestedBy: { select: { id: true, name: true, email: true, role: true } },

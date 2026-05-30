@@ -18,11 +18,13 @@ export const InventoryPage = () => {
   const [destroyReason, setDestroyReason] = useState("DAMAGED");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [supplierName, setSupplierName] = useState("");
+  const [warehouseId, setWarehouseId] = useState("");
   const [deliveredByName, setDeliveredByName] = useState("");
   const [deliveredAt, setDeliveredAt] = useState("");
   const [mutationError, setMutationError] = useState("");
   const [txSearch, setTxSearch] = useState("");
   const [txTypeFilter, setTxTypeFilter] = useState("");
+  const [txWarehouseFilter, setTxWarehouseFilter] = useState("");
   const [txFrom, setTxFrom] = useState("");
   const [txTo, setTxTo] = useState("");
   const [txPage, setTxPage] = useState(1);
@@ -36,6 +38,10 @@ export const InventoryPage = () => {
     queryKey: ["inventory-suppliers"],
     queryFn: () => api<any>("/suppliers"),
   });
+  const warehouses = useQuery({
+    queryKey: ["inventory-warehouses"],
+    queryFn: () => api<any>("/warehouses"),
+  });
   const reasonOptions = useQuery({
     queryKey: ["inventory-reason-options"],
     queryFn: () => api<any>("/inventory/reason-options"),
@@ -45,11 +51,12 @@ export const InventoryPage = () => {
     params.set("page", String(txPage));
     params.set("pageSize", String(txPageSize));
     if (txTypeFilter) params.set("type", txTypeFilter);
+    if (txWarehouseFilter) params.set("warehouseId", txWarehouseFilter);
     if (txSearch.trim()) params.set("search", txSearch.trim());
     if (txFrom) params.set("from", txFrom);
     if (txTo) params.set("to", txTo);
     return params.toString();
-  }, [txPage, txPageSize, txTypeFilter, txSearch, txFrom, txTo]);
+  }, [txPage, txPageSize, txTypeFilter, txWarehouseFilter, txSearch, txFrom, txTo]);
   const tx = useQuery({
     queryKey: ["inventory-transactions", txQuery],
     queryFn: () => api<any>(`/inventory/transactions?${txQuery}`),
@@ -68,6 +75,7 @@ export const InventoryPage = () => {
         body: JSON.stringify({
           productId,
           quantity: normalizedQuantity,
+          warehouseId: warehouseId || undefined,
           reason,
           destroyReason: type === "destroy" ? destroyReason : undefined,
           invoiceNumber: invoiceNumber || undefined,
@@ -84,6 +92,7 @@ export const InventoryPage = () => {
       setQuantity("1");
       setInvoiceNumber("");
       setSupplierName("");
+      setWarehouseId("");
       setDeliveredByName("");
       setDeliveredAt("");
       setDestroyReason("DAMAGED");
@@ -97,12 +106,13 @@ export const InventoryPage = () => {
 
   const productItems = readItems(products.data?.data);
   const supplierItems = readItems(suppliers.data?.data);
+  const warehouseItems = readItems(warehouses.data?.data);
   const typeKey = type.toUpperCase();
   const reasonItems: string[] = reasonOptions.data?.data?.[typeKey] ?? [];
   const txItems = readItems(tx.data?.data);
   const txTotal = Number(tx.data?.data?.total ?? 0);
   const txTotalPages = Math.max(1, Math.ceil(txTotal / txPageSize));
-  const queryError = (products.error ?? suppliers.error ?? tx.error) as Error | null;
+  const queryError = (products.error ?? suppliers.error ?? warehouses.error ?? tx.error) as Error | null;
 
   return (
     <div className="space-y-4">
@@ -115,6 +125,7 @@ export const InventoryPage = () => {
               onClick={() => {
                 products.refetch();
                 suppliers.refetch();
+                warehouses.refetch();
                 tx.refetch();
               }}
             >
@@ -134,6 +145,10 @@ export const InventoryPage = () => {
             {productItems.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} type="number" min={0} />
+          <select className="h-11 rounded border px-3 text-sm" value={warehouseId} onChange={(e) => setWarehouseId(e.target.value)} disabled={warehouses.isLoading || !!warehouses.error}>
+            <option value="">{warehouses.isLoading ? "Loading warehouses..." : "Warehouse (optional)"}</option>
+            {warehouseItems.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
+          </select>
           <select
             className="h-11 rounded border px-3 text-sm"
             value={reason}
@@ -182,7 +197,7 @@ export const InventoryPage = () => {
       </Card>
 
       <Card>
-        <div className="mb-3 grid gap-2 md:grid-cols-5">
+        <div className="mb-3 grid gap-2 md:grid-cols-6">
           <Input
             placeholder="Search transaction..."
             value={txSearch}
@@ -199,6 +214,14 @@ export const InventoryPage = () => {
             <option value="ADJUSTMENT">ADJUSTMENT</option>
             <option value="DESTROY">DESTROY</option>
           </select>
+          <select
+            className="h-11 rounded border px-3 text-sm"
+            value={txWarehouseFilter}
+            onChange={(e) => { setTxWarehouseFilter(e.target.value); setTxPage(1); }}
+          >
+            <option value="">All warehouses</option>
+            {warehouseItems.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
+          </select>
           <Input type="date" value={txFrom} onChange={(e) => { setTxFrom(e.target.value); setTxPage(1); }} />
           <Input type="date" value={txTo} onChange={(e) => { setTxTo(e.target.value); setTxPage(1); }} />
           <select
@@ -213,12 +236,13 @@ export const InventoryPage = () => {
           </select>
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[1040px] table-fixed text-sm">
+          <table className="w-full min-w-[1160px] table-fixed text-sm">
             <colgroup>
               <col className="w-[120px]" />
               <col className="w-[200px]" />
               <col className="w-[100px]" />
               <col className="w-[220px]" />
+              <col className="w-[180px]" />
               <col className="w-[180px]" />
               <col className="w-[220px]" />
               <col className="w-[200px]" />
@@ -230,6 +254,7 @@ export const InventoryPage = () => {
                 <th className="px-3 py-2 text-right font-semibold">Qty</th>
                 <th className="px-3 py-2 text-left font-semibold">Reason</th>
                 <th className="px-3 py-2 text-left font-semibold">Supplier</th>
+                <th className="px-3 py-2 text-left font-semibold">Warehouse</th>
                 <th className="px-3 py-2 text-left font-semibold">Invoice</th>
                 <th className="px-3 py-2 text-left font-semibold">Date</th>
               </tr>
@@ -237,7 +262,7 @@ export const InventoryPage = () => {
             <tbody>
               {tx.isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">Loading transactions...</td>
+                  <td colSpan={8} className="px-3 py-8 text-center text-slate-500">Loading transactions...</td>
                 </tr>
               ) : null}
               {txItems.map((t: any) => (
@@ -247,13 +272,14 @@ export const InventoryPage = () => {
                   <td className="px-3 py-2 text-right tabular-nums align-middle">{t.quantity}</td>
                   <td className="truncate px-3 py-2 align-middle" title={t.reason ?? t.destroyReason ?? "-"}>{t.reason ?? t.destroyReason ?? "-"}</td>
                   <td className="truncate px-3 py-2 align-middle" title={t.supplierName ?? "-"}>{t.supplierName ?? "-"}</td>
+                  <td className="truncate px-3 py-2 align-middle" title={t.warehouse?.name ?? "-"}>{t.warehouse?.name ?? "-"}</td>
                   <td className="truncate px-3 py-2 align-middle" title={t.invoiceNumber ?? "-"}>{t.invoiceNumber ?? "-"}</td>
                   <td className="whitespace-nowrap px-3 py-2 align-middle">{t.createdAt ? new Date(t.createdAt).toLocaleString("en-US") : "-"}</td>
                 </tr>
               ))}
               {!tx.isLoading && !txItems.length ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">No inventory transactions yet.</td>
+                  <td colSpan={8} className="px-3 py-8 text-center text-slate-500">No inventory transactions yet.</td>
                 </tr>
               ) : null}
             </tbody>

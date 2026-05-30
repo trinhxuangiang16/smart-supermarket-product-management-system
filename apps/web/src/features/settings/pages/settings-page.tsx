@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, KeyRound, Save, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { api } from "../../../lib/api-client";
+import { api, getRefreshToken } from "../../../lib/api-client";
 import { useAuth } from "../../auth/auth-context";
 import { Button, Card, Input } from "../../../components/ui/basic";
 
@@ -143,6 +143,15 @@ export const SettingsPage = () => {
     queryKey: ["settings-saved-filters"],
     queryFn: () => api<any>("/settings/saved-filters"),
   });
+  const permissionMatrixQuery = useQuery({
+    queryKey: ["settings-permission-matrix"],
+    queryFn: () => api<any>("/settings/permission-matrix"),
+    enabled: canEditSystem,
+  });
+  const sessionsQuery = useQuery({
+    queryKey: ["auth-sessions"],
+    queryFn: () => api<any>("/auth/sessions"),
+  });
 
   useEffect(() => {
     if (preferencesQuery.data?.data) setPrefs(preferencesQuery.data.data);
@@ -207,6 +216,31 @@ export const SettingsPage = () => {
     onError: (e) => setError((e as Error).message),
   });
 
+  const revokeSessionMutation = useMutation({
+    mutationFn: (sessionId: string) =>
+      api<any>("/auth/sessions/revoke", { method: "POST", body: JSON.stringify({ sessionId }) }),
+    onSuccess: async () => {
+      setMessage("Session revoked.");
+      setError("");
+      await qc.invalidateQueries({ queryKey: ["auth-sessions"] });
+    },
+    onError: (e) => setError((e as Error).message),
+  });
+
+  const revokeOtherSessionsMutation = useMutation({
+    mutationFn: () =>
+      api<any>("/auth/sessions/revoke-others", {
+        method: "POST",
+        body: JSON.stringify({ currentRefreshToken: getRefreshToken() ?? undefined }),
+      }),
+    onSuccess: async (result) => {
+      setMessage(`Other sessions revoked: ${result?.data?.revoked ?? 0}`);
+      setError("");
+      await qc.invalidateQueries({ queryKey: ["auth-sessions"] });
+    },
+    onError: (e) => setError((e as Error).message),
+  });
+
   const changePasswordMutation = useMutation({
     mutationFn: () => api<any>("/settings/change-password", {
       method: "PATCH",
@@ -224,8 +258,9 @@ export const SettingsPage = () => {
     onError: (e) => setError((e as Error).message),
   });
 
-  const queryError = (preferencesQuery.error ?? systemQuery.error ?? savedFiltersQuery.error) as Error | null;
+  const queryError = (preferencesQuery.error ?? systemQuery.error ?? savedFiltersQuery.error ?? sessionsQuery.error ?? permissionMatrixQuery.error) as Error | null;
   const savedFilters = savedFiltersQuery.data?.data ?? [];
+  const sessions = sessionsQuery.data?.data ?? [];
 
   const filterLinks = useMemo(() => {
     return savedFilters.map((f: any) => {
@@ -449,6 +484,63 @@ export const SettingsPage = () => {
           </div>
         </div>
         </Card>
+
+        <Card>
+          <h3 className="mb-3 text-base font-semibold">Active Sessions</h3>
+          <div className="mb-3 flex justify-end">
+            <Button
+              className="h-9 bg-slate-800 px-3 text-xs"
+              onClick={() => revokeOtherSessionsMutation.mutate()}
+              disabled={revokeOtherSessionsMutation.isPending}
+            >
+              {revokeOtherSessionsMutation.isPending ? "Revoking..." : "Revoke Other Sessions"}
+            </Button>
+          </div>
+          <div className="overflow-auto">
+            <table className="w-full min-w-[860px] text-sm">
+              <thead>
+                <tr className="border-b bg-slate-50">
+                  <th className="px-3 py-2 text-left">Device</th>
+                  <th className="px-3 py-2 text-left">IP</th>
+                  <th className="px-3 py-2 text-left">Created</th>
+                  <th className="px-3 py-2 text-left">Last Active</th>
+                  <th className="px-3 py-2 text-left">Status</th>
+                  <th className="px-3 py-2 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sessionsQuery.isLoading ? (
+                  <tr><td colSpan={6} className="px-3 py-6 text-center text-slate-500">Loading sessions...</td></tr>
+                ) : null}
+                {!sessionsQuery.isLoading && !sessions.length ? (
+                  <tr><td colSpan={6} className="px-3 py-6 text-center text-slate-500">No sessions found.</td></tr>
+                ) : null}
+                {sessions.map((s: any) => (
+                  <tr key={s.id} className="border-b">
+                    <td className="px-3 py-2">{s.deviceLabel ?? "Unknown device"}</td>
+                    <td className="px-3 py-2">{s.ipAddress ?? "-"}</td>
+                    <td className="px-3 py-2">{new Date(s.createdAt).toLocaleString("en-US")}</td>
+                    <td className="px-3 py-2">{new Date(s.lastActiveAt).toLocaleString("en-US")}</td>
+                    <td className="px-3 py-2">
+                      <span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${s.revokedAt ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-700"}`}>
+                        {s.revokedAt ? "Revoked" : "Active"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <Button
+                        className="h-8 bg-red-600 px-3 text-xs"
+                        disabled={Boolean(s.revokedAt) || revokeSessionMutation.isPending}
+                        onClick={() => revokeSessionMutation.mutate(s.id)}
+                      >
+                        Revoke
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       </section>
 
       <section className="space-y-3 rounded-md border border-slate-200 bg-white p-3">
@@ -619,6 +711,30 @@ export const SettingsPage = () => {
           </table>
         </div>
         </Card>
+
+        {canEditSystem ? (
+          <Card>
+            <h3 className="mb-3 text-base font-semibold">Role Permission Matrix</h3>
+            <div className="overflow-auto">
+              <table className="w-full min-w-[760px] text-sm">
+                <thead>
+                  <tr className="border-b bg-slate-50">
+                    <th className="px-3 py-2 text-left">Role</th>
+                    <th className="px-3 py-2 text-left">Permissions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(permissionMatrixQuery.data?.data ?? []).map((row: any) => (
+                    <tr key={row.role} className="border-b">
+                      <td className="px-3 py-2 font-medium">{row.role}</td>
+                      <td className="px-3 py-2 text-slate-600">{(row.permissions ?? []).join(" | ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        ) : null}
       </section>
     </div>
   );

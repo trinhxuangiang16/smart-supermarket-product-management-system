@@ -207,4 +207,15 @@ router.get("/roadmap", requireAuth, async (_req, res) => {
   ]));
 });
 
+router.get("/permission-matrix", requireAuth, requireRole("ADMIN", "MANAGER"), async (_req, res) => {
+  return res.json(ok([
+    { role: "ADMIN", permissions: ["users:full", "products:full", "inventory:full", "reports:full", "settings:full", "automation:full"] },
+    { role: "MANAGER", permissions: ["users:none", "products:full", "inventory:full", "reports:full", "settings:system", "automation:full"] },
+    { role: "WAREHOUSE_STAFF", permissions: ["products:create+request_edit_delete", "inventory:in_adjust_destroy", "reports:read", "settings:personal"] },
+    { role: "CASHIER", permissions: ["products:read", "inventory:out", "reports:read", "settings:personal"] },
+    { role: "SALE_DEPARTMENT", permissions: ["reports:read", "audit:read", "settings:personal"] },
+    { role: "FINANCE_DEPARTMENT", permissions: ["reports:read", "audit:read", "settings:personal"] },
+  ]));
+});
+
 export default router;

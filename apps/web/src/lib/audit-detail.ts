@@ -43,8 +43,13 @@ export const describeActivity = (row: any) => {
   if (action === "USER_UPDATE") {
     const beforeRole = row?.before?.role;
     const afterRole = row?.after?.role;
+    const beforeName = row?.before?.name;
+    const afterName = row?.after?.name;
     if (beforeRole && afterRole && beforeRole !== afterRole) {
       return `${actor} changed role of ${target} from ${beforeRole} to ${afterRole}.`;
+    }
+    if (beforeName && afterName && beforeName !== afterName) {
+      return `${actor} changed user name from ${beforeName} to ${afterName}.`;
     }
     return `${actor} updated user ${target}.`;
   }
@@ -53,6 +58,11 @@ export const describeActivity = (row: any) => {
   if (action === "USER_DELETE") return `${actor} deleted user ${target}.`;
   if (action === "USER_PASSWORD_RESET") return `${actor} reset password for ${target}.`;
   if (action === "USER_PASSWORD_CHANGE_SELF") return `${actor} changed own password.`;
+  if (action === "AUTH_LOGIN") return `${actor} logged in and created a session.`;
+  if (action === "AUTH_REFRESH") return `${actor} refreshed login session.`;
+  if (action === "AUTH_LOGOUT") return `${actor} logged out and revoked session.`;
+  if (action === "AUTH_SESSION_REVOKE") return `${actor} revoked a device session.`;
+  if (action === "AUTH_SESSION_REVOKE_OTHERS") return `${actor} revoked all other device sessions.`;
   if (action === "APPROVAL_REQUEST_CREATE") return `${actor} submitted approval request for ${target}.`;
   if (action.endsWith("_APPROVED")) return `${actor} approved ${target}.`;
   if (action.includes("REJECT")) return `${actor} rejected request for ${target}.`;
@@ -60,6 +70,13 @@ export const describeActivity = (row: any) => {
   if (action === "INVENTORY_OUT") return `${actor} removed stock for ${target}.`;
   if (action === "INVENTORY_ADJUSTMENT") return `${actor} adjusted stock for ${target}.`;
   if (action === "INVENTORY_DESTROY") return `${actor} destroyed stock for ${target}.`;
+  if (action === "WAREHOUSE_CREATE") return `${actor} created a warehouse.`;
+  if (action === "WAREHOUSE_UPDATE") return `${actor} updated warehouse ${target}.`;
+  if (action === "WAREHOUSE_DELETE") return `${actor} deleted warehouse ${target}.`;
+  if (action === "REPORT_EXPORT_CSV") return `${actor} exported CSV report.`;
+  if (action === "REPORT_EXPORT_XLSX") return `${actor} exported XLSX report.`;
+  if (action === "REPORT_EXPORT_HTML") return `${actor} exported HTML report.`;
+  if (action === "REPORT_EXPORT_PDF") return `${actor} exported PDF report.`;
 
   return `${actor} performed ${actionLabel(action).toLowerCase()} on ${target}.`;
 };
@@ -89,6 +106,7 @@ const fieldLabelMap: Record<string, string> = {
   requestedById: "Requested By",
   status: "Status",
   notes: "Notes",
+  reviewNote: "Review Note",
 };
 
 const formatFieldLabel = (field: string) => fieldLabelMap[field] ?? titleCase(field);

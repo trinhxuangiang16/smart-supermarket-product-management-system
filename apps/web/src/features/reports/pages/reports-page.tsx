@@ -12,6 +12,7 @@ const currency = new Intl.NumberFormat("en-US", {
 export const ReportsPage = () => {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [trendDays, setTrendDays] = useState(14);
   const [exportError, setExportError] = useState("");
   const query = useMemo(() => {
     const p = new URLSearchParams();
@@ -31,6 +32,18 @@ export const ReportsPage = () => {
   const profit = useQuery({
     queryKey: ["report-profit", query],
     queryFn: () => api<any>(`/reports/profit-by-category${query}`),
+  });
+  const trends = useQuery({
+    queryKey: ["report-trends", trendDays],
+    queryFn: () => api<any>(`/reports/trends/transactions-daily?days=${trendDays}`),
+  });
+  const supplierPerformance = useQuery({
+    queryKey: ["report-supplier-performance", query],
+    queryFn: () => api<any>(`/reports/supplier-performance${query}`),
+  });
+  const warehouseOverview = useQuery({
+    queryKey: ["report-warehouse-overview", query],
+    queryFn: () => api<any>(`/reports/warehouse-overview${query}`),
   });
 
   const downloadFile = async (url: string, filename: string) => {
@@ -168,6 +181,115 @@ export const ReportsPage = () => {
                   <td>{row.category}</td>
                   <td>{row.destroyReason}</td>
                   <td>{currency.format(row.value)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="font-semibold">Transaction Trend (Daily)</h2>
+          <select className="h-10 rounded border px-3 text-sm" value={String(trendDays)} onChange={(e) => setTrendDays(Number(e.target.value))}>
+            <option value="7">Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="30">Last 30 days</option>
+          </select>
+        </div>
+        <div className="overflow-auto">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr>
+                <th className="text-left">Date</th>
+                <th className="text-left">IN</th>
+                <th className="text-left">OUT</th>
+                <th className="text-left">ADJUSTMENT</th>
+                <th className="text-left">DESTROY</th>
+                <th className="text-left">Total Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(trends.data?.data?.items ?? []).map((row: any) => (
+                <tr key={row.date}>
+                  <td>{new Date(row.date).toLocaleDateString("en-US")}</td>
+                  <td>{row.IN}</td>
+                  <td>{row.OUT}</td>
+                  <td>{row.ADJUSTMENT}</td>
+                  <td>{row.DESTROY}</td>
+                  <td>{currency.format(row.totalValue)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card>
+        <h2 className="mb-2 font-semibold">Supplier Performance</h2>
+        <div className="overflow-auto">
+          <table className="w-full min-w-[1100px] text-sm">
+            <thead>
+              <tr>
+                <th className="text-left">Supplier</th>
+                <th className="text-left">Products</th>
+                <th className="text-left">IN Tx</th>
+                <th className="text-left">IN Qty</th>
+                <th className="text-left">IN Value</th>
+                <th className="text-left">Revenue</th>
+                <th className="text-left">Waste</th>
+                <th className="text-left">Gross Profit Est.</th>
+                <th className="text-left">Margin %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(supplierPerformance.data?.data?.items ?? []).map((row: any) => (
+                <tr key={row.supplierId}>
+                  <td>{row.supplierName}</td>
+                  <td>{row.totalProducts}</td>
+                  <td>{row.inTransactions}</td>
+                  <td>{Number(row.inQuantity).toFixed(3)}</td>
+                  <td>{currency.format(row.inValue)}</td>
+                  <td>{currency.format(row.outRevenue)}</td>
+                  <td>{currency.format(row.wasteValue)}</td>
+                  <td>{currency.format(row.grossProfitEstimate)}</td>
+                  <td>{row.marginPercent.toFixed(2)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card>
+        <h2 className="mb-2 font-semibold">Warehouse Overview</h2>
+        <div className="overflow-auto">
+          <table className="w-full min-w-[1180px] text-sm">
+            <thead>
+              <tr>
+                <th className="text-left">Warehouse</th>
+                <th className="text-left">Code</th>
+                <th className="text-left">Status</th>
+                <th className="text-left">Total Tx</th>
+                <th className="text-left">IN</th>
+                <th className="text-left">OUT</th>
+                <th className="text-left">ADJUSTMENT</th>
+                <th className="text-left">DESTROY</th>
+                <th className="text-left">Movement Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(warehouseOverview.data?.data?.items ?? []).map((row: any) => (
+                <tr key={row.warehouseId}>
+                  <td>{row.warehouseName}</td>
+                  <td>{row.warehouseCode}</td>
+                  <td>{row.isActive ? "Active" : "Inactive"}</td>
+                  <td>{row.txCount}</td>
+                  <td>{row.inCount}</td>
+                  <td>{row.outCount}</td>
+                  <td>{row.adjustmentCount}</td>
+                  <td>{row.destroyCount}</td>
+                  <td>{currency.format(row.movementValue)}</td>
                 </tr>
               ))}
             </tbody>

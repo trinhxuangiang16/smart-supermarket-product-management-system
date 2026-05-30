@@ -6,8 +6,10 @@ import { useAuth } from "../../features/auth/auth-context";
 import { api } from "../../lib/api-client";
 const nav = [
   ["Dashboard", "/"], ["Products", "/products"], ["Inventory", "/inventory"], ["Suppliers", "/suppliers"],
-  ["Categories", "/categories"], ["Expiry Alerts", "/expiry"], ["Reports", "/reports"], ["Audit History", "/audit"], ["Users", "/users"], ["Settings", "/settings"],
+  ["Categories", "/categories"], ["Warehouses", "/warehouses"], ["Expiry Alerts", "/expiry"], ["Reports", "/reports"], ["Audit History", "/audit"], ["Users", "/users"], ["Automation", "/automation"], ["Settings", "/settings"],
 ];
+
+const readWorkflow = (requestedChanges: any) => requestedChanges?.__workflow ?? { requiredRoles: [], approvedBy: [] };
 export const AppShell = () => {
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
@@ -15,6 +17,7 @@ export const AppShell = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [selectedApproval, setSelectedApproval] = useState<any | null>(null);
+  const [reviewNote, setReviewNote] = useState("");
   const canReviewApprovals = ["ADMIN", "MANAGER"].includes(user?.role ?? "");
   const systemSettings = useQuery({
     queryKey: ["settings-system"],
@@ -39,10 +42,11 @@ export const AppShell = () => {
     enabled: canReviewApprovals && notificationsOpen,
   });
   const reviewMutation = useMutation({
-    mutationFn: ({ id, action }: { id: string; action: "approve" | "reject" }) =>
-      api(`/approvals/${id}/${action}`, { method: "POST" }),
+    mutationFn: ({ id, action, reviewNote: note }: { id: string; action: "approve" | "reject"; reviewNote?: string }) =>
+      api(`/approvals/${id}/${action}`, { method: "POST", body: JSON.stringify({ reviewNote: note }) }),
     onSuccess: async () => {
       setSelectedApproval(null);
+      setReviewNote("");
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["approval-pending-count"] }),
         qc.invalidateQueries({ queryKey: ["approval-pending-list"] }),
@@ -78,6 +82,7 @@ export const AppShell = () => {
         ["Inventory", "/inventory"],
         ["Suppliers", "/suppliers"],
         ["Categories", "/categories"],
+        ["Warehouses", "/warehouses"],
         ["Expiry Alerts", "/expiry"],
         ["Reports", "/reports"],
         ["Audit History", "/audit"],
@@ -140,7 +145,7 @@ export const AppShell = () => {
                       {(pendingApprovals.data?.data ?? []).map((item: any) => (
                         <button
                           key={item.id}
-                          onClick={() => setSelectedApproval(item)}
+                          onClick={() => { setSelectedApproval(item); setReviewNote(""); }}
                           className="w-full rounded px-3 py-3 text-left hover:bg-slate-50"
                         >
                           <div className="flex items-center justify-between gap-3">
@@ -152,6 +157,9 @@ export const AppShell = () => {
                           <div className="mt-2 text-sm font-medium text-slate-900">{item.product?.name}</div>
                           <div className="mt-1 line-clamp-2 text-xs text-slate-500">
                             {item.requestedBy?.name} requests {item.type === "PRODUCT_DELETE" ? "deletion" : "changes"}: {item.reason}
+                          </div>
+                          <div className="mt-1 text-[11px] text-slate-500">
+                            Next required role: <span className="font-medium text-slate-700">{item.nextRequiredRole ?? "-"}</span>
                           </div>
                         </button>
                       ))}
@@ -230,7 +238,7 @@ export const AppShell = () => {
                 <section className="mt-4 rounded-md border">
                   <div className="border-b px-4 py-3 text-sm font-semibold">Requested changes</div>
                   <div className="divide-y">
-                    {Object.entries(selectedApproval.requestedChanges ?? {}).map(([key, value]) => (
+                    {Object.entries(selectedApproval.requestedChanges ?? {}).filter(([key]) => key !== "__workflow").map(([key, value]) => (
                       <div key={key} className="grid gap-3 px-4 py-3 text-sm md:grid-cols-[160px_1fr_1fr]">
                         <div className="font-medium text-slate-700">{key}</div>
                         <div><span className="text-xs text-slate-500">Current</span><div className="break-words">{String(selectedApproval.before?.[key] ?? "-")}</div></div>
@@ -244,20 +252,39 @@ export const AppShell = () => {
                   This request will remove the product from active product management. Transaction history will be kept for audit safety.
                 </section>
               )}
+              <section className="mt-4 rounded-md border bg-slate-50 p-4 text-sm">
+                <div className="text-xs text-slate-500">Approval workflow</div>
+                <div className="mt-1">
+                  Required roles: {(readWorkflow(selectedApproval.requestedChanges).requiredRoles ?? []).join(" -> ") || "-"}
+                </div>
+                <div className="mt-1">
+                  Approved steps: {(readWorkflow(selectedApproval.requestedChanges).approvedBy ?? []).length}
+                </div>
+              </section>
+              <section className="mt-4 rounded-md border p-4">
+                <div className="text-sm font-medium">Review Note</div>
+                <textarea
+                  className="mt-2 min-h-24 w-full rounded border px-3 py-2 text-sm outline-none focus:border-slate-400"
+                  placeholder="Add note for approve/reject action..."
+                  value={reviewNote}
+                  onChange={(e) => setReviewNote(e.target.value)}
+                />
+                <p className="mt-1 text-xs text-slate-500">Reject requires note with at least 3 characters.</p>
+              </section>
             </div>
             <div className="flex flex-wrap justify-end gap-2 border-t bg-slate-50 px-5 py-4">
               {reviewMutation.error ? <div className="mr-auto text-sm text-red-600">{(reviewMutation.error as Error).message}</div> : null}
               <button
                 className="inline-flex h-11 items-center gap-2 rounded border border-red-200 bg-white px-4 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-40"
                 disabled={reviewMutation.isPending}
-                onClick={() => reviewMutation.mutate({ id: selectedApproval.id, action: "reject" })}
+                onClick={() => reviewMutation.mutate({ id: selectedApproval.id, action: "reject", reviewNote })}
               >
                 <XCircle size={16} /> Reject
               </button>
               <button
                 className="inline-flex h-11 items-center gap-2 rounded bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-40"
                 disabled={reviewMutation.isPending}
-                onClick={() => reviewMutation.mutate({ id: selectedApproval.id, action: "approve" })}
+                onClick={() => reviewMutation.mutate({ id: selectedApproval.id, action: "approve", reviewNote })}
               >
                 <CheckCircle2 size={16} /> Approve
               </button>
