@@ -202,7 +202,9 @@ const buildExpandedProducts = (base: ProductSeed[], target = 200): ProductSeed[]
 async function main() {
   await prisma.inventoryTransaction.deleteMany();
   await prisma.approvalRequest.deleteMany();
+  await prisma.priceHistory.deleteMany();
   await prisma.auditLog.deleteMany();
+  await prisma.userSession.deleteMany();
   await prisma.product.deleteMany();
   await prisma.warehouse.deleteMany();
   await prisma.category.deleteMany();
