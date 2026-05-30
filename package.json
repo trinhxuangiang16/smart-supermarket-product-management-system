@@ -2,14 +2,24 @@
   "name": "smart-supermarket",
   "private": true,
   "version": "1.0.0",
-  "packageManager": "pnpm@10.12.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "corepack pnpm -r --parallel dev",
-    "dev:api": "corepack pnpm --filter @smart-supermarket/api dev",
-    "dev:web": "corepack pnpm --filter @smart-supermarket/web dev",
-    "build": "corepack pnpm -r build",
-    "lint": "corepack pnpm -r lint",
-    "db:migrate": "corepack pnpm --filter @smart-supermarket/api exec prisma migrate deploy",
-    "db:seed": "corepack pnpm --filter @smart-supermarket/api exec prisma db seed"
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev --workspace @smart-supermarket/api\" \"npm run dev --workspace @smart-supermarket/web\"",
+    "dev:api": "npm run dev --workspace @smart-supermarket/api",
+    "dev:web": "npm run dev --workspace @smart-supermarket/web",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:up": "docker compose up -d mysql",
+    "db:down": "docker compose down",
+    "db:setup": "npm run prisma:generate --workspace @smart-supermarket/api && npm run prisma:deploy --workspace @smart-supermarket/api && npm run prisma:seed --workspace @smart-supermarket/api",
+    "db:migrate": "npm run prisma:deploy --workspace @smart-supermarket/api",
+    "db:seed": "npm run prisma:seed --workspace @smart-supermarket/api",
+    "db:reset": "npm exec --workspace @smart-supermarket/api prisma migrate reset --force"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

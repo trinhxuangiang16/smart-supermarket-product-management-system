@@ -24,22 +24,17 @@ Production-like MVP with React + Express + Prisma + MySQL in a pnpm monorepo.
 
 ## Prerequisites
 - Node.js 20+
-- pnpm 10+
 - Docker + Docker Compose
 
-## Quick Start (Recommended)
+## Quick Start (3 commands)
 1. Copy env:
    - `cp .env.example .env` (Windows PowerShell: `Copy-Item .env.example .env`)
 2. Install deps:
-   - `pnpm install`
-3. Start MySQL (Docker only):
-   - `docker compose up -d mysql`
-4. Run migrations + seed:
-   - `pnpm db:migrate`
-   - `pnpm db:seed`
-5. Start apps locally:
-   - `pnpm dev:api`
-   - `pnpm dev:web`
+   - `npm install`
+3. Run:
+   - `npm run db:up`
+   - `npm run db:setup`
+   - `npm run dev`
 
 Frontend: `http://localhost:5173`  
 Backend: `http://localhost:4000/api`
@@ -58,11 +53,14 @@ Backend: `http://localhost:4000/api`
 - `finance@supermarket.test / Password123!`
 
 ## Commands
-- `pnpm dev`
-- `pnpm build`
-- `pnpm lint`
-- `pnpm db:migrate`
-- `pnpm db:seed`
+- `npm run db:up` - start MySQL Docker container
+- `npm run db:setup` - generate Prisma client + migrate + seed
+- `npm run db:reset` - reset local DB safely for dev
+- `npm run dev` - run API + Web in parallel
+- `npm run dev:api`
+- `npm run dev:web`
+- `npm run build`
+- `npm run lint`
 
 ## Docs
 - [API docs](docs/api.md)
