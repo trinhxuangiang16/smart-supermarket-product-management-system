@@ -36,6 +36,10 @@ export const InventoryPage = () => {
     queryKey: ["inventory-suppliers"],
     queryFn: () => api<any>("/suppliers"),
   });
+  const reasonOptions = useQuery({
+    queryKey: ["inventory-reason-options"],
+    queryFn: () => api<any>("/inventory/reason-options"),
+  });
   const txQuery = useMemo(() => {
     const params = new URLSearchParams();
     params.set("page", String(txPage));
@@ -93,6 +97,8 @@ export const InventoryPage = () => {
 
   const productItems = readItems(products.data?.data);
   const supplierItems = readItems(suppliers.data?.data);
+  const typeKey = type.toUpperCase();
+  const reasonItems: string[] = reasonOptions.data?.data?.[typeKey] ?? [];
   const txItems = readItems(tx.data?.data);
   const txTotal = Number(tx.data?.data?.total ?? 0);
   const txTotalPages = Math.max(1, Math.ceil(txTotal / txPageSize));
@@ -128,7 +134,18 @@ export const InventoryPage = () => {
             {productItems.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
           <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} type="number" min={0} />
-          <Input placeholder="Reason" value={reason} onChange={(e) => setReason(e.target.value)} />
+          <select
+            className="h-11 rounded border px-3 text-sm"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+          >
+            <option value="">Select reason</option>
+            {reasonItems.map((item) => (
+              <option key={item} value={item}>
+                {item.replaceAll("_", " ")}
+              </option>
+            ))}
+          </select>
 
           {type === "adjustment" ? (
             <select className="h-11 rounded border px-3 text-sm" value={adjustmentDirection} onChange={(e) => setAdjustmentDirection(e.target.value as "increase" | "decrease")}>

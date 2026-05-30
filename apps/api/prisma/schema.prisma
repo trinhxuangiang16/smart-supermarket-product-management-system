@@ -79,6 +79,7 @@ model User {
   transactions   InventoryTransaction[] @relation("performedBy")
   approvals      InventoryTransaction[] @relation("approvedBy")
   auditLogs      AuditLog[]
+  priceHistories PriceHistory[]
   requestedApprovals ApprovalRequest[] @relation("approvalRequestedBy")
   reviewedApprovals  ApprovalRequest[] @relation("approvalReviewedBy")
 }
@@ -87,6 +88,7 @@ model Category {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   products    Product[]
@@ -98,6 +100,8 @@ model Supplier {
   contactEmail String?
   contactPhone String?
   address      String?
+  contactPerson String?
+  notes        String?   @db.Text
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   products     Product[]
@@ -132,6 +136,7 @@ model Product {
   createdBy     User         @relation(fields: [createdById], references: [id])
   transactions  InventoryTransaction[]
   approvalRequests ApprovalRequest[]
+  priceHistories PriceHistory[]
   isDeleted     Boolean      @default(false)
   deletedAt     DateTime?
 
@@ -201,4 +206,20 @@ model AuditLog {
   userId    String
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model PriceHistory {
+  id              String   @id @default(cuid())
+  productId       String
+  oldCostPrice    Decimal  @db.Decimal(12, 2)
+  newCostPrice    Decimal  @db.Decimal(12, 2)
+  oldSellingPrice Decimal  @db.Decimal(12, 2)
+  newSellingPrice Decimal  @db.Decimal(12, 2)
+  changedById     String
+  createdAt       DateTime @default(now())
+  product         Product  @relation(fields: [productId], references: [id])
+  changedBy       User     @relation(fields: [changedById], references: [id])
+
+  @@index([productId, createdAt])
+  @@index([changedById, createdAt])
 }

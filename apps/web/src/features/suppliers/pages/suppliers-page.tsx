@@ -11,6 +11,8 @@ type SupplierRow = {
   contactEmail?: string | null;
   contactPhone?: string | null;
   address?: string | null;
+  contactPerson?: string | null;
+  notes?: string | null;
   createdAt?: string;
   _count?: { products: number };
 };
@@ -28,6 +30,8 @@ export const SuppliersPage = () => {
     contactEmail: "",
     contactPhone: "",
     address: "",
+    contactPerson: "",
+    notes: "",
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -42,7 +46,7 @@ export const SuppliersPage = () => {
     onSuccess: async () => {
       setMessage("Supplier created.");
       setError("");
-      setForm({ name: "", contactEmail: "", contactPhone: "", address: "" });
+      setForm({ name: "", contactEmail: "", contactPhone: "", address: "", contactPerson: "", notes: "" });
       await qc.invalidateQueries({ queryKey: ["suppliers"] });
     },
     onError: (e) => setError((e as Error).message),
@@ -54,7 +58,7 @@ export const SuppliersPage = () => {
       setMessage("Supplier updated.");
       setError("");
       setEditing(null);
-      setForm({ name: "", contactEmail: "", contactPhone: "", address: "" });
+      setForm({ name: "", contactEmail: "", contactPhone: "", address: "", contactPerson: "", notes: "" });
       await qc.invalidateQueries({ queryKey: ["suppliers"] });
     },
     onError: (e) => setError((e as Error).message),
@@ -74,7 +78,7 @@ export const SuppliersPage = () => {
     const items = suppliersQuery.data?.data ?? [];
     if (!search.trim()) return items;
     const q = search.toLowerCase().trim();
-    return items.filter((s) => [s.name, s.contactEmail ?? "", s.contactPhone ?? "", s.address ?? ""].join(" ").toLowerCase().includes(q));
+    return items.filter((s) => [s.name, s.contactEmail ?? "", s.contactPhone ?? "", s.address ?? "", s.contactPerson ?? "", s.notes ?? ""].join(" ").toLowerCase().includes(q));
   }, [suppliersQuery.data?.data, search]);
 
   const submit = () => {
@@ -101,6 +105,8 @@ export const SuppliersPage = () => {
       contactEmail: row.contactEmail ?? "",
       contactPhone: row.contactPhone ?? "",
       address: row.address ?? "",
+      contactPerson: row.contactPerson ?? "",
+      notes: row.notes ?? "",
     });
     setMessage("");
     setError("");
@@ -108,7 +114,7 @@ export const SuppliersPage = () => {
 
   const cancelEdit = () => {
     setEditing(null);
-    setForm({ name: "", contactEmail: "", contactPhone: "", address: "" });
+    setForm({ name: "", contactEmail: "", contactPhone: "", address: "", contactPerson: "", notes: "" });
   };
 
   const queryError = suppliersQuery.error as Error | null;
@@ -125,7 +131,7 @@ export const SuppliersPage = () => {
           <div className="font-semibold">{editing ? "Edit Supplier" : "Create Supplier"}</div>
           {!canManage ? <span className="text-xs text-slate-500">Read-only for this role</span> : null}
         </div>
-        <div className="grid gap-2 md:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-3">
           <Input
             placeholder="Supplier name"
             value={form.name}
@@ -150,6 +156,18 @@ export const SuppliersPage = () => {
             disabled={!canManage}
             onChange={(e) => setForm({ ...form, address: e.target.value })}
           />
+          <Input
+            placeholder="Contact person"
+            value={form.contactPerson}
+            disabled={!canManage}
+            onChange={(e) => setForm({ ...form, contactPerson: e.target.value })}
+          />
+          <Input
+            placeholder="Notes"
+            value={form.notes}
+            disabled={!canManage}
+            onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          />
         </div>
         <div className="mt-3 flex gap-2">
           <Button onClick={submit} disabled={!canManage || isSubmitting}>
@@ -173,13 +191,14 @@ export const SuppliersPage = () => {
           <div className="self-center text-xs text-slate-500">Total: {rows.length}</div>
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[1120px] table-fixed text-sm">
+          <table className="w-full min-w-[1280px] table-fixed text-sm">
             <colgroup>
-              <col className="w-[22%]" />
-              <col className="w-[22%]" />
-              <col className="w-[14%]" />
-              <col className="w-[24%]" />
-              <col className="w-[8%]" />
+              <col className="w-[16%]" />
+              <col className="w-[16%]" />
+              <col className="w-[12%]" />
+              <col className="w-[16%]" />
+              <col className="w-[18%]" />
+              <col className="w-[12%]" />
               <col className="w-[10%]" />
             </colgroup>
             <thead>
@@ -188,6 +207,7 @@ export const SuppliersPage = () => {
                 <th className="px-3 py-2 text-left font-semibold">Email</th>
                 <th className="px-3 py-2 text-left font-semibold">Phone</th>
                 <th className="px-3 py-2 text-left font-semibold">Address</th>
+                <th className="px-3 py-2 text-left font-semibold">Contact Person / Notes</th>
                 <th className="px-3 py-2 text-center font-semibold">Products</th>
                 <th className="px-3 py-2 text-right font-semibold">Actions</th>
               </tr>
@@ -195,12 +215,12 @@ export const SuppliersPage = () => {
             <tbody>
               {suppliersQuery.isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">Loading suppliers...</td>
+                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">Loading suppliers...</td>
                 </tr>
               ) : null}
               {!suppliersQuery.isLoading && !rows.length ? (
                 <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-slate-500">No suppliers found.</td>
+                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">No suppliers found.</td>
                 </tr>
               ) : null}
               {rows.map((s) => (
@@ -209,6 +229,10 @@ export const SuppliersPage = () => {
                   <td className="truncate px-3 py-2" title={s.contactEmail ?? "-"}>{s.contactEmail ?? "-"}</td>
                   <td className="truncate px-3 py-2" title={s.contactPhone ?? "-"}>{s.contactPhone ?? "-"}</td>
                   <td className="truncate px-3 py-2" title={s.address ?? "-"}>{s.address ?? "-"}</td>
+                  <td className="px-3 py-2">
+                    <div className="truncate font-medium" title={s.contactPerson ?? "-"}>{s.contactPerson ?? "-"}</div>
+                    <div className="truncate text-xs text-slate-500" title={s.notes ?? "-"}>{s.notes ?? "-"}</div>
+                  </td>
                   <td className="px-3 py-2 text-center">{s._count?.products ?? 0}</td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2 whitespace-nowrap">

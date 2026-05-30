@@ -6,7 +6,7 @@ import { AuthRequest, requireAuth } from "../../middleware/require-auth.js";
 import { requireRole } from "../../middleware/require-role.js";
 import { createAuditLog } from "../audit/audit.service.js";
 const router = Router();
-const schema = z.object({ name: z.string().min(2), description: z.string().optional() });
+const schema = z.object({ name: z.string().min(2), description: z.string().optional(), isActive: z.boolean().optional() });
 router.get("/", requireAuth, async (_req, res) =>
   res.json(
     ok(
@@ -28,6 +28,22 @@ router.put("/:id", requireAuth, requireRole("ADMIN", "MANAGER"), async (req: Aut
   const updated = await prisma.category.update({ where: { id: req.params.id }, data: p.data });
   await createAuditLog({ action: "CATEGORY_UPDATE", entity: "Category", entityId: updated.id, userId: req.user!.id, before, after: updated });
   return res.json(ok(updated, "Category updated"));
+});
+router.patch("/:id/visibility", requireAuth, requireRole("ADMIN", "MANAGER"), async (req: AuthRequest, res) => {
+  const parsed = z.object({ isActive: z.boolean() }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Invalid request payload", details: parsed.error.flatten() } });
+  const before = await prisma.category.findUnique({ where: { id: req.params.id } });
+  if (!before) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Category not found" } });
+  const updated = await prisma.category.update({ where: { id: req.params.id }, data: { isActive: parsed.data.isActive } });
+  await createAuditLog({
+    action: parsed.data.isActive ? "CATEGORY_SHOW" : "CATEGORY_HIDE",
+    entity: "Category",
+    entityId: updated.id,
+    userId: req.user!.id,
+    before,
+    after: updated,
+  });
+  return res.json(ok(updated, parsed.data.isActive ? "Category is now visible" : "Category hidden"));
 });
 router.delete("/:id", requireAuth, requireRole("ADMIN"), async (req: AuthRequest, res) => {
   const productsCount = await prisma.product.count({ where: { categoryId: req.params.id } });

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Edit3, Send, Trash2, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
@@ -60,6 +60,26 @@ const buildDirectUpdatePayload = (product: any, editForm: Record<string, string>
   imageUrl: editForm.imageUrl || undefined,
 });
 
+const parseCsv = (text: string) => {
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim());
+  return lines.slice(1).map((line) => {
+    const cells = line.split(",").map((cell) => cell.trim());
+    return headers.reduce((acc: Record<string, string>, header, index) => {
+      acc[header] = cells[index] ?? "";
+      return acc;
+    }, {});
+  });
+};
+
+const toIsoOrNull = (value?: string) => {
+  if (!value?.trim()) return null;
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return null;
+  return dt.toISOString();
+};
+
 export const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const qc = useQueryClient();
@@ -81,7 +101,9 @@ export const ProductsPage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [actionModal, setActionModal] = useState<{ mode: "edit" | "delete"; product: any } | null>(null);
+  const [importing, setImporting] = useState(false);
   const [editForm, setEditForm] = useState<Record<string, string>>({});
   const [requestReason, setRequestReason] = useState("");
   const [form, setForm] = useState({
@@ -241,6 +263,26 @@ export const ProductsPage = () => {
     onError: (e) => setError((e as Error).message),
   });
 
+  const duplicateProduct = useMutation({
+    mutationFn: (id: string) => api(`/products/${id}/duplicate`, { method: "POST" }),
+    onSuccess: async () => {
+      setMessage("Product duplicated");
+      await qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e) => setError((e as Error).message),
+  });
+
+  const bulkArchive = useMutation({
+    mutationFn: (productIds: string[]) =>
+      api("/products/bulk/archive", { method: "POST", body: JSON.stringify({ productIds }) }),
+    onSuccess: async (result: any) => {
+      setMessage(`Archived ${result?.data?.archivedCount ?? selectedIds.length} products`);
+      setSelectedIds([]);
+      await qc.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (e) => setError((e as Error).message),
+  });
+
   const profitMarginPreview = useMemo(() => {
     const c = Number(form.costPrice);
     const s = Number(form.sellingPrice);
@@ -380,6 +422,60 @@ export const ProductsPage = () => {
   const primaryActionPending = canDirectManage
     ? (actionModal?.mode === "delete" ? directDelete.isPending : directUpdate.isPending)
     : approvalRequest.isPending;
+  const allSelected = rows.length > 0 && rows.every((item: any) => selectedIds.includes(item.id));
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !rows.some((row: any) => row.id === id)));
+      return;
+    }
+    const merged = new Set([...selectedIds, ...rows.map((row: any) => row.id)]);
+    setSelectedIds(Array.from(merged));
+  };
+
+  const handleImportCsv = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setError("");
+    setMessage("");
+    try {
+      const content = await file.text();
+      const rows = parseCsv(content);
+      const items = rows.map((row) => ({
+        name: row.name,
+        brand: row.brand || undefined,
+        manufacturer: row.manufacturer || undefined,
+        sku: row.sku,
+        barcode: row.barcode || undefined,
+        type: row.type || "DRY_GOODS",
+        unit: row.unit || "PIECE",
+        costPrice: Number(row.costPrice || 0),
+        sellingPrice: Number(row.sellingPrice || 0),
+        currentStock: Number(row.currentStock || 0),
+        reorderLevel: Number(row.reorderLevel || 0),
+        productionDate: toIsoOrNull(row.productionDate),
+        expiryDate: toIsoOrNull(row.expiryDate),
+        categoryId: row.categoryId,
+        supplierId: row.supplierId || null,
+        imageUrl: row.imageUrl || undefined,
+        notes: row.notes || undefined,
+        overwriteBySku: true,
+      }));
+      const result = await api<any>("/products/import", {
+        method: "POST",
+        body: JSON.stringify({ items }),
+      });
+      const summary = result?.data?.summary;
+      setMessage(`Import done. Created: ${summary?.created ?? 0}, Updated: ${summary?.updated ?? 0}, Skipped: ${summary?.skipped ?? 0}`);
+      await qc.invalidateQueries({ queryKey: ["products"] });
+    } catch (e: any) {
+      setError(e?.message || "Import failed");
+    } finally {
+      setImporting(false);
+      event.target.value = "";
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -516,6 +612,19 @@ export const ProductsPage = () => {
             {showCreateForm ? "Hide Form" : "Create Product"}
           </Button>
         </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <label className="inline-flex cursor-pointer items-center rounded border px-3 py-2 text-xs hover:bg-slate-50">
+            <input type="file" accept=".csv" className="hidden" onChange={handleImportCsv} />
+            {importing ? "Importing..." : "Import CSV"}
+          </label>
+          <button
+            className="h-9 rounded border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-700 disabled:opacity-40"
+            disabled={!selectedIds.length || bulkArchive.isPending}
+            onClick={() => bulkArchive.mutate(selectedIds)}
+          >
+            Archive Selected ({selectedIds.length})
+          </button>
+        </div>
       </Card>
 
       {showCreateForm ? (
@@ -573,28 +682,29 @@ export const ProductsPage = () => {
       </Card>
       <Card>
         <div className="overflow-auto">
-          <table className="w-full min-w-[1180px] table-fixed border-separate border-spacing-0 text-sm">
+          <table className="w-full min-w-[1380px] table-fixed border-separate border-spacing-0 text-sm">
             <colgroup>
-              <col className="w-[26%]" />
-              <col className="w-[16%]" />
-              <col className="w-[20%]" />
-              <col className="w-[12%]" />
-              <col className="w-[12%]" />
+              <col className="w-[4%]" />
+              <col className="w-[24%]" />
               <col className="w-[14%]" />
+              <col className="w-[16%]" />
+              <col className="w-[10%]" />
+              <col className="w-[10%]" />
+              <col className="w-[22%]" />
             </colgroup>
-            <thead><tr className="bg-slate-50"><th className="border-b px-6 py-3 text-left font-semibold">Name</th><th className="border-b px-6 py-3 text-left font-semibold">SKU</th><th className="border-b px-6 py-3 text-left font-semibold">Brand</th><th className="border-b px-6 py-3 text-right font-semibold">Stock</th><th className="border-b px-6 py-3 text-left font-semibold">Status</th><th className="border-b px-6 py-3 text-right font-semibold">Action</th></tr></thead>
+            <thead><tr className="bg-slate-50"><th className="border-b px-2 py-3 text-left font-semibold"><input type="checkbox" checked={allSelected} onChange={toggleSelectAll} /></th><th className="border-b px-6 py-3 text-left font-semibold">Name</th><th className="border-b px-6 py-3 text-left font-semibold">SKU</th><th className="border-b px-6 py-3 text-left font-semibold">Brand</th><th className="border-b px-6 py-3 text-right font-semibold">Stock</th><th className="border-b px-6 py-3 text-left font-semibold">Status</th><th className="border-b px-6 py-3 text-right font-semibold">Action</th></tr></thead>
             <tbody>{rows.map((p: any) => {
               const status = productStatus(p);
-              return <tr key={p.id} className="hover:bg-slate-50"><td className="truncate border-b px-6 py-4 align-middle" title={p.name}>{p.name}</td><td className="truncate border-b px-6 py-4 align-middle" title={p.sku}>{p.sku}</td><td className="truncate border-b px-6 py-4 align-middle" title={p.brand ?? "-"}>{p.brand ?? "-"}</td><td className="border-b px-6 py-4 text-right tabular-nums align-middle">{p.currentStock}</td><td className="border-b px-6 py-4 align-middle"><span className={`inline-flex min-w-24 justify-center rounded px-3 py-1 text-xs font-medium ${status.className}`}>{status.label}</span></td><td className="border-b px-6 py-4 align-middle"><div className="flex justify-end gap-2"><button onClick={() => openEditRequest(p)} className="inline-flex h-9 items-center gap-2 rounded border border-blue-200 bg-blue-50 px-3 text-xs font-medium text-blue-700 hover:bg-blue-100"><Edit3 size={14} /> Edit</button><button onClick={() => openDeleteRequest(p)} className="inline-flex h-9 items-center gap-2 rounded border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-700 hover:bg-red-100"><Trash2 size={14} /> Delete</button></div></td></tr>;
+              return <tr key={p.id} className="hover:bg-slate-50"><td className="border-b px-2 py-4 align-middle"><input type="checkbox" checked={selectedIds.includes(p.id)} onChange={(e) => setSelectedIds((prev) => e.target.checked ? Array.from(new Set([...prev, p.id])) : prev.filter((id) => id !== p.id))} /></td><td className="truncate border-b px-6 py-4 align-middle" title={p.name}>{p.name}</td><td className="truncate border-b px-6 py-4 align-middle" title={p.sku}>{p.sku}</td><td className="truncate border-b px-6 py-4 align-middle" title={p.brand ?? "-"}>{p.brand ?? "-"}</td><td className="border-b px-6 py-4 text-right tabular-nums align-middle">{p.currentStock}</td><td className="border-b px-6 py-4 align-middle"><span className={`inline-flex min-w-24 justify-center rounded px-3 py-1 text-xs font-medium ${status.className}`}>{status.label}</span></td><td className="border-b px-6 py-4 align-middle"><div className="flex flex-nowrap justify-end gap-2"><button onClick={() => duplicateProduct.mutate(p.id)} className="inline-flex h-9 items-center gap-2 rounded border border-purple-200 bg-purple-50 px-3 text-xs font-medium text-purple-700 hover:bg-purple-100">Duplicate</button><button onClick={() => openEditRequest(p)} className="inline-flex h-9 items-center gap-2 rounded border border-blue-200 bg-blue-50 px-3 text-xs font-medium text-blue-700 hover:bg-blue-100"><Edit3 size={14} /> Edit</button><button onClick={() => openDeleteRequest(p)} className="inline-flex h-9 items-center gap-2 rounded border border-red-200 bg-red-50 px-3 text-xs font-medium text-red-700 hover:bg-red-100"><Trash2 size={14} /> Delete</button></div></td></tr>;
             })}
             {q.isLoading ? (
               <tr>
-                <td colSpan={6} className="border-b px-6 py-8 text-center text-slate-500">Loading products...</td>
+                <td colSpan={7} className="border-b px-6 py-8 text-center text-slate-500">Loading products...</td>
               </tr>
             ) : null}
             {!q.isLoading && !rows.length ? (
               <tr>
-                <td colSpan={6} className="border-b px-6 py-8 text-center text-slate-500">No products found.</td>
+                <td colSpan={7} className="border-b px-6 py-8 text-center text-slate-500">No products found.</td>
               </tr>
             ) : null}
             </tbody>

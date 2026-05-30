@@ -57,6 +57,12 @@ export const ReportsPage = () => {
       "inventory-snapshot.csv",
     );
   };
+  const exportInventoryXlsx = async () => {
+    await downloadFile(
+      `http://localhost:4000/api/reports/inventory-snapshot.xlsx${query}`,
+      "inventory-snapshot.xlsx",
+    );
+  };
 
   const exportManagementReport = async () => {
     await downloadFile(
@@ -75,10 +81,13 @@ export const ReportsPage = () => {
   return (
     <div className="space-y-4">
       <Card>
-        <div className="grid gap-2 md:grid-cols-[1fr_1fr_auto_auto_auto]">
+        <div className="grid gap-2 md:grid-cols-[1fr_1fr_auto_auto_auto_auto]">
           <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
           <Button onClick={exportInventoryCsv}>Export CSV</Button>
+          <Button className="bg-indigo-700 hover:bg-indigo-600" onClick={exportInventoryXlsx}>
+            Export XLSX
+          </Button>
           <Button className="bg-blue-700 hover:bg-blue-600" onClick={exportManagementPdf}>
             Export PDF
           </Button>

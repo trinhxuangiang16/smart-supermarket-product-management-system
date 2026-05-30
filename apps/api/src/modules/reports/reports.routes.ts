@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import PDFDocument from "pdfkit";
+import * as XLSX from "xlsx";
 import { prisma } from "../../lib/prisma.js";
 import { ok } from "../../lib/response.js";
 import { requireAuth } from "../../middleware/require-auth.js";
@@ -301,6 +302,51 @@ router.get("/inventory-snapshot.csv", requireAuth, async (req, res) => {
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", 'attachment; filename="inventory-snapshot.csv"');
   res.send(csv);
+});
+
+router.get("/inventory-snapshot.xlsx", requireAuth, async (req, res) => {
+  const dateRange = toDateRange(req.query);
+  const products = await prisma.product.findMany({
+    where: { isDeleted: false },
+    include: { category: true, supplier: true },
+    orderBy: [{ category: { name: "asc" } }, { name: "asc" }],
+  });
+  const recentInOut = await prisma.inventoryTransaction.findMany({
+    where: { createdAt: dateRange, type: { in: ["IN", "OUT"] } },
+    select: { productId: true, type: true, quantity: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
+  const recentMap = new Map<string, { type: string; quantity: number; at: Date }>();
+  for (const tx of recentInOut) {
+    if (recentMap.has(tx.productId)) continue;
+    recentMap.set(tx.productId, { type: tx.type, quantity: Number(tx.quantity), at: tx.createdAt });
+  }
+
+  const rows = products.map((p: any) => ({
+    product_name: p.name,
+    sku: p.sku,
+    category: p.category.name,
+    supplier: p.supplier?.name ?? "-",
+    stock: Number(p.currentStock),
+    unit: p.unit,
+    reorder_level: Number(p.reorderLevel),
+    cost_price: Number(p.costPrice),
+    selling_price: Number(p.sellingPrice),
+    stock_value: Number(p.currentStock) * Number(p.costPrice),
+    profit_margin_percent: Number(p.profitMargin),
+    expiry_status: p.expiryStatus,
+    expiry_date: shortDate(p.expiryDate),
+    last_movement_type: recentMap.get(p.id)?.type ?? "-",
+    last_movement_qty: recentMap.get(p.id)?.quantity ?? "-",
+    last_movement_at: recentMap.get(p.id)?.at ? dateTime(recentMap.get(p.id)?.at) : "-",
+  }));
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory Snapshot");
+  const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+  res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  res.setHeader("Content-Disposition", 'attachment; filename="inventory-snapshot.xlsx"');
+  res.send(buffer);
 });
 
 router.get("/management-report.html", requireAuth, async (req, res) => {

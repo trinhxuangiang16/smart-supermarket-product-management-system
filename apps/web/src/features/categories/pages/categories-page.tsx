@@ -7,6 +7,7 @@ type CategoryRow = {
   id: string;
   name: string;
   description?: string | null;
+  isActive?: boolean;
   _count?: { products: number };
 };
 
@@ -15,6 +16,7 @@ export const CategoriesPage = () => {
   const [search, setSearch] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isActive, setIsActive] = useState(true);
   const [editing, setEditing] = useState<CategoryRow | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -25,29 +27,31 @@ export const CategoriesPage = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: { name: string; description?: string }) =>
+    mutationFn: (payload: { name: string; description?: string; isActive?: boolean }) =>
       api("/categories", { method: "POST", body: JSON.stringify(payload) }),
     onSuccess: async () => {
       setMessage("Category created");
       setError("");
       setName("");
       setDescription("");
+      setIsActive(true);
       await qc.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: (e) => setError((e as Error).message),
   });
 
   const updateMutation = useMutation({
-    mutationFn: (payload: { id: string; name: string; description?: string }) =>
+    mutationFn: (payload: { id: string; name: string; description?: string; isActive?: boolean }) =>
       api(`/categories/${payload.id}`, {
         method: "PUT",
-        body: JSON.stringify({ name: payload.name, description: payload.description }),
+        body: JSON.stringify({ name: payload.name, description: payload.description, isActive: payload.isActive }),
       }),
     onSuccess: async () => {
       setMessage("Category updated");
       setError("");
       setName("");
       setDescription("");
+      setIsActive(true);
       setEditing(null);
       await qc.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -58,6 +62,20 @@ export const CategoriesPage = () => {
     mutationFn: (id: string) => api(`/categories/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
       setMessage("Category deleted");
+      setError("");
+      await qc.invalidateQueries({ queryKey: ["categories"] });
+    },
+    onError: (e) => setError((e as Error).message),
+  });
+
+  const visibilityMutation = useMutation({
+    mutationFn: (payload: { id: string; isActive: boolean }) =>
+      api(`/categories/${payload.id}/visibility`, {
+        method: "PATCH",
+        body: JSON.stringify({ isActive: payload.isActive }),
+      }),
+    onSuccess: async () => {
+      setMessage("Category visibility updated");
       setError("");
       await qc.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -78,16 +96,17 @@ export const CategoriesPage = () => {
       return;
     }
     if (editing) {
-      updateMutation.mutate({ id: editing.id, name: name.trim(), description: description.trim() || undefined });
+      updateMutation.mutate({ id: editing.id, name: name.trim(), description: description.trim() || undefined, isActive });
       return;
     }
-    createMutation.mutate({ name: name.trim(), description: description.trim() || undefined });
+    createMutation.mutate({ name: name.trim(), description: description.trim() || undefined, isActive });
   };
 
   const startEdit = (row: CategoryRow) => {
     setEditing(row);
     setName(row.name);
     setDescription(row.description ?? "");
+    setIsActive(row.isActive ?? true);
     setError("");
     setMessage("");
   };
@@ -96,6 +115,7 @@ export const CategoriesPage = () => {
     setEditing(null);
     setName("");
     setDescription("");
+    setIsActive(true);
   };
 
   return (
@@ -108,6 +128,10 @@ export const CategoriesPage = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <label className="inline-flex h-11 items-center gap-2 rounded border px-3 text-sm">
+            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
+            Active
+          </label>
           <Button onClick={submit} disabled={createMutation.isPending || updateMutation.isPending}>
             {editing ? "Update" : "Add"}
           </Button>
@@ -139,6 +163,7 @@ export const CategoriesPage = () => {
               <tr>
                 <th className="text-left py-2">Name</th>
                 <th className="text-left py-2">Description</th>
+                <th className="text-left py-2">Status</th>
                 <th className="text-left py-2">Products</th>
                 <th className="text-left py-2">Actions</th>
               </tr>
@@ -148,6 +173,11 @@ export const CategoriesPage = () => {
                 <tr key={c.id} className="border-t">
                   <td className="py-2">{c.name}</td>
                   <td className="py-2 text-slate-600">{c.description || "-"}</td>
+                  <td className="py-2">
+                    <span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${c.isActive !== false ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-700"}`}>
+                      {c.isActive !== false ? "Active" : "Hidden"}
+                    </span>
+                  </td>
                   <td className="py-2">{c._count?.products ?? 0}</td>
                   <td className="py-2">
                     <div className="flex gap-2">
@@ -161,13 +191,20 @@ export const CategoriesPage = () => {
                       >
                         Delete
                       </Button>
+                      <Button
+                        className={`h-9 px-3 ${c.isActive !== false ? "bg-slate-700" : "bg-emerald-700"}`}
+                        onClick={() => visibilityMutation.mutate({ id: c.id, isActive: !(c.isActive !== false) })}
+                        disabled={visibilityMutation.isPending}
+                      >
+                        {c.isActive !== false ? "Hide" : "Show"}
+                      </Button>
                     </div>
                   </td>
                 </tr>
               ))}
               {!rows.length ? (
                 <tr>
-                  <td className="py-6 text-slate-500" colSpan={4}>
+                  <td className="py-6 text-slate-500" colSpan={5}>
                     No categories found.
                   </td>
                 </tr>

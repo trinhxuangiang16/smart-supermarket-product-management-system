@@ -130,14 +130,28 @@ router.post("/:id/approve", requireAuth, requireRole("ADMIN", "MANAGER"), async 
     if (request.type === "PRODUCT_UPDATE") {
       const requestedChanges = (request.requestedChanges ?? {}) as Record<string, unknown>;
       const updateData = normalizeProductUpdate(requestedChanges);
-      const costPrice = Number(updateData.costPrice ?? request.product.costPrice);
-      const sellingPrice = Number(updateData.sellingPrice ?? request.product.sellingPrice);
+      const oldCostPrice = Number(request.product.costPrice);
+      const oldSellingPrice = Number(request.product.sellingPrice);
+      const costPrice = Number(updateData.costPrice ?? oldCostPrice);
+      const sellingPrice = Number(updateData.sellingPrice ?? oldSellingPrice);
       const nextExpiryDate = Object.prototype.hasOwnProperty.call(updateData, "expiryDate")
         ? updateData.expiryDate as Date | null
         : request.product.expiryDate;
       updateData.profitMargin = costPrice > 0 ? ((sellingPrice - costPrice) / costPrice) * 100 : 0;
       updateData.expiryStatus = computeExpiryStatus(nextExpiryDate);
       productAfter = await tx.product.update({ where: { id: request.productId }, data: updateData });
+      if (oldCostPrice !== costPrice || oldSellingPrice !== sellingPrice) {
+        await tx.priceHistory.create({
+          data: {
+            productId: request.productId,
+            oldCostPrice,
+            newCostPrice: costPrice,
+            oldSellingPrice,
+            newSellingPrice: sellingPrice,
+            changedById: req.user!.id,
+          },
+        });
+      }
     } else {
       productAfter = await tx.product.update({
         where: { id: request.productId },

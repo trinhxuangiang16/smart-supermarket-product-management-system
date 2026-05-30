@@ -19,6 +19,18 @@ const txSchema = z.object({
   deliveredAt: z.string().datetime().optional(),
 });
 type TxType = "IN" | "OUT" | "ADJUSTMENT" | "DESTROY";
+const normalizedReasonOptions: Record<TxType, string[]> = {
+  IN: ["PURCHASE_ORDER", "SUPPLIER_DELIVERY", "RETURN_FROM_CUSTOMER", "STOCK_CORRECTION", "OTHER"],
+  OUT: ["SALE", "TRANSFER_OUT", "RETURN_TO_SUPPLIER", "DAMAGE_WRITE_OFF", "OTHER"],
+  ADJUSTMENT: ["COUNT_CORRECTION", "SYSTEM_CORRECTION", "SHRINKAGE", "OVERSUPPLY", "OTHER"],
+  DESTROY: ["EXPIRED", "DAMAGED", "CONTAMINATED", "RECALLED", "OTHER"],
+};
+
+const normalizeReason = (value?: string) =>
+  (value || "")
+    .trim()
+    .toUpperCase()
+    .replaceAll(" ", "_");
 
 const listQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -49,6 +61,17 @@ const createTx = (type: TxType) => async (req: AuthRequest, res: any) => {
     if (!p.data.destroyReason) return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Destroy reason is required" } });
     if (p.data.quantity <= 0) return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Destroy quantity must be greater than zero" } });
   }
+  if (p.data.reason) {
+    const normalized = normalizeReason(p.data.reason);
+    if (!normalizedReasonOptions[type].includes(normalized)) {
+      return res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: `Reason for ${type} must be one of: ${normalizedReasonOptions[type].join(", ")}`,
+        },
+      });
+    }
+  }
 
   const currentStock = Number(product.currentStock);
   const absoluteQty = Math.abs(p.data.quantity);
@@ -73,7 +96,7 @@ const createTx = (type: TxType) => async (req: AuthRequest, res: any) => {
         supplierName: p.data.supplierName ?? null,
         deliveredByName: p.data.deliveredByName ?? null,
         deliveredAt: p.data.deliveredAt ? new Date(p.data.deliveredAt) : null,
-        reason: p.data.reason,
+        reason: p.data.reason ? normalizeReason(p.data.reason) : null,
         destroyReason: p.data.destroyReason,
         performedById: req.user!.id,
       },
@@ -161,5 +184,9 @@ router.get("/history/:productId", requireAuth, async (req, res) => {
     }),
   ]);
   return res.json(ok({ items, total, page: q.page, pageSize: q.pageSize }));
+});
+
+router.get("/reason-options", requireAuth, async (_req, res) => {
+  return res.json(ok(normalizedReasonOptions));
 });
 export default router;

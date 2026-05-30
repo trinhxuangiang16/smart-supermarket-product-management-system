@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "../../../lib/api-client";
+import { api, getToken } from "../../../lib/api-client";
 import { Card, Input } from "../../../components/ui/basic";
 import { actionLabel, actorLabel, buildFieldDiffs, describeActivity, targetLabel } from "../../../lib/audit-detail";
 
@@ -15,12 +15,25 @@ const renderJson = (value: unknown) => JSON.stringify(value ?? {}, null, 2);
 
 export const HistoryActionsPage = () => {
   const [search, setSearch] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
+  const [entityFilter, setEntityFilter] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
+  const query = new URLSearchParams({
+    page: String(page),
+    pageSize: "20",
+    search,
+    action: actionFilter,
+    entity: entityFilter,
+    from,
+    to,
+  }).toString();
 
   const actions = useQuery({
-    queryKey: ["audit-actions", search, page],
-    queryFn: () => api<any>(`/audit/actions?page=${page}&pageSize=20&search=${encodeURIComponent(search)}`),
+    queryKey: ["audit-actions", query],
+    queryFn: () => api<any>(`/audit/actions?${query}`),
   });
 
   const actionDetail = useQuery({
@@ -29,6 +42,19 @@ export const HistoryActionsPage = () => {
     enabled: Boolean(selectedActionId),
   });
   const actionDiffs = buildFieldDiffs(actionDetail.data?.data?.before, actionDetail.data?.data?.after);
+  const exportCsv = async () => {
+    const response = await fetch(`http://localhost:4000/api/audit/actions/export.csv?${query}`, {
+      headers: { Authorization: `Bearer ${getToken() ?? ""}` },
+    });
+    if (!response.ok) return;
+    const blob = await response.blob();
+    const fileUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = fileUrl;
+    a.download = "audit-actions.csv";
+    a.click();
+    URL.revokeObjectURL(fileUrl);
+  };
 
   const rows = actions.data?.data?.items ?? [];
   const total = Number(actions.data?.data?.total ?? 0);
@@ -43,14 +69,25 @@ export const HistoryActionsPage = () => {
         </Card>
       ) : null}
       <Card>
-        <Input
-          placeholder="Search by action, entity, user..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-        />
+        <div className="grid gap-2 md:grid-cols-5">
+          <Input
+            placeholder="Search by action, entity, user..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+          />
+          <Input placeholder="Action" value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(1); }} />
+          <Input placeholder="Entity" value={entityFilter} onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }} />
+          <Input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
+          <Input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} />
+        </div>
+        <div className="mt-2 flex justify-end">
+          <button className="h-9 rounded border px-3 text-xs hover:bg-slate-50" onClick={exportCsv}>
+            Export CSV
+          </button>
+        </div>
       </Card>
       <Card>
         <div className="overflow-auto">

@@ -10,7 +10,17 @@ const querySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().optional(),
+  action: z.string().optional(),
+  entity: z.string().optional(),
+  userId: z.string().optional(),
+  from: z.string().date().optional(),
+  to: z.string().date().optional(),
 });
+
+const toCsv = (headers: string[], rows: Array<Array<string | number>>) => {
+  const esc = (value: string | number) => `"${String(value).replaceAll('"', '""')}"`;
+  return [headers.map(esc).join(","), ...rows.map((r) => r.map(esc).join(","))].join("\n");
+};
 
 router.get("/actions", requireAuth, async (req, res) => {
   const parsed = querySchema.safeParse(req.query);
@@ -23,17 +33,25 @@ router.get("/actions", requireAuth, async (req, res) => {
       },
     });
   }
-  const { page, pageSize, search } = parsed.data;
-  const where = search
-    ? {
-        OR: [
-          { action: { contains: search } },
-          { entity: { contains: search } },
-          { user: { name: { contains: search } } },
-          { user: { email: { contains: search } } },
-        ],
-      }
-    : {};
+  const { page, pageSize, search, action, entity, userId, from, to } = parsed.data;
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { action: { contains: search } },
+      { entity: { contains: search } },
+      { user: { name: { contains: search } } },
+      { user: { email: { contains: search } } },
+    ];
+  }
+  if (action) where.action = action;
+  if (entity) where.entity = entity;
+  if (userId) where.userId = userId;
+  if (from || to) {
+    where.createdAt = {
+      ...(from ? { gte: new Date(`${from}T00:00:00.000Z`) } : {}),
+      ...(to ? { lte: new Date(`${to}T23:59:59.999Z`) } : {}),
+    };
+  }
   const [total, items] = await Promise.all([
     prisma.auditLog.count({ where: where as any }),
     prisma.auditLog.findMany({
@@ -45,6 +63,60 @@ router.get("/actions", requireAuth, async (req, res) => {
     }),
   ]);
   return res.json(ok({ items, total, page, pageSize }));
+});
+
+router.get("/actions/export.csv", requireAuth, async (req, res) => {
+  const parsed = querySchema.omit({ page: true, pageSize: true }).safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "Invalid query",
+        details: parsed.error.flatten(),
+      },
+    });
+  }
+  const { search, action, entity, userId, from, to } = parsed.data;
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { action: { contains: search } },
+      { entity: { contains: search } },
+      { user: { name: { contains: search } } },
+      { user: { email: { contains: search } } },
+    ];
+  }
+  if (action) where.action = action;
+  if (entity) where.entity = entity;
+  if (userId) where.userId = userId;
+  if (from || to) {
+    where.createdAt = {
+      ...(from ? { gte: new Date(`${from}T00:00:00.000Z`) } : {}),
+      ...(to ? { lte: new Date(`${to}T23:59:59.999Z`) } : {}),
+    };
+  }
+
+  const rows = await prisma.auditLog.findMany({
+    where,
+    include: { user: { select: { name: true, email: true, role: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 5000,
+  });
+  const csv = toCsv(
+    ["created_at", "action", "entity", "entity_id", "actor_name", "actor_email", "actor_role"],
+    rows.map((row: any) => [
+      new Date(row.createdAt).toISOString(),
+      row.action,
+      row.entity,
+      row.entityId,
+      row.user?.name ?? "-",
+      row.user?.email ?? "-",
+      row.user?.role ?? "-",
+    ]),
+  );
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", 'attachment; filename="audit-actions.csv"');
+  res.send(csv);
 });
 
 router.get("/actions/:id", requireAuth, async (req, res) => {
@@ -79,4 +151,3 @@ router.get("/transaction/:id", requireAuth, async (req, res) => {
 });
 
 export default router;
-

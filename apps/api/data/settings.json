@@ -91,6 +91,75 @@
       },
       "savedFilters": [],
       "updatedAt": "2026-05-30T09:27:19.449Z"
+    },
+    "cmps7zwu60002s3yckx3z24xx": {
+      "preferences": {
+        "notifications": {
+          "approvalInApp": true,
+          "stockAlertEmail": false,
+          "expiryAlertEmail": false,
+          "dailySummaryEmail": false
+        },
+        "ui": {
+          "compactTables": false,
+          "defaultPageSize": 20,
+          "currency": "USD",
+          "dateFormat": "MM/dd/yyyy"
+        },
+        "roadmap": {
+          "aiPromoSuggestion": false,
+          "posScannerIntegration": false,
+          "advancedBiReports": false
+        }
+      },
+      "savedFilters": [],
+      "updatedAt": "2026-05-30T10:41:39.812Z"
+    },
+    "cmps8k4rb0000s3toj71b8brq": {
+      "preferences": {
+        "notifications": {
+          "approvalInApp": true,
+          "stockAlertEmail": false,
+          "expiryAlertEmail": false,
+          "dailySummaryEmail": false
+        },
+        "ui": {
+          "compactTables": false,
+          "defaultPageSize": 20,
+          "currency": "USD",
+          "dateFormat": "MM/dd/yyyy"
+        },
+        "roadmap": {
+          "aiPromoSuggestion": false,
+          "posScannerIntegration": false,
+          "advancedBiReports": false
+        }
+      },
+      "savedFilters": [],
+      "updatedAt": "2026-05-30T10:57:22.684Z"
+    },
+    "cmps8ylpy0000s3ew80e1mqvf": {
+      "preferences": {
+        "notifications": {
+          "approvalInApp": true,
+          "stockAlertEmail": false,
+          "expiryAlertEmail": false,
+          "dailySummaryEmail": false
+        },
+        "ui": {
+          "compactTables": false,
+          "defaultPageSize": 20,
+          "currency": "USD",
+          "dateFormat": "MM/dd/yyyy"
+        },
+        "roadmap": {
+          "aiPromoSuggestion": false,
+          "posScannerIntegration": false,
+          "advancedBiReports": false
+        }
+      },
+      "savedFilters": [],
+      "updatedAt": "2026-05-30T11:08:27.673Z"
     }
   },
   "system": {
