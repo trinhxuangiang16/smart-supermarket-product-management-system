@@ -98,34 +98,34 @@ export const ReportsPage = () => {
           <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
           <Button onClick={exportInventoryCsv}>Export CSV</Button>
-          <Button className="bg-indigo-700 hover:bg-indigo-600" onClick={exportInventoryXlsx}>
+          <Button className="btn-secondary-warm" onClick={exportInventoryXlsx}>
             Export XLSX
           </Button>
-          <Button className="bg-blue-700 hover:bg-blue-600" onClick={exportManagementPdf}>
+          <Button className="btn-secondary-warm" onClick={exportManagementPdf}>
             Export PDF
           </Button>
-          <Button className="bg-emerald-700 hover:bg-emerald-600" onClick={exportManagementReport}>
+          <Button className="btn-secondary-warm" onClick={exportManagementReport}>
             Export Friendly Report
           </Button>
         </div>
-        {exportError ? <p className="mt-2 text-sm text-red-600">{exportError}</p> : null}
+        {exportError ? <p className="mt-2 text-sm text-[#9c4326]">{exportError}</p> : null}
       </Card>
 
       <div className="grid gap-3 md:grid-cols-3">
         <Card>
-          <div className="text-xs text-slate-500">Inventory Stock Value</div>
+          <div className="text-xs text-muted-warm">Inventory Stock Value</div>
           <div className="text-lg font-semibold">
             {currency.format(inventory.data?.data?.summary?.totalStockValue ?? 0)}
           </div>
         </Card>
         <Card>
-          <div className="text-xs text-slate-500">Waste Value</div>
+          <div className="text-xs text-muted-warm">Waste Value</div>
           <div className="text-lg font-semibold text-red-600">
             {currency.format(waste.data?.data?.summary?.totalWasteValue ?? 0)}
           </div>
         </Card>
         <Card>
-          <div className="text-xs text-slate-500">Gross Profit</div>
+          <div className="text-xs text-muted-warm">Gross Profit</div>
           <div className="text-lg font-semibold text-emerald-600">
             {currency.format(profit.data?.data?.summary?.totalProfit ?? 0)}
           </div>
@@ -135,7 +135,7 @@ export const ReportsPage = () => {
       <Card>
         <h2 className="mb-2 font-semibold">Profit by Category</h2>
         <div className="overflow-auto">
-          <table className="w-full text-sm">
+          <table className="table-warm w-full text-sm">
             <thead>
               <tr>
                 <th className="text-left">Category</th>
@@ -163,7 +163,7 @@ export const ReportsPage = () => {
       <Card>
         <h2 className="mb-2 font-semibold">Waste Analysis</h2>
         <div className="overflow-auto">
-          <table className="w-full text-sm">
+          <table className="table-warm w-full text-sm">
             <thead>
               <tr>
                 <th className="text-left">Date</th>
@@ -191,14 +191,14 @@ export const ReportsPage = () => {
       <Card>
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="font-semibold">Transaction Trend (Daily)</h2>
-          <select className="h-10 rounded border px-3 text-sm" value={String(trendDays)} onChange={(e) => setTrendDays(Number(e.target.value))}>
+          <select className="field-warm h-10 rounded border px-3 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25" value={String(trendDays)} onChange={(e) => setTrendDays(Number(e.target.value))}>
             <option value="7">Last 7 days</option>
             <option value="14">Last 14 days</option>
             <option value="30">Last 30 days</option>
           </select>
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="table-warm w-full min-w-[760px] text-sm">
             <thead>
               <tr>
                 <th className="text-left">Date</th>
@@ -228,7 +228,7 @@ export const ReportsPage = () => {
       <Card>
         <h2 className="mb-2 font-semibold">Supplier Performance</h2>
         <div className="overflow-auto">
-          <table className="w-full min-w-[1100px] text-sm">
+          <table className="table-warm w-full min-w-[1100px] text-sm">
             <thead>
               <tr>
                 <th className="text-left">Supplier</th>
@@ -264,7 +264,7 @@ export const ReportsPage = () => {
       <Card>
         <h2 className="mb-2 font-semibold">Warehouse Overview</h2>
         <div className="overflow-auto">
-          <table className="w-full min-w-[1180px] text-sm">
+          <table className="table-warm w-full min-w-[1180px] text-sm">
             <thead>
               <tr>
                 <th className="text-left">Warehouse</th>

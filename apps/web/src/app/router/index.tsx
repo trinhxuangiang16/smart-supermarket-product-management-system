@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter, useLocation } from "react-router-dom";
 import { AppShell } from "../../components/layout/app-shell";
 import { useAuth } from "../../features/auth/auth-context";
 import { LoginPage } from "../../features/auth/pages/login-page";
@@ -15,8 +15,12 @@ import { HistoryActionsPage } from "../../features/audit/pages/history-actions-p
 import { AutomationPage } from "../../features/automation/pages/automation-page";
 import { WarehousesPage } from "../../features/warehouses/pages/warehouses-page";
 const Guard = ({ children }: { children: JSX.Element }) => {
-  const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+  if (isLoading) {
+    return <div className="grid min-h-[60vh] place-items-center text-sm text-muted-warm">Loading session...</div>;
+  }
+  return user ? children : <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}` }} />;
 };
 const RoleLanding = () => {
   const { user } = useAuth();

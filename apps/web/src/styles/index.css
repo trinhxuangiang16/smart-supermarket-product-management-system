@@ -1,4 +1,182 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { @apply bg-slate-50 text-slate-900; }
+
+:root {
+  --color-page: #f2ebd9;
+  --color-app: #f7f3e7;
+  --color-surface: #f8f4e9;
+  --color-surface-soft: #ebe3ce;
+  --color-border: #ded4bc;
+  --color-border-soft: #e9dfc9;
+  --color-ink: #050400;
+  --color-muted: #6f654f;
+  --color-sidebar: #20462d;
+  --color-sidebar-deep: #15371f;
+  --color-sidebar-active: #718b6e;
+  --color-sidebar-text: #f8f4e9;
+  --color-gold: #bb9645;
+  --color-gold-deep: #8f6f2a;
+  --color-ochre: #bc943d;
+  --color-terracotta: #b35228;
+  --color-coral: #bf6451;
+  --color-sage: #86ad86;
+  --color-sage-deep: #315f3d;
+  --shadow-warm: 0 12px 28px rgba(71, 54, 27, 0.13);
+}
+
+@layer base {
+  body {
+    background: radial-gradient(circle at 95% 95%, rgba(255, 252, 239, 0.78), transparent 18rem), var(--color-page);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  .surface-card {
+    background: var(--color-surface);
+    border-color: var(--color-border-soft);
+    box-shadow: var(--shadow-warm);
+  }
+
+  .field-warm {
+    background: var(--color-surface-soft);
+    border-color: var(--color-sidebar);
+    color: var(--color-ink);
+  }
+
+  .field-warm::placeholder {
+    color: var(--color-muted);
+  }
+
+  .btn-gold {
+    background: linear-gradient(180deg, #c9aa5c 0%, var(--color-gold) 100%);
+    color: #fff9e8;
+    border-color: #a78335;
+  }
+
+  .btn-gold:hover {
+    background: linear-gradient(180deg, #d0b263 0%, #a98232 100%);
+  }
+
+  .products-theme .surface-card {
+    background: #fff9ee;
+    border-color: #ead6aa;
+    box-shadow: 0 10px 22px rgba(92, 64, 27, 0.14);
+  }
+
+  .panel-warm {
+    border: 1px solid #ead6aa;
+    background: #fff9ee;
+    color: #2f2b20;
+  }
+
+  .panel-warm-muted {
+    border: 1px solid #ead6aa;
+    background: #f7ebd5;
+    color: #2f2b20;
+  }
+
+  .text-muted-warm {
+    color: #8f7d5a;
+  }
+
+  .btn-secondary-warm {
+    border: 1px solid #b7c5a3;
+    background: #f4f6e9;
+    color: #315f3d;
+    box-shadow: 0 1px 2px rgba(92, 64, 27, 0.1);
+    transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+  }
+
+  .btn-secondary-warm:hover {
+    border-color: #8faa7d;
+    background: #e9f0dc;
+  }
+
+  .btn-secondary-warm:active {
+    transform: translateY(1px);
+  }
+
+  .btn-danger-warm {
+    border: 1px solid #d77a55;
+    background: #f0d1b0;
+    color: #9c4326;
+    box-shadow: 0 1px 2px rgba(92, 64, 27, 0.1);
+    transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+  }
+
+  .btn-danger-warm:hover {
+    border-color: #c55f3b;
+    background: #eebf9a;
+  }
+
+  .btn-danger-warm:active {
+    transform: translateY(1px);
+  }
+
+  .btn-muted-warm {
+    border: 1px solid #d9bd80;
+    background: #fff7e6;
+    color: #6f4f13;
+    box-shadow: 0 1px 2px rgba(92, 64, 27, 0.1);
+    transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+  }
+
+  .btn-muted-warm:hover {
+    border-color: #c7a24e;
+    background: #ffecbe;
+  }
+
+  .table-warm {
+    color: #2f2b20;
+  }
+
+  .table-warm thead tr {
+    border-bottom: 1px solid #d9bd80;
+    background: #f2dfb8;
+    color: #2f2b20;
+  }
+
+  .table-warm th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 700;
+  }
+
+  .table-warm tbody tr {
+    border-bottom: 1px solid #ead6aa;
+    background: #fbf7ee;
+    transition: background-color 160ms ease;
+  }
+
+  .table-warm tbody tr:hover {
+    background: #fff0cf;
+  }
+
+  .table-warm td {
+    padding: 0.75rem;
+    vertical-align: middle;
+  }
+
+  .status-muted-warm {
+    border: 1px solid #cdbf9f;
+    background: #eadfc9;
+    color: #5d563f;
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) translateX(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+  }
+}
+
+.animate-toast-enter {
+  animation: toast-enter 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}

@@ -160,6 +160,29 @@
       },
       "savedFilters": [],
       "updatedAt": "2026-05-30T11:08:27.673Z"
+    },
+    "cmpych9wz0000s3tg57diy8k2": {
+      "preferences": {
+        "notifications": {
+          "approvalInApp": true,
+          "stockAlertEmail": false,
+          "expiryAlertEmail": false,
+          "dailySummaryEmail": false
+        },
+        "ui": {
+          "compactTables": false,
+          "defaultPageSize": 20,
+          "currency": "USD",
+          "dateFormat": "MM/dd/yyyy"
+        },
+        "roadmap": {
+          "aiPromoSuggestion": false,
+          "posScannerIntegration": false,
+          "advancedBiReports": false
+        }
+      },
+      "savedFilters": [],
+      "updatedAt": "2026-06-03T17:40:25.197Z"
     }
   },
   "system": {

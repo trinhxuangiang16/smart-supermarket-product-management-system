@@ -122,14 +122,14 @@ export const SuppliersPage = () => {
 
   return (
     <div className="space-y-4">
-      {message ? <Card><p className="text-sm text-emerald-700">{message}</p></Card> : null}
-      {error ? <Card><p className="text-sm text-red-600">{error}</p></Card> : null}
-      {queryError ? <Card><p className="text-sm text-red-600">{queryError.message}</p></Card> : null}
+      {message ? <Card><p className="text-sm text-[#315f3d]">{message}</p></Card> : null}
+      {error ? <Card><p className="text-sm text-[#9c4326]">{error}</p></Card> : null}
+      {queryError ? <Card><p className="text-sm text-[#9c4326]">{queryError.message}</p></Card> : null}
 
       <Card>
         <div className="mb-2 flex items-center justify-between">
           <div className="font-semibold">{editing ? "Edit Supplier" : "Create Supplier"}</div>
-          {!canManage ? <span className="text-xs text-slate-500">Read-only for this role</span> : null}
+          {!canManage ? <span className="text-xs text-muted-warm">Read-only for this role</span> : null}
         </div>
         <div className="grid gap-2 md:grid-cols-3">
           <Input
@@ -174,7 +174,7 @@ export const SuppliersPage = () => {
             {editing ? (isSubmitting ? "Saving..." : "Save Changes") : (isSubmitting ? "Creating..." : "Create Supplier")}
           </Button>
           {editing ? (
-            <Button className="bg-slate-500" onClick={cancelEdit} disabled={isSubmitting}>
+            <Button className="btn-muted-warm" onClick={cancelEdit} disabled={isSubmitting}>
               Cancel
             </Button>
           ) : null}
@@ -188,10 +188,10 @@ export const SuppliersPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="self-center text-xs text-slate-500">Total: {rows.length}</div>
+          <div className="self-center text-xs text-muted-warm">Total: {rows.length}</div>
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[1280px] table-fixed text-sm">
+          <table className="table-warm w-full min-w-[1280px] table-fixed text-sm">
             <colgroup>
               <col className="w-[16%]" />
               <col className="w-[16%]" />
@@ -202,7 +202,7 @@ export const SuppliersPage = () => {
               <col className="w-[10%]" />
             </colgroup>
             <thead>
-              <tr className="border-b bg-slate-50">
+              <tr>
                 <th className="px-3 py-2 text-left font-semibold">Name</th>
                 <th className="px-3 py-2 text-left font-semibold">Email</th>
                 <th className="px-3 py-2 text-left font-semibold">Phone</th>
@@ -215,30 +215,30 @@ export const SuppliersPage = () => {
             <tbody>
               {suppliersQuery.isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">Loading suppliers...</td>
+                  <td colSpan={7} className="px-3 py-8 text-center text-muted-warm">Loading suppliers...</td>
                 </tr>
               ) : null}
               {!suppliersQuery.isLoading && !rows.length ? (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-slate-500">No suppliers found.</td>
+                  <td colSpan={7} className="px-3 py-8 text-center text-muted-warm">No suppliers found.</td>
                 </tr>
               ) : null}
               {rows.map((s) => (
-                <tr key={s.id} className="border-b last:border-0">
+                <tr key={s.id}>
                   <td className="truncate px-3 py-2" title={s.name}>{s.name}</td>
                   <td className="truncate px-3 py-2" title={s.contactEmail ?? "-"}>{s.contactEmail ?? "-"}</td>
                   <td className="truncate px-3 py-2" title={s.contactPhone ?? "-"}>{s.contactPhone ?? "-"}</td>
                   <td className="truncate px-3 py-2" title={s.address ?? "-"}>{s.address ?? "-"}</td>
                   <td className="px-3 py-2">
                     <div className="truncate font-medium" title={s.contactPerson ?? "-"}>{s.contactPerson ?? "-"}</div>
-                    <div className="truncate text-xs text-slate-500" title={s.notes ?? "-"}>{s.notes ?? "-"}</div>
+                    <div className="truncate text-xs text-muted-warm" title={s.notes ?? "-"}>{s.notes ?? "-"}</div>
                   </td>
                   <td className="px-3 py-2 text-center">{s._count?.products ?? 0}</td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2 whitespace-nowrap">
                       {canManage ? (
                         <button
-                          className="inline-flex h-9 items-center gap-1 rounded border px-3 text-xs hover:bg-slate-50"
+                          className="btn-secondary-warm inline-flex h-9 items-center gap-1 rounded px-3 text-xs font-semibold"
                           onClick={() => startEdit(s)}
                         >
                           <Pencil size={13} /> Edit
@@ -246,7 +246,7 @@ export const SuppliersPage = () => {
                       ) : null}
                       {canDelete ? (
                         <button
-                          className="inline-flex h-9 items-center gap-1 rounded border border-red-200 bg-red-50 px-3 text-xs text-red-700 hover:bg-red-100 disabled:opacity-50"
+                          className="btn-danger-warm inline-flex h-9 items-center gap-1 rounded px-3 text-xs font-semibold disabled:opacity-50"
                           disabled={deleteMutation.isPending}
                           onClick={() => {
                             if (!window.confirm(`Delete supplier ${s.name}?`)) return;

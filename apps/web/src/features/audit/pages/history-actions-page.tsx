@@ -2,16 +2,12 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, getToken } from "../../../lib/api-client";
 import { Card, Input } from "../../../components/ui/basic";
+import { auditActionBadgeClass, auditActionButtonClass } from "../../../lib/audit-action-style";
 import { actionLabel, actorLabel, buildFieldDiffs, describeActivity, targetLabel } from "../../../lib/audit-detail";
 
-const actionClass = (action: string) => {
-  if (action.includes("CREATE") || action.includes("_IN")) return "bg-emerald-100 text-emerald-700";
-  if (action.includes("UPDATE") || action.includes("_OUT")) return "bg-blue-100 text-blue-700";
-  if (action.includes("DELETE") || action.includes("DESTROY") || action.includes("REJECT")) return "bg-red-100 text-red-700";
-  return "bg-amber-100 text-amber-700";
-};
 const formatDateTime = (value?: string | null) => value ? new Date(value).toLocaleString("en-US") : "-";
 const renderJson = (value: unknown) => JSON.stringify(value ?? {}, null, 2);
+const filterInputClass = "h-10 text-xs";
 
 export const HistoryActionsPage = () => {
   const [search, setSearch] = useState("");
@@ -74,12 +70,13 @@ export const HistoryActionsPage = () => {
     <div className="space-y-4">
       {queryError ? (
         <Card>
-          <p className="text-sm text-red-600">{queryError.message}</p>
+          <p className="text-sm text-[#9b3f2e]">{queryError.message}</p>
         </Card>
       ) : null}
       <Card>
-        <div className="grid gap-2 md:grid-cols-6">
+        <div className="grid gap-2 lg:grid-cols-[1.25fr_0.9fr_0.9fr_1fr_0.95fr_0.95fr_auto] lg:items-center">
           <Input
+            className={filterInputClass}
             placeholder="Search by action, entity, user..."
             value={search}
             onChange={(e) => {
@@ -87,14 +84,12 @@ export const HistoryActionsPage = () => {
               setPage(1);
             }}
           />
-          <Input placeholder="Action" value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(1); }} />
-          <Input placeholder="Entity" value={entityFilter} onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }} />
-          <Input placeholder="Request ID" value={requestIdFilter} onChange={(e) => { setRequestIdFilter(e.target.value); setPage(1); }} />
-          <Input type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
-          <Input type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} />
-        </div>
-        <div className="mt-2 flex justify-end">
-          <button className="h-9 rounded border px-3 text-xs hover:bg-slate-50" onClick={exportCsv}>
+          <Input className={filterInputClass} placeholder="Action" value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(1); }} />
+          <Input className={filterInputClass} placeholder="Entity" value={entityFilter} onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }} />
+          <Input className={filterInputClass} placeholder="Request ID" value={requestIdFilter} onChange={(e) => { setRequestIdFilter(e.target.value); setPage(1); }} />
+          <Input className={filterInputClass} type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
+          <Input className={filterInputClass} type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} />
+          <button className="btn-gold h-10 whitespace-nowrap rounded border px-3 text-xs font-semibold" onClick={exportCsv}>
             Export CSV
           </button>
         </div>
@@ -103,7 +98,7 @@ export const HistoryActionsPage = () => {
         <div className="overflow-auto">
           <table className="w-full min-w-[1080px] text-sm">
             <thead>
-              <tr className="border-b bg-slate-50">
+              <tr className="border-b border-[var(--color-border)] bg-[#efe6d0]">
                 <th className="px-3 py-2 text-left">Action</th>
                 <th className="px-3 py-2 text-left">Entity</th>
                 <th className="px-3 py-2 text-left">Request ID</th>
@@ -114,22 +109,22 @@ export const HistoryActionsPage = () => {
             </thead>
             <tbody>
               {actions.isLoading ? (
-                <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-500">Loading history...</td></tr>
+                <tr><td colSpan={6} className="px-3 py-8 text-center text-[var(--color-muted)]">Loading history...</td></tr>
               ) : null}
               {rows.map((row: any) => (
-                <tr key={row.id} className="border-b last:border-0">
+                <tr key={row.id} className="border-b border-[var(--color-border-soft)] last:border-0">
                   <td className="px-3 py-2">
-                  <span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${actionClass(row.action)}`}>
+                  <span className={`inline-flex rounded px-2 py-1 text-xs font-semibold ${auditActionBadgeClass(row.action)}`}>
                       {actionLabel(row.action)}
                     </span>
                   </td>
                   <td className="px-3 py-2">{row.entity}</td>
-                  <td className="px-3 py-2 text-xs text-slate-600">{row.requestId ?? "-"}</td>
+                  <td className="px-3 py-2 text-xs text-[var(--color-muted)]">{row.requestId ?? "-"}</td>
                   <td className="px-3 py-2">{actorLabel(row)}</td>
                   <td className="px-3 py-2">{new Date(row.createdAt).toLocaleString("en-US")}</td>
                   <td className="px-3 py-2">
                     <button
-                      className={`h-8 rounded px-3 text-xs font-medium ${actionClass(row.action)}`}
+                      className={`h-8 rounded px-3 text-xs font-semibold transition active:translate-y-px ${auditActionButtonClass(row.action)}`}
                       onClick={() => setSelectedActionId(row.id)}
                     >
                       More detail
@@ -138,19 +133,19 @@ export const HistoryActionsPage = () => {
                 </tr>
               ))}
               {!actions.isLoading && !rows.length ? (
-                <tr><td colSpan={6} className="px-3 py-8 text-center text-slate-500">No audit actions found.</td></tr>
+                <tr><td colSpan={6} className="px-3 py-8 text-center text-[var(--color-muted)]">No audit actions found.</td></tr>
               ) : null}
             </tbody>
           </table>
         </div>
         <div className="mt-3 flex items-center justify-between text-sm">
-          <span className="text-slate-500">Total actions: {total}</span>
+          <span className="text-[var(--color-muted)]">Total actions: {total}</span>
           <div className="flex items-center gap-2">
-            <button className="h-9 rounded border px-3 disabled:opacity-40" disabled={page <= 1} onClick={() => setPage((v) => Math.max(1, v - 1))}>
+            <button className="h-9 rounded border border-[var(--color-border)] bg-[#fbf6ea] px-3 disabled:opacity-40" disabled={page <= 1} onClick={() => setPage((v) => Math.max(1, v - 1))}>
               Previous
             </button>
             <span>Page {page} / {totalPages}</span>
-            <button className="h-9 rounded border px-3 disabled:opacity-40" disabled={page >= totalPages} onClick={() => setPage((v) => Math.min(totalPages, v + 1))}>
+            <button className="h-9 rounded border border-[var(--color-border)] bg-[#fbf6ea] px-3 disabled:opacity-40" disabled={page >= totalPages} onClick={() => setPage((v) => Math.min(totalPages, v + 1))}>
               Next
             </button>
           </div>
@@ -158,70 +153,70 @@ export const HistoryActionsPage = () => {
       </Card>
 
       {selectedActionId ? (
-        <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/40 p-4">
-          <div className="w-full max-w-5xl rounded-md border bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b px-5 py-4">
+        <div className="fixed inset-0 z-40 grid place-items-center bg-[#15371f]/45 p-4">
+          <div className="surface-card w-full max-w-5xl rounded-md border shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-semibold">Audit Detail</h2>
-                  <span className={`rounded px-2 py-1 text-xs font-medium ${actionClass(actionDetail.data?.data?.action ?? "")}`}>
+                  <span className={`rounded px-2 py-1 text-xs font-semibold ${auditActionBadgeClass(actionDetail.data?.data?.action)}`}>
                     {actionLabel(actionDetail.data?.data?.action) ?? "DETAIL"}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-slate-500">Clear summary and field-level changes for selected action.</p>
+                <p className="mt-1 text-sm text-[var(--color-muted)]">Clear summary and field-level changes for selected action.</p>
               </div>
               <button
-                className="h-9 rounded border bg-white px-3 text-sm text-slate-700 hover:bg-slate-50"
+                className="h-9 rounded border border-[var(--color-border)] bg-[#fbf6ea] px-3 text-sm text-[var(--color-sidebar)] hover:bg-[#efe6d0]"
                 onClick={() => setSelectedActionId(null)}
               >
                 Close
               </button>
             </div>
             {actionDetail.isLoading ? (
-              <div className="p-5 text-sm text-slate-500">Loading detail...</div>
+              <div className="p-5 text-sm text-[var(--color-muted)]">Loading detail...</div>
             ) : (
               <div className="max-h-[75vh] space-y-4 overflow-auto p-5">
-                <div className="rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+                <div className="rounded border border-[#c7a24e] bg-[#ead7a2] px-3 py-2 text-sm text-[#6f4f13]">
                   {describeActivity(actionDetail.data?.data)}
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded border bg-slate-50 p-3 text-sm">
-                    <div className="text-xs text-slate-500">What</div>
+                  <div className="rounded border border-[var(--color-border)] bg-[#efe6d0] p-3 text-sm">
+                    <div className="text-xs text-[var(--color-muted)]">What</div>
                     <div className="font-medium">{actionLabel(actionDetail.data?.data?.action)}</div>
                   </div>
-                  <div className="rounded border bg-slate-50 p-3 text-sm">
-                    <div className="text-xs text-slate-500">Entity</div>
+                  <div className="rounded border border-[var(--color-border)] bg-[#efe6d0] p-3 text-sm">
+                    <div className="text-xs text-[var(--color-muted)]">Entity</div>
                     <div className="font-medium">{actionDetail.data?.data?.entity ?? "-"}</div>
                   </div>
-                  <div className="rounded border bg-slate-50 p-3 text-sm">
-                    <div className="text-xs text-slate-500">Target</div>
+                  <div className="rounded border border-[var(--color-border)] bg-[#efe6d0] p-3 text-sm">
+                    <div className="text-xs text-[var(--color-muted)]">Target</div>
                     <div className="font-medium">{targetLabel(actionDetail.data?.data)}</div>
                   </div>
-                  <div className="rounded border bg-slate-50 p-3 text-sm">
-                    <div className="text-xs text-slate-500">When</div>
+                  <div className="rounded border border-[var(--color-border)] bg-[#efe6d0] p-3 text-sm">
+                    <div className="text-xs text-[var(--color-muted)]">When</div>
                     <div className="font-medium">{formatDateTime(actionDetail.data?.data?.createdAt)}</div>
                   </div>
-                  <div className="rounded border bg-slate-50 p-3 text-sm">
-                    <div className="text-xs text-slate-500">Actor</div>
+                  <div className="rounded border border-[var(--color-border)] bg-[#efe6d0] p-3 text-sm">
+                    <div className="text-xs text-[var(--color-muted)]">Actor</div>
                     <div className="font-medium">{actorLabel(actionDetail.data?.data)}</div>
                   </div>
-                  <div className="rounded border bg-slate-50 p-3 text-sm">
-                    <div className="text-xs text-slate-500">Entity ID</div>
+                  <div className="rounded border border-[var(--color-border)] bg-[#efe6d0] p-3 text-sm">
+                    <div className="text-xs text-[var(--color-muted)]">Entity ID</div>
                     <div className="break-all font-medium">{actionDetail.data?.data?.entityId ?? "-"}</div>
                   </div>
-                  <div className="rounded border bg-slate-50 p-3 text-sm md:col-span-2">
-                    <div className="text-xs text-slate-500">Request ID</div>
+                  <div className="rounded border border-[var(--color-border)] bg-[#efe6d0] p-3 text-sm md:col-span-2">
+                    <div className="text-xs text-[var(--color-muted)]">Request ID</div>
                     <div className="break-all font-medium">{actionDetail.data?.data?.requestId ?? "-"}</div>
                   </div>
                 </div>
 
                 {actionDiffs.length ? (
-                  <section className="rounded border">
-                    <div className="border-b bg-slate-50 px-3 py-2 text-sm font-semibold">Changed Fields</div>
+                  <section className="rounded border border-[var(--color-border)]">
+                    <div className="border-b border-[var(--color-border)] bg-[#efe6d0] px-3 py-2 text-sm font-semibold">Changed Fields</div>
                     <div className="overflow-auto">
                       <table className="w-full min-w-[760px] text-sm">
                         <thead>
-                          <tr className="border-b bg-slate-50">
+                          <tr className="border-b border-[var(--color-border)] bg-[#efe6d0]">
                             <th className="px-3 py-2 text-left">Field</th>
                             <th className="px-3 py-2 text-left">Before</th>
                             <th className="px-3 py-2 text-left">After</th>
@@ -229,10 +224,10 @@ export const HistoryActionsPage = () => {
                         </thead>
                         <tbody>
                           {actionDiffs.map((diff) => (
-                            <tr key={diff.field} className="border-b last:border-0">
+                            <tr key={diff.field} className="border-b border-[var(--color-border-soft)] last:border-0">
                               <td className="px-3 py-2 font-medium">{diff.label}</td>
-                              <td className="px-3 py-2 text-red-700">{diff.before}</td>
-                              <td className="px-3 py-2 text-emerald-700">{diff.after}</td>
+                              <td className="px-3 py-2 text-[#8f2f20]">{diff.before}</td>
+                              <td className="px-3 py-2 text-[#315f3d]">{diff.after}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -242,31 +237,31 @@ export const HistoryActionsPage = () => {
                 ) : null}
 
                 {requestId ? (
-                  <section className="rounded border">
-                    <div className="border-b bg-slate-50 px-3 py-2 text-sm font-semibold">Request Timeline</div>
+                  <section className="rounded border border-[var(--color-border)]">
+                    <div className="border-b border-[var(--color-border)] bg-[#efe6d0] px-3 py-2 text-sm font-semibold">Request Timeline</div>
                     <div className="max-h-64 overflow-auto p-3">
                       {(timeline.data?.data ?? []).map((item: any) => (
-                        <div key={item.id} className="mb-2 rounded border bg-white p-2 text-xs last:mb-0">
+                        <div key={item.id} className="mb-2 rounded border border-[var(--color-border-soft)] bg-[#fbf6ea] p-2 text-xs last:mb-0">
                           <div className="font-medium">{actionLabel(item.action)}</div>
-                          <div className="text-slate-500">{new Date(item.createdAt).toLocaleString("en-US")} • {item.user?.name ?? item.user?.email ?? "-"}</div>
+                          <div className="text-[var(--color-muted)]">{new Date(item.createdAt).toLocaleString("en-US")} • {item.user?.name ?? item.user?.email ?? "-"}</div>
                         </div>
                       ))}
-                      {timeline.isLoading ? <div className="text-xs text-slate-500">Loading timeline...</div> : null}
+                      {timeline.isLoading ? <div className="text-xs text-[var(--color-muted)]">Loading timeline...</div> : null}
                     </div>
                   </section>
                 ) : null}
 
-                <details className="rounded border">
-                  <summary className="cursor-pointer bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
+                <details className="rounded border border-[var(--color-border)]">
+                  <summary className="cursor-pointer bg-[#efe6d0] px-3 py-2 text-sm font-semibold text-[var(--color-sidebar)]">
                     Technical data (JSON)
                   </summary>
                   <div className="grid gap-3 p-3 md:grid-cols-2">
-                    <section className="rounded border">
-                      <div className="border-b bg-slate-50 px-3 py-2 text-sm font-semibold">Before</div>
+                    <section className="rounded border border-[var(--color-border)]">
+                      <div className="border-b border-[var(--color-border)] bg-[#efe6d0] px-3 py-2 text-sm font-semibold">Before</div>
                       <pre className="max-h-72 overflow-auto p-3 text-xs">{renderJson(actionDetail.data?.data?.before)}</pre>
                     </section>
-                    <section className="rounded border">
-                      <div className="border-b bg-slate-50 px-3 py-2 text-sm font-semibold">After</div>
+                    <section className="rounded border border-[var(--color-border)]">
+                      <div className="border-b border-[var(--color-border)] bg-[#efe6d0] px-3 py-2 text-sm font-semibold">After</div>
                       <pre className="max-h-72 overflow-auto p-3 text-xs">{renderJson(actionDetail.data?.data?.after)}</pre>
                     </section>
                   </div>

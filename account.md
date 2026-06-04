@@ -51,7 +51,7 @@ corepack pnpm install
 docker run -d --name smart-saas-db \
   -e MYSQL_ROOT_PASSWORD=123456 \
   -e MYSQL_DATABASE=smart_supermarket \
-  -p 3308:3306 \
+  -p 3309:3306 \
   mysql:latest
 ```
 
@@ -59,7 +59,7 @@ docker run -d --name smart-saas-db \
 
 ```env
 PORT=4000
-DATABASE_URL=mysql://root:123456@localhost:3308/smart_supermarket
+DATABASE_URL=mysql://root:123456@localhost:3309/smart_supermarket
 CORS_ORIGIN=http://localhost:5173
 ```
 
@@ -95,8 +95,8 @@ corepack pnpm --filter @smart-supermarket/web dev
 ### 8) Common issues
 
 - `503 Database is unavailable`
-  - Check Docker DB is running and mapped to `3308:3306`
-  - Verify `DATABASE_URL` matches port `3308`
+  - Check Docker DB is running and mapped to `3309:3306`
+  - Verify `DATABASE_URL` matches port `3309`
 
 - `EADDRINUSE: 4000`
   - Another API process is already using port `4000`

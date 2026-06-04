@@ -100,24 +100,24 @@ export const WarehousesPage = () => {
             <Input placeholder="Warehouse name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             <Input placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} />
             <Input placeholder="Address (optional)" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-            <label className="inline-flex h-11 items-center gap-2 rounded border px-3 text-sm">
+            <label className="field-warm inline-flex h-11 items-center gap-2 rounded border px-3 text-sm">
               <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} />
               Active
             </label>
             <Button onClick={submit} disabled={createMutation.isPending || updateMutation.isPending}>{editing ? "Update" : "Create"}</Button>
           </div>
         ) : (
-          <p className="text-sm text-slate-600">You have read-only access to warehouses.</p>
+          <p className="text-sm text-[#6d5935]">You have read-only access to warehouses.</p>
         )}
         {editing && canManage ? (
           <div className="mt-2">
-            <Button className="h-9 bg-slate-500 px-3 text-xs" onClick={() => { setEditing(null); setForm({ name: "", code: "", address: "", isActive: true }); }}>
+            <Button className="btn-muted-warm h-9 px-3 text-xs" onClick={() => { setEditing(null); setForm({ name: "", code: "", address: "", isActive: true }); }}>
               Cancel Edit
             </Button>
           </div>
         ) : null}
-        {message ? <p className="mt-2 text-sm text-emerald-600">{message}</p> : null}
-        {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+        {message ? <p className="mt-2 text-sm text-[#315f3d]">{message}</p> : null}
+        {error ? <p className="mt-2 text-sm text-[#9c4326]">{error}</p> : null}
       </Card>
 
       <Card>
@@ -125,9 +125,9 @@ export const WarehousesPage = () => {
           <Input placeholder="Search warehouse..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[900px] text-sm">
+          <table className="table-warm w-full min-w-[900px] text-sm">
             <thead>
-              <tr className="border-b bg-slate-50">
+              <tr>
                 <th className="px-3 py-2 text-left">Name</th>
                 <th className="px-3 py-2 text-left">Code</th>
                 <th className="px-3 py-2 text-left">Address</th>
@@ -137,13 +137,13 @@ export const WarehousesPage = () => {
             </thead>
             <tbody>
               {q.isLoading ? (
-                <tr><td className="px-3 py-6 text-center text-slate-500" colSpan={5}>Loading warehouses...</td></tr>
+                <tr><td className="px-3 py-6 text-center text-muted-warm" colSpan={5}>Loading warehouses...</td></tr>
               ) : null}
               {q.isError ? (
-                <tr><td className="px-3 py-6 text-center text-red-600" colSpan={5}>{(q.error as Error).message}</td></tr>
+                <tr><td className="px-3 py-6 text-center text-[#9c4326]" colSpan={5}>{(q.error as Error).message}</td></tr>
               ) : null}
               {rows.map((warehouse) => (
-                <tr key={warehouse.id} className="border-b">
+                <tr key={warehouse.id}>
                   <td className="px-3 py-2">{warehouse.name}</td>
                   <td className="px-3 py-2">{warehouse.code}</td>
                   <td className="px-3 py-2">{warehouse.address || "-"}</td>
@@ -156,16 +156,16 @@ export const WarehousesPage = () => {
                     {canManage ? (
                       <div className="flex justify-end gap-2">
                         <Button className="h-9 px-3" onClick={() => startEdit(warehouse)}>Edit</Button>
-                        <Button className="h-9 bg-red-600 px-3" onClick={() => deleteMutation.mutate(warehouse.id)} disabled={deleteMutation.isPending || !canDelete}>Delete</Button>
+                        <Button className="btn-danger-warm h-9 px-3" onClick={() => deleteMutation.mutate(warehouse.id)} disabled={deleteMutation.isPending || !canDelete}>Delete</Button>
                       </div>
                     ) : (
-                      <span className="text-xs text-slate-500">Read only</span>
+                      <span className="text-xs text-muted-warm">Read only</span>
                     )}
                   </td>
                 </tr>
               ))}
               {!rows.length && !q.isLoading && !q.isError ? (
-                <tr><td className="px-3 py-6 text-center text-slate-500" colSpan={5}>No warehouses found.</td></tr>
+                <tr><td className="px-3 py-6 text-center text-muted-warm" colSpan={5}>No warehouses found.</td></tr>
               ) : null}
             </tbody>
           </table>

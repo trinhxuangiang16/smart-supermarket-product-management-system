@@ -280,18 +280,18 @@ export const SettingsPage = () => {
 
   return (
     <div className="space-y-5">
-      {message ? <Card><p className="text-sm text-emerald-700">{message}</p></Card> : null}
-      {error ? <Card><p className="text-sm text-red-600">{error}</p></Card> : null}
-      {queryError ? <Card><p className="text-sm text-red-600">{queryError.message}</p></Card> : null}
+      {message ? <Card><p className="text-sm text-[#315f3d]">{message}</p></Card> : null}
+      {error ? <Card><p className="text-sm text-[#9c4326]">{error}</p></Card> : null}
+      {queryError ? <Card><p className="text-sm text-[#9c4326]">{queryError.message}</p></Card> : null}
 
-      <section className={`space-y-3 rounded-md border p-3 ${canEditSystem ? "border-slate-200 bg-slate-50/60" : "border-slate-200 bg-slate-50/60"}`}>
-        <div className="flex flex-wrap items-start justify-between gap-3 rounded-md border bg-white px-4 py-3">
+      <section className={`space-y-3 rounded-md border p-3 ${canEditSystem ? "border-[#ead6aa] bg-[#fff9ee]/70" : "border-[#ead6aa] bg-[#fff9ee]/70"}`}>
+        <div className="flex flex-wrap items-start justify-between gap-3 rounded-md border bg-[#fff9ee] px-4 py-3">
           <div>
             <h2 className="text-base font-semibold">System Settings</h2>
-            <p className="text-xs text-slate-600">
+            <p className="text-xs text-[#6d5935]">
               Applies to the whole system: dashboard, products, notifications, and report exports.
             </p>
-            <p className={`mt-1 text-xs ${canEditSystem ? "text-emerald-700" : "text-amber-700"}`}>
+            <p className={`mt-1 text-xs ${canEditSystem ? "text-[#315f3d]" : "text-[#8b6727]"}`}>
               {canEditSystem
                 ? "Editable by ADMIN and MANAGER."
                 : "Read-only for this role. Only ADMIN or MANAGER can edit."}
@@ -311,7 +311,7 @@ export const SettingsPage = () => {
           <h3 className="mb-3 text-base font-semibold">Store Profile</h3>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <div className="mb-1 text-xs text-slate-500">Store name</div>
+            <div className="mb-1 text-xs text-muted-warm">Store name</div>
             <Input
               value={system.profile.storeName}
               disabled={!canEditSystem}
@@ -319,7 +319,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Branch name</div>
+            <div className="mb-1 text-xs text-muted-warm">Branch name</div>
             <Input
               value={system.profile.branchName}
               disabled={!canEditSystem}
@@ -327,7 +327,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Address</div>
+            <div className="mb-1 text-xs text-muted-warm">Address</div>
             <Input
               value={system.profile.address}
               disabled={!canEditSystem}
@@ -335,7 +335,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Contact phone</div>
+            <div className="mb-1 text-xs text-muted-warm">Contact phone</div>
             <Input
               value={system.profile.contactPhone}
               disabled={!canEditSystem}
@@ -343,7 +343,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Contact email</div>
+            <div className="mb-1 text-xs text-muted-warm">Contact email</div>
             <Input
               value={system.profile.contactEmail}
               disabled={!canEditSystem}
@@ -351,7 +351,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Tax code</div>
+            <div className="mb-1 text-xs text-muted-warm">Tax code</div>
             <Input
               value={system.profile.taxCode}
               disabled={!canEditSystem}
@@ -365,7 +365,7 @@ export const SettingsPage = () => {
           <h3 className="mb-3 text-base font-semibold">Operations Rules</h3>
         <div className="grid gap-3 md:grid-cols-3">
           <div>
-            <div className="mb-1 text-xs text-slate-500">Low stock threshold</div>
+            <div className="mb-1 text-xs text-muted-warm">Low stock threshold</div>
             <Input
               type="number"
               min={0}
@@ -381,7 +381,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Default reorder level</div>
+            <div className="mb-1 text-xs text-muted-warm">Default reorder level</div>
             <Input
               type="number"
               min={0}
@@ -397,7 +397,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Recent activities on dashboard</div>
+            <div className="mb-1 text-xs text-muted-warm">Recent activities on dashboard</div>
             <Input
               type="number"
               min={3}
@@ -414,7 +414,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Approval bell refresh (seconds)</div>
+            <div className="mb-1 text-xs text-muted-warm">Approval bell refresh (seconds)</div>
             <Input
               type="number"
               min={2}
@@ -431,7 +431,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Dashboard refresh (seconds)</div>
+            <div className="mb-1 text-xs text-muted-warm">Dashboard refresh (seconds)</div>
             <Input
               type="number"
               min={2}
@@ -448,7 +448,7 @@ export const SettingsPage = () => {
             />
           </div>
         </div>
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-muted-warm">
           These values are applied to low-stock KPI/filtering and live refresh behavior in the app shell and dashboard.
         </p>
         </Card>
@@ -457,7 +457,7 @@ export const SettingsPage = () => {
           <h3 className="mb-3 text-base font-semibold">Report Output</h3>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <div className="mb-1 text-xs text-slate-500">Prepared by</div>
+            <div className="mb-1 text-xs text-muted-warm">Prepared by</div>
             <Input
               value={system.reports.preparedBy}
               disabled={!canEditSystem}
@@ -474,9 +474,9 @@ export const SettingsPage = () => {
             Include store contact block in exported report
           </label>
           <div className="md:col-span-2">
-            <div className="mb-1 text-xs text-slate-500">Footer note</div>
+            <div className="mb-1 text-xs text-muted-warm">Footer note</div>
             <textarea
-              className="min-h-24 w-full rounded border px-3 py-2 text-sm"
+              className="field-warm min-h-24 w-full rounded border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25"
               value={system.reports.footerNote}
               disabled={!canEditSystem}
               onChange={(e) => setSystem({ ...system, reports: { ...system.reports, footerNote: e.target.value } })}
@@ -489,7 +489,7 @@ export const SettingsPage = () => {
           <h3 className="mb-3 text-base font-semibold">Active Sessions</h3>
           <div className="mb-3 flex justify-end">
             <Button
-              className="h-9 bg-slate-800 px-3 text-xs"
+              className="btn-danger-warm h-9 px-3 text-xs"
               onClick={() => revokeOtherSessionsMutation.mutate()}
               disabled={revokeOtherSessionsMutation.isPending}
             >
@@ -497,9 +497,9 @@ export const SettingsPage = () => {
             </Button>
           </div>
           <div className="overflow-auto">
-            <table className="w-full min-w-[860px] text-sm">
+            <table className="table-warm w-full min-w-[860px] text-sm">
               <thead>
-                <tr className="border-b bg-slate-50">
+                <tr>
                   <th className="px-3 py-2 text-left">Device</th>
                   <th className="px-3 py-2 text-left">IP</th>
                   <th className="px-3 py-2 text-left">Created</th>
@@ -510,10 +510,10 @@ export const SettingsPage = () => {
               </thead>
               <tbody>
                 {sessionsQuery.isLoading ? (
-                  <tr><td colSpan={6} className="px-3 py-6 text-center text-slate-500">Loading sessions...</td></tr>
+                  <tr><td colSpan={6} className="px-3 py-6 text-center text-muted-warm">Loading sessions...</td></tr>
                 ) : null}
                 {!sessionsQuery.isLoading && !sessions.length ? (
-                  <tr><td colSpan={6} className="px-3 py-6 text-center text-slate-500">No sessions found.</td></tr>
+                  <tr><td colSpan={6} className="px-3 py-6 text-center text-muted-warm">No sessions found.</td></tr>
                 ) : null}
                 {sessions.map((s: any) => (
                   <tr key={s.id} className="border-b">
@@ -528,7 +528,7 @@ export const SettingsPage = () => {
                     </td>
                     <td className="px-3 py-2 text-right">
                       <Button
-                        className="h-8 bg-red-600 px-3 text-xs"
+                        className="btn-danger-warm h-8 px-3 text-xs"
                         disabled={Boolean(s.revokedAt) || revokeSessionMutation.isPending}
                         onClick={() => revokeSessionMutation.mutate(s.id)}
                       >
@@ -543,10 +543,10 @@ export const SettingsPage = () => {
         </Card>
       </section>
 
-      <section className="space-y-3 rounded-md border border-slate-200 bg-white p-3">
-        <div className="rounded-md border bg-slate-50 px-4 py-3">
+      <section className="space-y-3 rounded-md border border-[#ead6aa] bg-[#fff9ee] p-3">
+        <div className="rounded-md border bg-[#f7ebd5] px-4 py-3">
           <h2 className="text-base font-semibold">Personal Settings</h2>
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-[#6d5935]">
             Applies only to your account: <span className="font-medium">{user?.email ?? "-"}</span>
           </p>
         </div>
@@ -595,9 +595,9 @@ export const SettingsPage = () => {
             Compact table density
           </label>
           <div>
-            <div className="mb-1 text-xs text-slate-500">Default page size</div>
+            <div className="mb-1 text-xs text-muted-warm">Default page size</div>
             <select
-              className="h-11 w-full rounded border px-3 text-sm"
+              className="field-warm h-11 w-full rounded border px-3 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25"
               value={String(prefs.ui.defaultPageSize)}
               onChange={(e) => setPrefs({ ...prefs, ui: { ...prefs.ui, defaultPageSize: Number(e.target.value) } })}
             >
@@ -638,7 +638,7 @@ export const SettingsPage = () => {
           />
         </div>
         <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="text-xs text-slate-500">Minimum 8 characters. Use a password you do not use on other systems.</p>
+          <p className="text-xs text-muted-warm">Minimum 8 characters. Use a password you do not use on other systems.</p>
           <Button
             className="inline-flex items-center gap-2"
             onClick={() => changePasswordMutation.mutate()}
@@ -654,7 +654,7 @@ export const SettingsPage = () => {
           <h3 className="mb-3 text-base font-semibold">Saved Filters</h3>
         <div className="grid gap-2 md:grid-cols-[1fr_0.8fr_1.4fr_auto]">
           <Input placeholder="Filter name" value={filterName} onChange={(e) => setFilterName(e.target.value)} />
-          <select className="h-11 rounded border px-3 text-sm" value={filterScope} onChange={(e) => setFilterScope(e.target.value as SavedFilterScope)}>
+          <select className="field-warm h-11 rounded border px-3 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25" value={filterScope} onChange={(e) => setFilterScope(e.target.value as SavedFilterScope)}>
             <option value="products">Products</option>
             <option value="inventory">Inventory</option>
             <option value="expiry">Expiry</option>
@@ -666,9 +666,9 @@ export const SettingsPage = () => {
         </div>
 
         <div className="mt-4 overflow-auto">
-          <table className="w-full min-w-[940px] text-sm">
+          <table className="table-warm w-full min-w-[940px] text-sm">
             <thead>
-              <tr className="border-b bg-slate-50">
+              <tr>
                 <th className="px-3 py-2 text-left">Name</th>
                 <th className="px-3 py-2 text-left">Scope</th>
                 <th className="px-3 py-2 text-left">Query</th>
@@ -677,25 +677,25 @@ export const SettingsPage = () => {
             </thead>
             <tbody>
               {savedFiltersQuery.isLoading ? (
-                <tr><td colSpan={4} className="px-3 py-6 text-center text-slate-500">Loading saved filters...</td></tr>
+                <tr><td colSpan={4} className="px-3 py-6 text-center text-muted-warm">Loading saved filters...</td></tr>
               ) : null}
               {!savedFiltersQuery.isLoading && !filterLinks.length ? (
-                <tr><td colSpan={4} className="px-3 py-6 text-center text-slate-500">No saved filters yet.</td></tr>
+                <tr><td colSpan={4} className="px-3 py-6 text-center text-muted-warm">No saved filters yet.</td></tr>
               ) : null}
               {filterLinks.map((f: any) => (
                 <tr key={f.id} className="border-b">
                   <td className="px-3 py-2">{f.name}</td>
                   <td className="px-3 py-2 uppercase">{f.scope}</td>
-                  <td className="px-3 py-2 text-xs text-slate-600">
+                  <td className="px-3 py-2 text-xs text-[#6d5935]">
                     {Object.entries(f.query ?? {}).map(([k, v]) => `${k}=${v}`).join("&") || "-"}
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-2">
-                      <Link to={f.href} className="inline-flex h-9 items-center gap-1 rounded border px-3 text-xs hover:bg-slate-50">
+                      <Link to={f.href} className="btn-secondary-warm inline-flex h-9 items-center gap-1 rounded px-3 text-xs font-semibold">
                         <ExternalLink size={13} /> Open
                       </Link>
                       <button
-                        className="inline-flex h-9 items-center gap-1 rounded border border-red-200 bg-red-50 px-3 text-xs text-red-700 hover:bg-red-100"
+                        className="btn-danger-warm inline-flex h-9 items-center gap-1 rounded px-3 text-xs font-semibold"
                         onClick={() => {
                           if (!window.confirm(`Delete saved filter "${f.name}"?`)) return;
                           deleteFilterMutation.mutate(f.id);
@@ -716,9 +716,9 @@ export const SettingsPage = () => {
           <Card>
             <h3 className="mb-3 text-base font-semibold">Role Permission Matrix</h3>
             <div className="overflow-auto">
-              <table className="w-full min-w-[760px] text-sm">
+              <table className="table-warm w-full min-w-[760px] text-sm">
                 <thead>
-                  <tr className="border-b bg-slate-50">
+                  <tr>
                     <th className="px-3 py-2 text-left">Role</th>
                     <th className="px-3 py-2 text-left">Permissions</th>
                   </tr>
@@ -727,7 +727,7 @@ export const SettingsPage = () => {
                   {(permissionMatrixQuery.data?.data ?? []).map((row: any) => (
                     <tr key={row.role} className="border-b">
                       <td className="px-3 py-2 font-medium">{row.role}</td>
-                      <td className="px-3 py-2 text-slate-600">{(row.permissions ?? []).join(" | ")}</td>
+                      <td className="px-3 py-2 text-[#6d5935]">{(row.permissions ?? []).join(" | ")}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -739,3 +739,5 @@ export const SettingsPage = () => {
     </div>
   );
 };
+
+

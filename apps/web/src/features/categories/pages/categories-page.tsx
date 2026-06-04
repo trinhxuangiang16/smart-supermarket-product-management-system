@@ -135,13 +135,13 @@ export const CategoriesPage = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <select className="h-11 rounded border px-3 text-sm" value={parentId} onChange={(e) => setParentId(e.target.value)}>
+          <select className="field-warm h-11 rounded border px-3 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25" value={parentId} onChange={(e) => setParentId(e.target.value)}>
             <option value="">No parent (root)</option>
             {(q.data?.data ?? []).filter((c) => !editing || c.id !== editing.id).map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
-          <label className="inline-flex h-11 items-center gap-2 rounded border px-3 text-sm">
+          <label className="field-warm inline-flex h-11 items-center gap-2 rounded border px-3 text-sm">
             <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
             Active
           </label>
@@ -149,13 +149,13 @@ export const CategoriesPage = () => {
             {editing ? "Update" : "Add"}
           </Button>
           {editing ? (
-            <Button className="bg-slate-500" onClick={cancelEdit}>
+            <Button className="btn-muted-warm" onClick={cancelEdit}>
               Cancel
             </Button>
           ) : null}
         </div>
-        {message ? <p className="mt-2 text-sm text-emerald-600">{message}</p> : null}
-        {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+        {message ? <p className="mt-2 text-sm text-[#315f3d]">{message}</p> : null}
+        {error ? <p className="mt-2 text-sm text-[#9c4326]">{error}</p> : null}
       </Card>
 
       <Card>
@@ -165,13 +165,13 @@ export const CategoriesPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="text-xs text-slate-500 self-center">
+          <div className="self-center text-xs text-muted-warm">
             Total: {rows.length}
           </div>
         </div>
 
         <div className="overflow-auto">
-          <table className="w-full text-sm">
+          <table className="table-warm w-full text-sm">
             <thead>
               <tr>
                 <th className="text-left py-2">Name</th>
@@ -185,31 +185,31 @@ export const CategoriesPage = () => {
             </thead>
             <tbody>
               {rows.map((c) => (
-                <tr key={c.id} className="border-t">
-                  <td className="py-2">{c.name}</td>
-                  <td className="py-2 text-slate-600">{c.description || "-"}</td>
-                  <td className="py-2">
+                <tr key={c.id}>
+                  <td>{c.name}</td>
+                  <td className="text-[#6d5935]">{c.description || "-"}</td>
+                  <td>
                     <span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${c.isActive !== false ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-700"}`}>
                       {c.isActive !== false ? "Active" : "Hidden"}
                     </span>
                   </td>
-                  <td className="py-2 text-slate-600">{c.parent?.name ?? "-"}</td>
-                  <td className="py-2">{c._count?.products ?? 0}</td>
-                  <td className="py-2">{c._count?.children ?? 0}</td>
-                  <td className="py-2">
+                  <td className="text-[#6d5935]">{c.parent?.name ?? "-"}</td>
+                  <td>{c._count?.products ?? 0}</td>
+                  <td>{c._count?.children ?? 0}</td>
+                  <td>
                     <div className="flex gap-2">
                       <Button className="h-9 px-3" onClick={() => startEdit(c)}>
                         Edit
                       </Button>
                       <Button
-                        className="h-9 px-3 bg-red-600"
+                        className="btn-danger-warm h-9 px-3"
                         onClick={() => deleteMutation.mutate(c.id)}
                         disabled={deleteMutation.isPending}
                       >
                         Delete
                       </Button>
                       <Button
-                        className={`h-9 px-3 ${c.isActive !== false ? "bg-slate-700" : "bg-emerald-700"}`}
+                        className={`h-9 px-3 ${c.isActive !== false ? "btn-muted-warm" : ""}`}
                         onClick={() => visibilityMutation.mutate({ id: c.id, isActive: !(c.isActive !== false) })}
                         disabled={visibilityMutation.isPending}
                       >
@@ -221,7 +221,7 @@ export const CategoriesPage = () => {
               ))}
               {!rows.length ? (
                 <tr>
-                  <td className="py-6 text-slate-500" colSpan={7}>
+                  <td className="py-6 text-muted-warm" colSpan={7}>
                     No categories found.
                   </td>
                 </tr>
