@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { api, getRefreshToken } from "../../../lib/api-client";
 import { useAuth } from "../../auth/auth-context";
 import { Button, Card, Input } from "../../../components/ui/basic";
+import { AiSettingsSection } from "../ai/ai-settings-section";
 
 type Preferences = {
   notifications: {
@@ -484,6 +485,8 @@ export const SettingsPage = () => {
           </div>
         </div>
         </Card>
+
+        {canEditSystem ? <AiSettingsSection /> : null}
 
         <Card>
           <h3 className="mb-3 text-base font-semibold">Active Sessions</h3>

@@ -1,4 +1,5 @@
 import { Router } from "express";
+import aiRoutes from "../modules/ai/ai.routes.js";
 import authRoutes from "../modules/auth/auth.routes.js";
 import automationRoutes from "../modules/automation/automation.routes.js";
 import approvalRoutes from "../modules/approvals/approvals.routes.js";
@@ -15,6 +16,7 @@ import settingsRoutes from "../modules/settings/settings.routes.js";
 import warehousesRoutes from "../modules/warehouses/warehouses.routes.js";
 
 const router = Router();
+router.use("/ai", aiRoutes);
 router.use("/auth", authRoutes);
 router.use("/automation", automationRoutes);
 router.use("/approvals", approvalRoutes);
