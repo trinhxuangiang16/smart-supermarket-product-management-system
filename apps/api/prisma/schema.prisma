@@ -329,6 +329,17 @@ model Employee {
   @@index([status])
 }
 
+model InsightRun {
+  id         String   @id @default(cuid())
+  topic      String
+  inputHash  String
+  resultJson Json
+  createdAt  DateTime @default(now())
+
+  @@unique([topic, inputHash])
+  @@index([topic, createdAt])
+}
+
 model AiSetting {
   id        String   @id @default(cuid())
   provider  String   @unique

@@ -16,6 +16,7 @@ import { AutomationPage } from "../../features/automation/pages/automation-page"
 import { WarehousesPage } from "../../features/warehouses/pages/warehouses-page";
 import { AssetsPage } from "../../features/assets/pages/assets-page";
 import { EmployeesPage } from "../../features/employees/pages/employees-page";
+import { InsightsPage } from "../../features/insights/pages/insights-page";
 const Guard = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useAuth();
   const location = useLocation();
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { path: "warehouses", element: <WarehousesPage /> },
       { path: "assets", element: <AssetsPage /> },
       { path: "employees", element: <EmployeesPage /> },
+      { path: "insights", element: <InsightsPage /> },
       { path: "expiry", element: <ExpiryPage /> },
       { path: "reports", element: <ReportsPage /> },
       { path: "audit", element: <HistoryActionsPage /> },
