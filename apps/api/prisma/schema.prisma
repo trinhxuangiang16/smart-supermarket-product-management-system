@@ -66,6 +66,19 @@ enum ApprovalRequestStatus {
   REJECTED
 }
 
+enum AssetStatus {
+  ACTIVE
+  IN_REPAIR
+  RETIRED
+  LOST
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
 model User {
   id             String   @id @default(cuid())
   email          String   @unique
@@ -75,6 +88,8 @@ model User {
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  assignedAssets Asset[]  @relation("assetAssignee")
+  employee       Employee?
   products       Product[]
   transactions   InventoryTransaction[] @relation("performedBy")
   approvals      InventoryTransaction[] @relation("approvedBy")
@@ -253,6 +268,67 @@ model UserSession {
   @@index([userId, revokedAt])
 }
 
+model Asset {
+  id                 String      @id @default(cuid())
+  code               String      @unique
+  name               String
+  type               String
+  status             AssetStatus @default(ACTIVE)
+  purchaseDate       DateTime
+  cost               Decimal     @db.Decimal(14, 2)
+  depreciationMonths Int         @default(0)
+  warehouseId        String?
+  assignedUserId     String?
+  notes              String?
+  isDeleted          Boolean     @default(false)
+  deletedAt          DateTime?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  warehouse          Warehouse?  @relation(fields: [warehouseId], references: [id])
+  assignedUser       User?       @relation("assetAssignee", fields: [assignedUserId], references: [id])
+
+  @@index([name])
+  @@index([type])
+  @@index([status])
+  @@index([warehouseId])
+  @@index([isDeleted])
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  parent    Department?  @relation("DepartmentTree", fields: [parentId], references: [id])
+  children  Department[] @relation("DepartmentTree")
+  employees Employee[]
+
+  @@index([parentId])
+}
+
+model Employee {
+  id           String         @id @default(cuid())
+  code         String         @unique
+  fullName     String
+  email        String?        @unique
+  phone        String?
+  departmentId String
+  position     String
+  hireDate     DateTime
+  salary       Decimal        @db.Decimal(14, 2)
+  status       EmployeeStatus @default(ACTIVE)
+  userId       String?        @unique
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  department   Department     @relation(fields: [departmentId], references: [id])
+  user         User?          @relation(fields: [userId], references: [id])
+
+  @@index([fullName])
+  @@index([departmentId])
+  @@index([status])
+}
+
 model AiSetting {
   id        String   @id @default(cuid())
   provider  String   @unique
@@ -272,6 +348,7 @@ model Warehouse {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   transactions InventoryTransaction[]
+  assets       Asset[]
 
   @@index([name])
   @@index([isActive])

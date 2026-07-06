@@ -1,6 +1,9 @@
 import { Router } from "express";
 import aiRoutes from "../modules/ai/ai.routes.js";
+import assetsRoutes from "../modules/assets/assets.routes.js";
 import authRoutes from "../modules/auth/auth.routes.js";
+import departmentsRoutes from "../modules/employees/departments.routes.js";
+import employeesRoutes from "../modules/employees/employees.routes.js";
 import automationRoutes from "../modules/automation/automation.routes.js";
 import approvalRoutes from "../modules/approvals/approvals.routes.js";
 import auditRoutes from "../modules/audit/audit.routes.js";
@@ -17,7 +20,10 @@ import warehousesRoutes from "../modules/warehouses/warehouses.routes.js";
 
 const router = Router();
 router.use("/ai", aiRoutes);
+router.use("/assets", assetsRoutes);
 router.use("/auth", authRoutes);
+router.use("/departments", departmentsRoutes);
+router.use("/employees", employeesRoutes);
 router.use("/automation", automationRoutes);
 router.use("/approvals", approvalRoutes);
 router.use("/audit", auditRoutes);

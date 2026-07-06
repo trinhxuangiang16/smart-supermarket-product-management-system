@@ -6,7 +6,7 @@ import { useAuth } from "../../features/auth/auth-context";
 import { api } from "../../lib/api-client";
 const nav = [
   ["Dashboard", "/"], ["Products", "/products"], ["Inventory", "/inventory"], ["Suppliers", "/suppliers"],
-  ["Categories", "/categories"], ["Warehouses", "/warehouses"], ["Expiry Alerts", "/expiry"], ["Reports", "/reports"], ["Audit History", "/audit"], ["Users", "/users"], ["Automation", "/automation"], ["Settings", "/settings"],
+  ["Categories", "/categories"], ["Warehouses", "/warehouses"], ["Assets", "/assets"], ["Employees", "/employees"], ["Expiry Alerts", "/expiry"], ["Reports", "/reports"], ["Audit History", "/audit"], ["Users", "/users"], ["Automation", "/automation"], ["Settings", "/settings"],
 ];
 
 const readWorkflow = (requestedChanges: any) => requestedChanges?.__workflow ?? { requiredRoles: [], approvedBy: [] };
@@ -82,6 +82,7 @@ export const AppShell = () => {
         ["Suppliers", "/suppliers"],
         ["Categories", "/categories"],
         ["Warehouses", "/warehouses"],
+        ["Assets", "/assets"],
         ["Expiry Alerts", "/expiry"],
         ["Reports", "/reports"],
         ["Audit History", "/audit"],
