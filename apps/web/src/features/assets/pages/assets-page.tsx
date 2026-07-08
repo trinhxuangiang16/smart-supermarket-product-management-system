@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { useAuth } from "../../auth/auth-context";
 import { Button, Card, Input } from "../../../components/ui/basic";
@@ -38,9 +39,12 @@ const emptyForm: AssetForm = {
   cost: 0, depreciationMonths: 0, warehouseId: "", assignedUserId: "", notes: "",
 };
 
-const statusLabels: Record<string, string> = {
-  ACTIVE: "Active", IN_REPAIR: "In repair", RETIRED: "Retired", LOST: "Lost",
-};
+const getStatusLabels = (t: any) => ({
+  ACTIVE: t("pages.assets.status.active"),
+  IN_REPAIR: t("pages.assets.status.inRepair"),
+  RETIRED: t("pages.assets.status.retired"),
+  LOST: t("pages.assets.status.lost"),
+});
 
 const statusBadge: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-700",
@@ -52,10 +56,12 @@ const statusBadge: Record<string, string> = {
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
 export const AssetsPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const { notify } = useToast();
   const canManage = ["ADMIN", "MANAGER"].includes(user?.role ?? "");
+  const statusLabels = getStatusLabels(t);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -92,7 +98,7 @@ export const AssetsPage = () => {
       ? api<any>(`/assets/${editing.id}`, { method: "PUT", body: JSON.stringify(form) })
       : api<any>("/assets", { method: "POST", body: JSON.stringify(form) }),
     onSuccess: async () => {
-      notify({ type: "success", message: editing ? "Asset updated" : "Asset created" });
+      notify({ type: "success", message: editing ? t("pages.assets.messages.updated") : t("pages.assets.messages.created") });
       setEditing(null);
       reset(emptyForm);
       await qc.invalidateQueries({ queryKey: ["assets"] });
@@ -103,7 +109,7 @@ export const AssetsPage = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api<any>(`/assets/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
-      notify({ type: "success", message: "Asset deleted" });
+      notify({ type: "success", message: t("pages.assets.messages.deleted") });
       await qc.invalidateQueries({ queryKey: ["assets"] });
     },
     onError: (e) => notify({ type: "error", message: (e as Error).message }),
@@ -140,39 +146,39 @@ export const AssetsPage = () => {
     <div className="space-y-4">
       {canManage ? (
         <Card>
-          <div className="mb-2 font-semibold">{editing ? `Edit Asset: ${editing.code}` : "Create Asset"}</div>
+          <div className="mb-2 font-semibold">{editing ? `Edit Asset: ${editing.code}` : t("pages.assets.buttons.create")}</div>
           <form onSubmit={handleSubmit((form) => saveMutation.mutate(form))}>
             <div className="grid gap-2 md:grid-cols-3">
-              <div><Input placeholder="Asset code (unique)" {...register("code")} />{fieldError("code")}</div>
-              <div><Input placeholder="Asset name" {...register("name")} />{fieldError("name")}</div>
-              <div><Input placeholder="Type (e.g. Freezer, Forklift, POS)" {...register("type")} />{fieldError("type")}</div>
+              <div><Input placeholder={t("pages.assets.form.labels.code")} {...register("code")} />{fieldError("code")}</div>
+              <div><Input placeholder={t("pages.assets.form.labels.name")} {...register("name")} />{fieldError("name")}</div>
+              <div><Input placeholder={t("pages.assets.form.labels.type")} {...register("type")} />{fieldError("type")}</div>
               <div>
                 <select className="field-warm h-11 w-full rounded border px-3 text-sm" {...register("status")}>
                   {Object.entries(statusLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                 </select>
               </div>
-              <div><Input type="date" title="Purchase date" {...register("purchaseDate")} />{fieldError("purchaseDate")}</div>
-              <div><Input type="number" step="0.01" placeholder="Cost" {...register("cost")} />{fieldError("cost")}</div>
-              <div><Input type="number" placeholder="Depreciation months (0 = none)" {...register("depreciationMonths")} />{fieldError("depreciationMonths")}</div>
+              <div><Input type="date" title={t("pages.assets.form.labels.purchaseDate")} {...register("purchaseDate")} />{fieldError("purchaseDate")}</div>
+              <div><Input type="number" step="0.01" placeholder={t("pages.assets.form.labels.cost")} {...register("cost")} />{fieldError("cost")}</div>
+              <div><Input type="number" placeholder={t("pages.assets.form.labels.depreciationMonths")} {...register("depreciationMonths")} />{fieldError("depreciationMonths")}</div>
               <div>
                 <select className="field-warm h-11 w-full rounded border px-3 text-sm" {...register("warehouseId")}>
-                  <option value="">No warehouse</option>
+                  <option value="">—</option>
                   {warehouses.map((w: any) => <option key={w.id} value={w.id}>{w.name} ({w.code})</option>)}
                 </select>
               </div>
               <div>
                 <select className="field-warm h-11 w-full rounded border px-3 text-sm" {...register("assignedUserId")}>
-                  <option value="">Not assigned</option>
+                  <option value="">—</option>
                   {(Array.isArray(users) ? users : []).map((u: any) => <option key={u.id} value={u.id}>{u.name} ({u.role})</option>)}
                 </select>
               </div>
-              <div className="md:col-span-3"><Input placeholder="Notes" {...register("notes")} /></div>
+              <div className="md:col-span-3"><Input placeholder={t("pages.assets.form.labels.notes")} {...register("notes")} /></div>
             </div>
             <div className="mt-3 flex gap-2">
               <Button type="submit" disabled={saveMutation.isPending}>
-                {saveMutation.isPending ? "Saving..." : editing ? "Save Changes" : "Create Asset"}
+                {saveMutation.isPending ? t("common.loading") : editing ? t("common.save") : t("pages.assets.buttons.create")}
               </Button>
-              {editing ? <Button type="button" className="btn-muted-warm" onClick={cancelEdit}>Cancel</Button> : null}
+              {editing ? <Button type="button" className="btn-muted-warm" onClick={cancelEdit}>{t("common.cancel")}</Button> : null}
             </div>
           </form>
         </Card>
@@ -180,38 +186,38 @@ export const AssetsPage = () => {
 
       <Card>
         <div className="mb-3 grid gap-2 md:grid-cols-[1fr_180px_220px_auto]">
-          <Input placeholder="Search by code, name, type..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
-          <select className="field-warm h-11 rounded border px-3 text-sm" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} title="Status filter">
-            <option value="">All statuses</option>
+          <Input placeholder={t("pages.assets.search.placeholder")} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          <select className="field-warm h-11 rounded border px-3 text-sm" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} title={t("pages.assets.filters.status")}>
+            <option value="">{t("pages.assets.filters.status")}</option>
             {Object.entries(statusLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
-          <select className="field-warm h-11 rounded border px-3 text-sm" value={warehouseFilter} onChange={(e) => { setWarehouseFilter(e.target.value); setPage(1); }} title="Warehouse filter">
-            <option value="">All warehouses</option>
+          <select className="field-warm h-11 rounded border px-3 text-sm" value={warehouseFilter} onChange={(e) => { setWarehouseFilter(e.target.value); setPage(1); }} title={t("pages.assets.filters.warehouse")}>
+            <option value="">{t("pages.assets.filters.warehouse")}</option>
             {warehouses.map((w: any) => <option key={w.id} value={w.id}>{w.name}</option>)}
           </select>
-          <div className="self-center text-xs text-muted-warm">Total: {data?.total ?? 0}</div>
+          <div className="self-center text-xs text-muted-warm">{rows.length} {t("pages.assets.title")}</div>
         </div>
         <div className="overflow-auto">
           <table className="table-warm w-full min-w-[1280px] text-sm">
             <thead>
               <tr>
-                <th className="px-3 py-2 text-left font-semibold">Code</th>
-                <th className="px-3 py-2 text-left font-semibold">Name / Type</th>
-                <th className="px-3 py-2 text-left font-semibold">Status</th>
-                <th className="px-3 py-2 text-left font-semibold">Purchased</th>
-                <th className="px-3 py-2 text-right font-semibold">Cost</th>
-                <th className="px-3 py-2 text-right font-semibold">Current Value</th>
-                <th className="px-3 py-2 text-left font-semibold">Warehouse</th>
-                <th className="px-3 py-2 text-left font-semibold">Assigned To</th>
-                <th className="px-3 py-2 text-right font-semibold">Actions</th>
+                <th className="px-3 py-2 text-left font-semibold">{t("pages.assets.table.headers.code")}</th>
+                <th className="px-3 py-2 text-left font-semibold">{t("pages.assets.table.headers.name")}</th>
+                <th className="px-3 py-2 text-left font-semibold">{t("pages.assets.table.headers.status")}</th>
+                <th className="px-3 py-2 text-left font-semibold">{t("pages.assets.table.headers.purchaseDate")}</th>
+                <th className="px-3 py-2 text-right font-semibold">{t("pages.assets.form.labels.cost")}</th>
+                <th className="px-3 py-2 text-right font-semibold">{t("pages.assets.table.headers.currentValue")}</th>
+                <th className="px-3 py-2 text-left font-semibold">{t("pages.assets.table.headers.warehouse")}</th>
+                <th className="px-3 py-2 text-left font-semibold">{t("pages.assets.table.headers.assignedUser")}</th>
+                <th className="px-3 py-2 text-right font-semibold">{t("common.edit")}</th>
               </tr>
             </thead>
             <tbody>
               {assetsQuery.isLoading ? (
-                <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-warm">Loading assets...</td></tr>
+                <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-warm">{t("pages.assets.table.states.loading")}</td></tr>
               ) : null}
               {!assetsQuery.isLoading && !rows.length ? (
-                <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-warm">No assets found.</td></tr>
+                <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-warm">{t("pages.assets.table.states.empty")}</td></tr>
               ) : null}
               {rows.map((a) => (
                 <tr key={a.id} className="border-b">
@@ -238,7 +244,7 @@ export const AssetsPage = () => {
                       {canManage ? (
                         <>
                           <button className="btn-secondary-warm inline-flex h-9 items-center gap-1 rounded px-3 text-xs font-semibold" onClick={() => startEdit(a)}>
-                            <Pencil size={13} /> Edit
+                            <Pencil size={13} /> {t("common.edit")}
                           </button>
                           <button
                             className="btn-danger-warm inline-flex h-9 items-center gap-1 rounded px-3 text-xs font-semibold disabled:opacity-50"

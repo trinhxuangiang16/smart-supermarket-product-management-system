@@ -1,0 +1,1057 @@
+{
+  "common": {
+    "search": "Tìm kiếm",
+    "profile": "Hồ sơ",
+    "logout": "Đăng xuất",
+    "loading": "Đang tải...",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "close": "Đóng",
+    "confirm": "Xác nhận",
+    "submit": "Gửi"
+  },
+  "nav": {
+    "dashboard": "Tổng quan",
+    "products": "Sản phẩm",
+    "inventory": "Kho vận",
+    "suppliers": "Nhà cung cấp",
+    "categories": "Danh mục",
+    "warehouses": "Kho hàng",
+    "assets": "Tài sản",
+    "employees": "Nhân viên",
+    "expiryAlerts": "Cảnh báo hạn dùng",
+    "reports": "Báo cáo",
+    "aiInsights": "AI Insights",
+    "auditHistory": "Lịch sử hành động",
+    "users": "Người dùng",
+    "automation": "Tự động hóa",
+    "settings": "Cài đặt"
+  },
+  "appShell": {
+    "managementSystem": "Hệ thống quản lý",
+    "approvalNotifications": "Thông báo duyệt",
+    "approvalRequests": "Yêu cầu duyệt",
+    "approvalRequestsDesc": "Yêu cầu sửa/xóa sản phẩm đang chờ duyệt.",
+    "loadingRequests": "Đang tải yêu cầu...",
+    "noPendingRequests": "Không có yêu cầu nào đang chờ duyệt.",
+    "badge": {
+      "delete": "Xóa",
+      "edit": "Sửa"
+    },
+    "requestsDeletion": "yêu cầu xóa",
+    "requestsChanges": "yêu cầu thay đổi",
+    "nextRequiredRole": "Vai trò duyệt tiếp theo:",
+    "approvalDetail": "Chi tiết duyệt",
+    "deleteRequest": "Yêu cầu xóa",
+    "editRequest": "Yêu cầu sửa",
+    "requestedBy": "Yêu cầu bởi",
+    "product": "Sản phẩm",
+    "name": "Tên",
+    "sku": "SKU",
+    "currentStock": "Tồn kho hiện tại",
+    "reason": "Lý do",
+    "requestedChanges": "Thay đổi được yêu cầu",
+    "current": "Hiện tại",
+    "requested": "Được yêu cầu",
+    "deleteWarning": "Yêu cầu này sẽ loại bỏ sản phẩm khỏi quản lý sản phẩm đang hoạt động. Lịch sử giao dịch sẽ được giữ lại để đảm bảo an toàn kiểm toán.",
+    "approvalWorkflow": "Quy trình duyệt",
+    "requiredRoles": "Vai trò yêu cầu:",
+    "approvedSteps": "Bước đã duyệt:",
+    "reviewNote": "Ghi chú duyệt",
+    "reviewNotePlaceholder": "Thêm ghi chú cho hành động duyệt/từ chối...",
+    "reviewNoteHint": "Từ chối yêu cầu ghi chú ít nhất 3 ký tự.",
+    "reject": "Từ chối",
+    "approve": "Duyệt",
+    "profile": "Hồ sơ",
+    "logout": "Đăng xuất"
+  },
+  "pages": {
+    "login": {
+      "heading": "Đăng nhập",
+      "button": {
+        "signin": "Đăng nhập"
+      }
+    },
+    "dashboard": {
+      "kpi": {
+        "totalProducts": "Tổng sản phẩm",
+        "totalStockValue": "Giá trị tồn kho",
+        "expiringSoon": "Sắp hết hạn",
+        "expired": "Đã hết hạn",
+        "lowStock": "Tồn kho thấp"
+      },
+      "charts": {
+        "expiry": {
+          "title": "Phân bố hạn dùng",
+          "subtitle": "Tỷ lệ trạng thái hạn dùng của sản phẩm hiện tại"
+        },
+        "stockValue": {
+          "title": "Giá trị tồn kho theo danh mục",
+          "subtitle": "Giá trị hàng tồn kho nhóm theo danh mục sản phẩm"
+        }
+      },
+      "table": {
+        "title": "Giao dịch gần đây",
+        "subtitle": "Hoạt động cơ sở dữ liệu mới nhất trong hệ thống",
+        "headers": {
+          "action": "Hành động",
+          "entity": "Đối tượng",
+          "target": "Mục tiêu",
+          "by": "Bởi",
+          "when": "Khi nào",
+          "detail": "Chi tiết"
+        },
+        "moreDetail": "Chi tiết thêm",
+        "states": {
+          "loading": "Đang tải hoạt động...",
+          "empty": "Không có hoạt động gần đây."
+        }
+      },
+      "modal": {
+        "detail": {
+          "title": "Chi tiết hoạt động",
+          "subtitle": "Tóm tắt rõ ràng và các thay đổi cấp trường cho hành động này",
+          "loading": "Đang tải chi tiết hoạt động...",
+          "labels": {
+            "what": "Gì",
+            "entity": "Đối tượng",
+            "target": "Mục tiêu",
+            "when": "Khi nào",
+            "actor": "Người thực hiện",
+            "entityId": "ID Đối tượng",
+            "changedFields": "Trường đã thay đổi",
+            "field": "Trường",
+            "before": "Trước",
+            "after": "Sau",
+            "technical": "Dữ liệu kỹ thuật (JSON)"
+          }
+        }
+      }
+    },
+    "products": {
+      "search": {
+        "placeholder": "Tìm theo tên sản phẩm, SKU, thương hiệu..."
+      },
+      "filters": {
+        "button": "Bộ lọc",
+        "advanced": {
+          "title": "Bộ lọc nâng cao",
+          "subtitle": "Giữ các bộ lọc hiếm ở đây để bảng sản phẩm gọn gàng.",
+          "reset": "Đặt lại"
+        },
+        "presets": {
+          "all": "Tất cả sản phẩm",
+          "stockValue": "Tập trung giá trị tồn kho",
+          "expiringSoon": "Sắp hết hạn",
+          "expired": "Đã hết hạn",
+          "lowStock": "Tồn kho thấp"
+        },
+        "category": {
+          "label": "Tất cả danh mục",
+          "applied": "Danh mục"
+        },
+        "supplier": {
+          "label": "Tất cả nhà cung cấp",
+          "applied": "Nhà cung cấp"
+        },
+        "expiry": {
+          "label": "Tất cả trạng thái hạn",
+          "applied": "Hạn dùng:",
+          "options": {
+            "normal": "Bình thường",
+            "warning15": "Cảnh báo 4-15 ngày",
+            "alert3": "Cảnh báo 0-3 ngày",
+            "expired": "Đã hết hạn",
+            "destroyed": "Đã hủy"
+          }
+        },
+        "stock": {
+          "label": "Tất cả mức tồn kho",
+          "applied": "Tồn kho:",
+          "options": {
+            "low": "Tồn kho thấp",
+            "outOfStock": "Hết hàng",
+            "normal": "Tồn kho bình thường"
+          }
+        },
+        "sortBy": {
+          "updated": "Sắp xếp theo thời gian cập nhật",
+          "name": "Sắp xếp theo tên",
+          "sellingPrice": "Sắp xếp theo giá bán",
+          "costPrice": "Sắp xếp theo giá vốn",
+          "stock": "Sắp xếp theo tồn kho",
+          "expiryDate": "Sắp xếp theo ngày hết hạn"
+        },
+        "sortOrder": {
+          "desc": "Giảm dần",
+          "asc": "Tăng dần"
+        },
+        "priceRange": "Khoảng giá",
+        "customSort": "Sắp xếp tùy chỉnh",
+        "appliedSummary": "Đã áp dụng:",
+        "clearAll": "Xóa tất cả",
+        "minPrice": "Giá tối thiểu",
+        "maxPrice": "Giá tối đa"
+      },
+      "buttons": {
+        "import": "Nhập CSV",
+        "importing": "Đang nhập...",
+        "archive": "Lưu trữ",
+        "create": "Tạo",
+        "duplicate": "Nhân bản",
+        "edit": "Sửa",
+        "delete": "Xóa",
+        "send": "Gửi",
+        "previous": "Trước",
+        "next": "Sau",
+        "cancel": "Hủy",
+        "confirm": "Xác nhận",
+        "createProduct": "Tạo sản phẩm",
+        "creating": "Đang tạo..."
+      },
+      "table": {
+        "headers": {
+          "name": "Tên",
+          "sku": "SKU",
+          "brand": "Thương hiệu",
+          "stock": "Tồn kho",
+          "status": "Trạng thái",
+          "action": "Hành động"
+        },
+        "pagination": {
+          "perPage10": "10 / trang",
+          "perPage20": "20 / trang",
+          "perPage50": "50 / trang",
+          "perPage100": "100 / trang",
+          "page": "Trang"
+        },
+        "total": "Tổng sản phẩm:",
+        "states": {
+          "loading": "Đang tải sản phẩm...",
+          "empty": "Không tìm thấy sản phẩm."
+        }
+      },
+      "status": {
+        "expired": "Đã hết hạn",
+        "destroyed": "Đã hủy",
+        "alert": "Cảnh báo",
+        "warning": "Cảnh báo",
+        "normal": "Bình thường"
+      },
+      "form": {
+        "labels": {
+          "name": "Tên sản phẩm",
+          "brand": "Thương hiệu",
+          "manufacturer": "Nhà sản xuất",
+          "sku": "SKU",
+          "barcode": "Mã vạch",
+          "costPrice": "Giá vốn",
+          "sellingPrice": "Giá bán",
+          "currentStock": "Tồn kho hiện tại",
+          "reorderLevel": "Mức đặt hàng lại",
+          "imageUrl": "URL hình ảnh",
+          "notes": "Ghi chú"
+        },
+        "types": {
+          "freshFood": "Thực phẩm tươi",
+          "dryGoods": "Hàng khô",
+          "cosmetics": "Mỹ phẩm",
+          "household": "Gia dụng",
+          "custom": "Tùy chỉnh"
+        },
+        "units": {
+          "piece": "CÁI",
+          "kg": "KG",
+          "g": "G",
+          "l": "L",
+          "ml": "ML",
+          "box": "HỘP"
+        },
+        "selects": {
+          "selectCategory": "Chọn danh mục",
+          "selectSupplier": "Chọn nhà cung cấp"
+        },
+        "preview": {
+          "profitMargin": "Xem trước biên lợi nhuận:",
+          "daysUntilExpiry": "Ngày đến hết hạn:",
+          "warning15Active": "Cảnh báo 15 ngày đang hoạt động",
+          "alert3Active": "Cảnh báo 3 ngày đang hoạt động"
+        },
+        "reasonLabel": "Lý do duyệt"
+      },
+      "modal": {
+        "create": {
+          "title": "Tạo sản phẩm",
+          "subtitle": "Điền thông tin cơ bản sản phẩm, giá cả, tồn kho và ngày hết hạn trong một modal tập trung."
+        },
+        "edit": {
+          "action": "Gửi yêu cầu này cho quản lý và admin duyệt."
+        },
+        "delete": {
+          "confirmMessage": "Xác nhận xóa sản phẩm này ngay bây giờ.",
+          "updateMessage": "Xác nhận lưu thay đổi sản phẩm ngay bây giờ.",
+          "approvalMessage": "Điều này sẽ yêu cầu loại bỏ sản phẩm khỏi hoạt động. Lịch sử hàng tồn kho và kiểm toán sẽ được giữ lại.",
+          "directMessage": "Hành động này sẽ loại bỏ sản phẩm khỏi hoạt động ngay lập tức.",
+          "reasonPlaceholder": "Giải thích lý do sản phẩm này nên được cập nhật hoặc xóa..."
+        },
+        "titles": {
+          "new": "Sản phẩm mới",
+          "deleteRequest": "Yêu cầu xóa",
+          "editRequest": "Yêu cầu sửa"
+        },
+        "actions": {
+          "deleteAction": "Xóa",
+          "editAction": "Sửa"
+        },
+        "closeCreate": "Đóng modal tạo sản phẩm"
+      },
+      "messages": {
+        "created": "Đã tạo sản phẩm",
+        "updated": "Đã cập nhật sản phẩm",
+        "deleted": "Đã xóa sản phẩm",
+        "duplicated": "Đã nhân bản sản phẩm",
+        "approvalSent": "Đã gửi yêu cầu duyệt",
+        "archived": "Đã lưu trữ {{count}} sản phẩm",
+        "importDone": "Nhập xong. Đã tạo: {{created}}, Đã cập nhật: {{updated}}, Đã bỏ qua: {{skipped}}",
+        "importFailed": "Nhập thất bại",
+        "requiredFields": "Tên, SKU và danh mục là bắt buộc",
+        "reasonTooShort": "Lý do phải có ít nhất 8 ký tự",
+        "noFieldChanged": "Thay đổi ít nhất một trường trước khi gửi yêu cầu sửa",
+        "nonNegative": "Giá và mức đặt hàng lại không được âm"
+      }
+    },
+    "inventory": {
+      "buttons": {
+        "submit": "Gửi giao dịch",
+        "retry": "Thử lại"
+      },
+      "filters": {
+        "search": "Tìm giao dịch...",
+        "button": "Bộ lọc",
+        "reset": "Đặt lại",
+        "types": {
+          "label": "Tất cả loại",
+          "in": "NHẬP",
+          "out": "XUẤT",
+          "adjustment": "ĐIỀU CHỈNH",
+          "destroy": "HỦY"
+        },
+        "warehouses": "Tất cả kho",
+        "expiry": "Tất cả trạng thái hạn",
+        "appliedSummary": "Đã áp dụng:",
+        "type": "Loại:",
+        "warehouse": "Kho hàng",
+        "dateRange": "Khoảng thời gian",
+        "clearAll": "Xóa tất cả"
+      },
+      "pagination": {
+        "perPage10": "10 / trang",
+        "perPage20": "20 / trang",
+        "perPage50": "50 / trang",
+        "perPage100": "100 / trang",
+        "perPageChip": "{{count}} / trang",
+        "page": "Trang",
+        "previous": "Trước",
+        "next": "Sau"
+      },
+      "table": {
+        "headers": {
+          "type": "Loại",
+          "product": "Sản phẩm",
+          "qty": "Số lượng",
+          "reason": "Lý do",
+          "supplier": "Nhà cung cấp",
+          "warehouse": "Kho hàng",
+          "invoice": "Hóa đơn",
+          "date": "Ngày"
+        },
+        "total": "Tổng giao dịch:",
+        "states": {
+          "loading": "Đang tải giao dịch...",
+          "empty": "Chưa có giao dịch kho vận."
+        }
+      },
+      "modal": {
+        "title": "Gửi giao dịch",
+        "subtitle": "Tạo chuyển động nhập, xuất, điều chỉnh hoặc hủy hàng kho trong một modal tập trung.",
+        "closeAria": "Đóng modal giao dịch",
+        "transactionTypes": {
+          "in": "NHẬP",
+          "out": "XUẤT",
+          "adjustment": "ĐIỀU CHỈNH",
+          "destroy": "HỦY"
+        },
+        "adjustment": {
+          "increase": "Tăng tồn kho",
+          "decrease": "Giảm tồn kho"
+        },
+        "destroyReasons": {
+          "damaged": "Hư hỏng",
+          "expired": "Hết hạn",
+          "contaminated": "Nhiễm bẩn",
+          "other": "Khác"
+        },
+        "selects": {
+          "selectProduct": "Chọn sản phẩm",
+          "selectReason": "Chọn lý do",
+          "loadingProducts": "Đang tải sản phẩm...",
+          "loadingWarehouses": "Đang tải kho...",
+          "loadingSuppliers": "Đang tải nhà cung cấp...",
+          "warehouseOptional": "Kho hàng (tùy chọn)",
+          "supplierName": "Tên nhà cung cấp"
+        },
+        "inputs": {
+          "deliveredBy": "Người giao hàng (tên)",
+          "invoiceNumber": "Số hóa đơn"
+        },
+        "button": {
+          "submitting": "Đang gửi...",
+          "submit": "Gửi giao dịch",
+          "cancel": "Hủy"
+        }
+      },
+      "advanced": {
+        "title": "Bộ lọc nâng cao",
+        "subtitle": "Giữ kho, khoảng thời gian và bộ lọc mật độ ở đây để bảng giao dịch gọn gàng.",
+        "reset": "Đặt lại"
+      }
+    },
+    "settings": {
+      "system": {
+        "title": "Cài đặt hệ thống",
+        "subtitle": "Áp dụng cho toàn bộ hệ thống: tổng quan, sản phẩm, thông báo và xuất báo cáo.",
+        "profile": {
+          "title": "Hồ sơ cửa hàng",
+          "storeName": "Tên cửa hàng",
+          "branchName": "Tên chi nhánh",
+          "address": "Địa chỉ",
+          "contactPhone": "Số điện thoại liên hệ",
+          "contactEmail": "Email liên hệ",
+          "taxCode": "Mã số thuế"
+        },
+        "operations": {
+          "title": "Quy tắc vận hành",
+          "lowStockThreshold": "Ngưỡng tồn kho thấp",
+          "defaultReorderLevel": "Mức đặt hàng lại mặc định",
+          "recentActivitiesCount": "Hoạt động gần đây trên tổng quan",
+          "approvalBellRefresh": "Làm mới chuông duyệt (giây)",
+          "dashboardRefresh": "Làm mới tổng quan (giây)"
+        },
+        "report": {
+          "title": "Đầu ra báo cáo",
+          "preparedBy": "Được chuẩn bị bởi",
+          "footerNote": "Ghi chú chân trang",
+          "includeStoreContact": "Bao gồm khối liên hệ cửa hàng trong báo cáo được xuất"
+        },
+        "button": "Lưu cài đặt hệ thống",
+        "notice": "Có thể chỉnh sửa bởi ADMIN và MANAGER."
+      },
+      "personal": {
+        "title": "Cài đặt cá nhân",
+        "subtitle": "Tùy chỉnh cá nhân",
+        "preferences": {
+          "notifications": {
+            "title": "Thông báo",
+            "inAppApprovals": "Thông báo phê duyệt trong ứng dụng",
+            "stockAlert": "Email cảnh báo tồn kho",
+            "expiryAlert": "Email cảnh báo hạn dùng",
+            "dailySummary": "Email tóm tắt hàng ngày"
+          },
+          "ui": {
+            "title": "Giao diện",
+            "compactDensity": "Mật độ bảng gọn",
+            "defaultPageSize": "Kích thước trang mặc định"
+          }
+        },
+        "password": {
+          "title": "Đổi mật khẩu",
+          "currentPassword": "Mật khẩu hiện tại",
+          "newPassword": "Mật khẩu mới",
+          "confirmPassword": "Xác nhận mật khẩu mới",
+          "hint": "Tối thiểu 8 ký tự. Sử dụng mật khẩu không sử dụng trên các hệ thống khác.",
+          "button": "Cập nhật mật khẩu"
+        },
+        "button": "Lưu tùy chỉnh cá nhân",
+        "notice": "Chỉ áp dụng cho tài khoản của bạn:",
+        "readonlyNotice": "Chỉ đọc cho vai trò này. Chỉ ADMIN hoặc MANAGER mới có thể sửa."
+      },
+      "sessions": {
+        "title": "Phiên hoạt động",
+        "table": {
+          "headers": {
+            "device": "Thiết bị",
+            "ip": "IP",
+            "created": "Được tạo",
+            "lastActive": "Hoạt động lần cuối",
+            "status": "Trạng thái"
+          },
+          "status": {
+            "active": "Hoạt động",
+            "revoked": "Đã thu hồi"
+          },
+          "states": {
+            "loading": "Đang tải phiên...",
+            "empty": "Không tìm thấy phiên."
+          }
+        },
+        "buttons": {
+          "revoke": "Thu hồi",
+          "revokeOthers": "Thu hồi các phiên khác"
+        },
+        "messages": {
+          "sessionRevoked": "Phiên đã được thu hồi.",
+          "othersRevoked": "Các phiên khác đã được thu hồi:"
+        }
+      },
+      "savedFilters": {
+        "title": "Bộ lọc đã lưu",
+        "table": {
+          "headers": {
+            "name": "Tên",
+            "scope": "Phạm vi",
+            "query": "Truy vấn",
+            "actions": "Hành động"
+          },
+          "scopes": {
+            "products": "Sản phẩm",
+            "inventory": "Kho vận",
+            "expiry": "Hạn dùng"
+          },
+          "actions": {
+            "open": "Mở",
+            "delete": "Xóa"
+          },
+          "states": {
+            "loading": "Đang tải bộ lọc...",
+            "empty": "Chưa có bộ lọc nào được lưu."
+          }
+        },
+        "form": {
+          "filterName": "Tên bộ lọc",
+          "queryString": "Chuỗi truy vấn, vd: search=fish&expiryStatus=WARNING_15",
+          "button": "Lưu"
+        },
+        "messages": {
+          "created": "Bộ lọc đã được lưu.",
+          "deleted": "Bộ lọc đã được xóa."
+        }
+      },
+      "permissions": {
+        "title": "Ma trận quyền hạn theo vai trò",
+        "table": {
+          "headers": {
+            "role": "Vai trò",
+            "permissions": "Quyền hạn"
+          }
+        }
+      },
+      "messages": {
+        "systemSaved": "Cài đặt hệ thống đã được lưu.",
+        "personalSaved": "Cài đặt cá nhân đã được lưu.",
+        "saving": "Đang lưu..."
+      }
+    },
+    "assets": {
+      "title": "Tài sản",
+      "search": {
+        "placeholder": "Tìm theo mã tài sản, tên..."
+      },
+      "filters": {
+        "button": "Bộ lọc",
+        "status": "Tất cả trạng thái",
+        "warehouse": "Tất cả kho",
+        "reset": "Đặt lại"
+      },
+      "buttons": {
+        "create": "Tạo tài sản",
+        "edit": "Sửa",
+        "delete": "Xóa"
+      },
+      "table": {
+        "headers": {
+          "code": "Mã tài sản",
+          "name": "Tên",
+          "type": "Loại",
+          "status": "Trạng thái",
+          "purchaseDate": "Ngày mua",
+          "currentValue": "Giá trị hiện tại",
+          "monthlyDepreciation": "Khấu hao hàng tháng",
+          "warehouse": "Kho hàng",
+          "assignedUser": "Giao cho",
+          "action": "Hành động"
+        },
+        "states": {
+          "loading": "Đang tải tài sản...",
+          "empty": "Không tìm thấy tài sản."
+        }
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inRepair": "Đang sửa chữa",
+        "retired": "Đã loại biên",
+        "lost": "Mất"
+      },
+      "form": {
+        "labels": {
+          "code": "Mã tài sản",
+          "name": "Tên tài sản",
+          "type": "Loại tài sản",
+          "status": "Trạng thái",
+          "purchaseDate": "Ngày mua",
+          "cost": "Chi phí",
+          "depreciationMonths": "Tháng khấu hao",
+          "warehouse": "Kho hàng",
+          "assignedUser": "Giao cho",
+          "notes": "Ghi chú"
+        }
+      },
+      "modal": {
+        "title": "Tạo tài sản",
+        "editTitle": "Sửa tài sản"
+      },
+      "messages": {
+        "created": "Tài sản đã được tạo",
+        "updated": "Tài sản đã được cập nhật",
+        "deleted": "Tài sản đã được xóa"
+      }
+    },
+    "categories": {
+      "title": "Danh mục",
+      "search": {
+        "placeholder": "Tìm theo tên danh mục, mô tả..."
+      },
+      "buttons": {
+        "create": "Tạo danh mục",
+        "edit": "Sửa",
+        "delete": "Xóa"
+      },
+      "table": {
+        "headers": {
+          "name": "Tên",
+          "description": "Mô tả",
+          "parent": "Danh mục cha",
+          "products": "Sản phẩm",
+          "children": "Danh mục con",
+          "status": "Trạng thái",
+          "action": "Hành động"
+        },
+        "states": {
+          "loading": "Đang tải danh mục...",
+          "empty": "Không tìm thấy danh mục."
+        }
+      },
+      "form": {
+        "labels": {
+          "name": "Tên danh mục",
+          "description": "Mô tả",
+          "parent": "Danh mục cha",
+          "status": "Trạng thái",
+          "isActive": "Hoạt động"
+        }
+      },
+      "modal": {
+        "title": "Tạo danh mục",
+        "editTitle": "Sửa danh mục"
+      },
+      "messages": {
+        "created": "Danh mục đã được tạo",
+        "updated": "Danh mục đã được cập nhật",
+        "deleted": "Danh mục đã được xóa",
+        "visibilityUpdated": "Khả năng hiển thị danh mục đã được cập nhật",
+        "nameRequired": "Tên danh mục là bắt buộc"
+      }
+    },
+    "employees": {
+      "title": "Nhân viên",
+      "search": {
+        "placeholder": "Tìm theo mã nhân viên, tên, email..."
+      },
+      "filters": {
+        "button": "Bộ lọc",
+        "department": "Tất cả phòng ban",
+        "status": "Tất cả trạng thái",
+        "reset": "Đặt lại"
+      },
+      "buttons": {
+        "create": "Tạo nhân viên",
+        "createDepartment": "Tạo phòng ban",
+        "edit": "Sửa",
+        "delete": "Xóa"
+      },
+      "table": {
+        "headers": {
+          "code": "Mã",
+          "name": "Tên",
+          "email": "Email",
+          "phone": "Điện thoại",
+          "department": "Phòng ban",
+          "position": "Chức vụ",
+          "hireDate": "Ngày tuyển dụng",
+          "salary": "Lương",
+          "status": "Trạng thái",
+          "action": "Hành động"
+        },
+        "states": {
+          "loading": "Đang tải nhân viên...",
+          "empty": "Không tìm thấy nhân viên."
+        }
+      },
+      "status": {
+        "active": "Hoạt động",
+        "onLeave": "Nghỉ phép",
+        "terminated": "Đã thôi việc"
+      },
+      "form": {
+        "labels": {
+          "code": "Mã nhân viên",
+          "fullName": "Tên đầy đủ",
+          "email": "Email",
+          "phone": "Điện thoại",
+          "department": "Phòng ban",
+          "position": "Chức vụ",
+          "hireDate": "Ngày tuyển dụng",
+          "salary": "Lương",
+          "status": "Trạng thái",
+          "userId": "Người dùng hệ thống"
+        },
+        "selects": {
+          "selectDepartment": "Chọn phòng ban",
+          "selectUser": "Chọn người dùng"
+        }
+      },
+      "modal": {
+        "title": "Tạo nhân viên",
+        "editTitle": "Sửa nhân viên",
+        "deptTitle": "Tạo phòng ban"
+      },
+      "messages": {
+        "created": "Nhân viên đã được tạo",
+        "updated": "Nhân viên đã được cập nhật",
+        "deleted": "Nhân viên đã được xóa"
+      }
+    },
+    "suppliers": {
+      "title": "Nhà cung cấp",
+      "search": {
+        "placeholder": "Tìm theo tên nhà cung cấp, liên hệ, email..."
+      },
+      "buttons": {
+        "create": "Tạo nhà cung cấp",
+        "edit": "Sửa",
+        "delete": "Xóa"
+      },
+      "table": {
+        "headers": {
+          "name": "Tên",
+          "contact": "Người liên hệ",
+          "email": "Email",
+          "phone": "Điện thoại",
+          "address": "Địa chỉ",
+          "products": "Sản phẩm",
+          "createdAt": "Được tạo",
+          "action": "Hành động"
+        },
+        "states": {
+          "loading": "Đang tải nhà cung cấp...",
+          "empty": "Không tìm thấy nhà cung cấp."
+        }
+      },
+      "form": {
+        "labels": {
+          "name": "Tên nhà cung cấp",
+          "contactPerson": "Người liên hệ",
+          "email": "Email liên hệ",
+          "phone": "Điện thoại liên hệ",
+          "address": "Địa chỉ",
+          "notes": "Ghi chú"
+        }
+      },
+      "modal": {
+        "title": "Tạo nhà cung cấp",
+        "editTitle": "Sửa nhà cung cấp"
+      },
+      "messages": {
+        "created": "Nhà cung cấp đã được tạo.",
+        "updated": "Nhà cung cấp đã được cập nhật.",
+        "deleted": "Nhà cung cấp đã được xóa.",
+        "nameRequired": "Tên nhà cung cấp là bắt buộc.",
+        "noPermission": "Chỉ quản lý/admin mới có thể tạo hoặc sửa nhà cung cấp."
+      }
+    },
+    "users": {
+      "title": "Người dùng",
+      "search": {
+        "placeholder": "Tìm theo tên, email..."
+      },
+      "filters": {
+        "button": "Bộ lọc",
+        "role": "Tất cả vai trò",
+        "status": "Tất cả trạng thái",
+        "reset": "Đặt lại"
+      },
+      "buttons": {
+        "create": "Tạo người dùng",
+        "edit": "Sửa",
+        "delete": "Xóa",
+        "changePassword": "Đổi mật khẩu",
+        "resetPassword": "Đặt lại mật khẩu"
+      },
+      "table": {
+        "headers": {
+          "name": "Tên",
+          "email": "Email",
+          "role": "Vai trò",
+          "status": "Trạng thái",
+          "createdAt": "Được tạo",
+          "lastLogin": "Đăng nhập lần cuối",
+          "action": "Hành động"
+        },
+        "states": {
+          "loading": "Đang tải người dùng...",
+          "empty": "Không tìm thấy người dùng."
+        }
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động"
+      },
+      "roles": {
+        "ADMIN": "Quản trị viên",
+        "MANAGER": "Quản lý",
+        "WAREHOUSE_STAFF": "Nhân viên kho",
+        "CASHIER": "Nhân viên bán hàng",
+        "SALE_DEPARTMENT": "Bộ phận bán hàng",
+        "FINANCE_DEPARTMENT": "Bộ phận tài chính"
+      },
+      "form": {
+        "labels": {
+          "name": "Tên đầy đủ",
+          "email": "Địa chỉ email",
+          "role": "Vai trò",
+          "password": "Mật khẩu",
+          "confirmPassword": "Xác nhận mật khẩu",
+          "isActive": "Hoạt động"
+        }
+      },
+      "modal": {
+        "title": "Tạo người dùng",
+        "editTitle": "Sửa người dùng",
+        "passwordTitle": "Đổi mật khẩu",
+        "confirmTitle": "Xác nhận hành động"
+      },
+      "messages": {
+        "created": "Người dùng đã được tạo",
+        "updated": "Người dùng đã được cập nhật",
+        "deleted": "Người dùng đã được xóa",
+        "passwordChanged": "Mật khẩu đã được thay đổi thành công",
+        "passwordReset": "Mật khẩu đã được đặt lại thành công",
+        "confirmDelete": "Bạn có chắc chắn muốn xóa người dùng này?",
+        "confirmPasswordReset": "Đặt lại mật khẩu cho người dùng này?"
+      }
+    },
+    "warehouses": {
+      "title": "Kho hàng",
+      "search": {
+        "placeholder": "Tìm theo tên kho, mã, địa chỉ..."
+      },
+      "buttons": {
+        "create": "Tạo kho hàng",
+        "edit": "Sửa",
+        "delete": "Xóa"
+      },
+      "table": {
+        "headers": {
+          "code": "Mã",
+          "name": "Tên",
+          "address": "Địa chỉ",
+          "status": "Trạng thái",
+          "action": "Hành động"
+        },
+        "states": {
+          "loading": "Đang tải kho hàng...",
+          "empty": "Không tìm thấy kho hàng."
+        }
+      },
+      "form": {
+        "labels": {
+          "name": "Tên kho hàng",
+          "code": "Mã kho hàng",
+          "address": "Địa chỉ",
+          "isActive": "Hoạt động"
+        }
+      },
+      "messages": {
+        "created": "Kho hàng đã được tạo",
+        "updated": "Kho hàng đã được cập nhật",
+        "deleted": "Kho hàng đã được xóa",
+        "nameCodeRequired": "Tên kho hàng và mã là bắt buộc",
+        "noPermission": "Bạn không có quyền thay đổi dữ liệu kho hàng."
+      }
+    },
+    "expiry": {
+      "title": "Cảnh báo hạn dùng",
+      "table": {
+        "headers": {
+          "product": "Sản phẩm",
+          "expiryStatus": "Trạng thái hạn",
+          "suggestedAction": "Hành động được đề xuất"
+        },
+        "actions": {
+          "discount20": "Giảm giá 20-30%",
+          "discount10": "Giảm giá 10-15%",
+          "destroy": "Hủy",
+          "monitor": "Giám sát"
+        }
+      }
+    },
+    "reports": {
+      "title": "Báo cáo",
+      "dateRange": {
+        "from": "Ngày bắt đầu",
+        "to": "Ngày kết thúc"
+      },
+      "sections": {
+        "inventory": "Ảnh chụp tồn kho",
+        "waste": "Phân tích hao hụt",
+        "profit": "Lợi nhuận theo danh mục",
+        "trends": "Xu hướng giao dịch",
+        "supplier": "Hiệu suất nhà cung cấp",
+        "warehouse": "Tổng quan kho hàng"
+      },
+      "buttons": {
+        "exportCsv": "Xuất CSV",
+        "exportXlsx": "Xuất XLSX",
+        "exportHtml": "Xuất HTML",
+        "exportPdf": "Xuất PDF"
+      },
+      "trendDays": {
+        "label": "Ngày xu hướng",
+        "7": "7 ngày qua",
+        "14": "14 ngày qua",
+        "30": "30 ngày qua",
+        "90": "90 ngày qua"
+      },
+      "messages": {
+        "exportFailed": "Xuất thất bại. Vui lòng thử lại."
+      }
+    },
+    "automation": {
+      "title": "Tự động hóa",
+      "jobs": {
+        "expiry": {
+          "title": "Đồng bộ trạng thái hạn dùng",
+          "description": "Tính toán lại trạng thái hạn dùng từ ngày hiện tại và ngày hết hạn.",
+          "run": "Chạy tác vụ",
+          "running": "Đang chạy..."
+        },
+        "kpi": {
+          "title": "Ảnh chụp KPI",
+          "description": "Nắm bắt cơ sở KPI hiện tại để theo dõi hoạt động.",
+          "run": "Chạy ảnh chụp",
+          "running": "Đang chạy..."
+        }
+      },
+      "labels": {
+        "status": "Trạng thái",
+        "startedAt": "Bắt đầu lúc",
+        "finishedAt": "Kết thúc lúc",
+        "summary": "Tóm tắt",
+        "latest": "Lần cuối"
+      },
+      "status": {
+        "idle": "KHÔNG HOẠT ĐỘNG",
+        "running": "ĐANG CHẠY",
+        "completed": "HOÀN THÀNH",
+        "failed": "THẤT BẠI"
+      }
+    },
+    "insights": {
+      "title": "AI Insights",
+      "description": "Chọn chủ đề để phân tích. Hệ thống tổng hợp dữ liệu thật từ cơ sở dữ liệu, gửi tới nhà cung cấp AI (Groq/Gemini/Claude/OpenAI theo thứ tự dự phòng) và trả về insights + khuyến nghị. Kết quả được lưu vào cache theo ngày và dữ liệu.",
+      "topics": {
+        "hr": {
+          "label": "Nhân sự",
+          "description": "Phân tích nhân viên theo phòng ban, chi phí lương, xu hướng tuyển dụng."
+        },
+        "inventory": {
+          "label": "Tồn kho",
+          "description": "Mức tồn kho, hết hạn, hao hụt, vòng quay và giá trị tồn theo danh mục."
+        },
+        "strategy": {
+          "label": "Chiến lược",
+          "description": "Xu hướng bán theo tháng, danh mục hàng đầu, khuyến nghị hành động."
+        }
+      },
+      "buttons": {
+        "analyze": "Phân tích",
+        "refresh": "Làm mới"
+      },
+      "labels": {
+        "summary": "Tóm tắt",
+        "findings": "Phát hiện",
+        "recommendations": "Khuyến nghị",
+        "provider": "Nhà cung cấp AI",
+        "model": "Mô hình",
+        "cached": "Kết quả được cache",
+        "generatedAt": "Được tạo"
+      },
+      "charts": {
+        "headcount": "Số nhân viên theo phòng ban",
+        "stockValue": "Giá trị tồn kho theo danh mục (Top 10)",
+        "monthlySales": "Doanh số tháng (6 tháng)"
+      },
+      "messages": {
+        "loading": "Đang phân tích...",
+        "error": "Phân tích thất bại"
+      }
+    },
+    "audit": {
+      "title": "Lịch sử kiểm toán",
+      "search": {
+        "placeholder": "Tìm theo hành động, đối tượng, người dùng..."
+      },
+      "filters": {
+        "action": "Hành động",
+        "entity": "Đối tượng",
+        "requestId": "ID yêu cầu",
+        "from": "Từ ngày",
+        "to": "Đến ngày",
+        "exportCsv": "Xuất CSV"
+      },
+      "table": {
+        "headers": {
+          "action": "Hành động",
+          "entity": "Đối tượng",
+          "target": "Mục tiêu",
+          "by": "Bởi",
+          "when": "Khi nào",
+          "detail": "Chi tiết"
+        },
+        "states": {
+          "loading": "Đang tải nhật ký kiểm toán...",
+          "empty": "Không tìm thấy nhật ký kiểm toán."
+        }
+      },
+      "detail": {
+        "title": "Chi tiết kiểm toán",
+        "labels": {
+          "what": "Gì",
+          "entity": "Đối tượng",
+          "target": "Mục tiêu",
+          "when": "Khi nào",
+          "actor": "Người thực hiện",
+          "entityId": "ID Đối tượng",
+          "changedFields": "Trường đã thay đổi",
+          "field": "Trường",
+          "before": "Trước",
+          "after": "Sau",
+          "technical": "Dữ liệu kỹ thuật (JSON)",
+          "timeline": "Dòng thời gian"
+        },
+        "loading": "Đang tải chi tiết..."
+      }
+    }
+  }
+}

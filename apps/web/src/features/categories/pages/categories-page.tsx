@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { Button, Card, Input } from "../../../components/ui/basic";
 
@@ -14,6 +15,7 @@ type CategoryRow = {
 };
 
 export const CategoriesPage = () => {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [name, setName] = useState("");
@@ -33,7 +35,7 @@ export const CategoriesPage = () => {
     mutationFn: (payload: { name: string; description?: string; isActive?: boolean; parentId?: string | null }) =>
       api("/categories", { method: "POST", body: JSON.stringify(payload) }),
     onSuccess: async () => {
-      setMessage("Category created");
+      setMessage(t("pages.categories.messages.created"));
       setError("");
       setName("");
       setDescription("");
@@ -51,7 +53,7 @@ export const CategoriesPage = () => {
         body: JSON.stringify({ name: payload.name, description: payload.description, isActive: payload.isActive, parentId: payload.parentId }),
       }),
     onSuccess: async () => {
-      setMessage("Category updated");
+      setMessage(t("pages.categories.messages.updated"));
       setError("");
       setName("");
       setDescription("");
@@ -66,7 +68,7 @@ export const CategoriesPage = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api(`/categories/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
-      setMessage("Category deleted");
+      setMessage(t("pages.categories.messages.deleted"));
       setError("");
       await qc.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -80,7 +82,7 @@ export const CategoriesPage = () => {
         body: JSON.stringify({ isActive: payload.isActive }),
       }),
     onSuccess: async () => {
-      setMessage("Category visibility updated");
+      setMessage(t("pages.categories.messages.visibilityUpdated"));
       setError("");
       await qc.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -97,7 +99,7 @@ export const CategoriesPage = () => {
 
   const submit = () => {
     if (!name.trim()) {
-      setError("Category name is required");
+      setError(t("pages.categories.messages.nameRequired"));
       return;
     }
     if (editing) {

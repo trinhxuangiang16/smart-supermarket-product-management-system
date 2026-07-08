@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, getToken } from "../../../lib/api-client";
 import { Card, Input } from "../../../components/ui/basic";
 import { auditActionBadgeClass, auditActionButtonClass } from "../../../lib/audit-action-style";
@@ -10,6 +11,7 @@ const renderJson = (value: unknown) => JSON.stringify(value ?? {}, null, 2);
 const filterInputClass = "h-10 text-xs";
 
 export const HistoryActionsPage = () => {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [actionFilter, setActionFilter] = useState("");
   const [entityFilter, setEntityFilter] = useState("");
@@ -77,20 +79,20 @@ export const HistoryActionsPage = () => {
         <div className="grid gap-2 lg:grid-cols-[1.25fr_0.9fr_0.9fr_1fr_0.95fr_0.95fr_auto] lg:items-center">
           <Input
             className={filterInputClass}
-            placeholder="Search by action, entity, user..."
+            placeholder={t("pages.audit.search.placeholder")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setPage(1);
             }}
           />
-          <Input className={filterInputClass} placeholder="Action" value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(1); }} />
-          <Input className={filterInputClass} placeholder="Entity" value={entityFilter} onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }} />
-          <Input className={filterInputClass} placeholder="Request ID" value={requestIdFilter} onChange={(e) => { setRequestIdFilter(e.target.value); setPage(1); }} />
+          <Input className={filterInputClass} placeholder={t("pages.audit.filters.action")} value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(1); }} />
+          <Input className={filterInputClass} placeholder={t("pages.audit.filters.entity")} value={entityFilter} onChange={(e) => { setEntityFilter(e.target.value); setPage(1); }} />
+          <Input className={filterInputClass} placeholder={t("pages.audit.filters.requestId")} value={requestIdFilter} onChange={(e) => { setRequestIdFilter(e.target.value); setPage(1); }} />
           <Input className={filterInputClass} type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
           <Input className={filterInputClass} type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} />
           <button className="btn-gold h-10 whitespace-nowrap rounded border px-3 text-xs font-semibold" onClick={exportCsv}>
-            Export CSV
+            {t("pages.audit.filters.exportCsv")}
           </button>
         </div>
       </Card>
@@ -98,6 +100,14 @@ export const HistoryActionsPage = () => {
         <div className="overflow-auto">
           <table className="w-full min-w-[1080px] text-sm">
             <thead>
+              <tr>
+                <th>{t("pages.audit.table.headers.action")}</th>
+                <th>{t("pages.audit.table.headers.entity")}</th>
+                <th>{t("pages.audit.table.headers.target")}</th>
+                <th>{t("pages.audit.table.headers.by")}</th>
+                <th>{t("pages.audit.table.headers.when")}</th>
+                <th>{t("pages.audit.table.headers.detail")}</th>
+              </tr>
               <tr className="border-b border-[var(--color-border)] bg-[#efe6d0]">
                 <th className="px-3 py-2 text-left">Action</th>
                 <th className="px-3 py-2 text-left">Entity</th>

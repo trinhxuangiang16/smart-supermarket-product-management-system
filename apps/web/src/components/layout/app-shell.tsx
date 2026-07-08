@@ -2,15 +2,19 @@ import { Bell, CheckCircle2, ChevronDown, CircleUserRound, Search, Store, X, XCi
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../features/auth/auth-context";
 import { api } from "../../lib/api-client";
-const nav = [
-  ["Dashboard", "/"], ["Products", "/products"], ["Inventory", "/inventory"], ["Suppliers", "/suppliers"],
-  ["Categories", "/categories"], ["Warehouses", "/warehouses"], ["Assets", "/assets"], ["Employees", "/employees"], ["Expiry Alerts", "/expiry"], ["Reports", "/reports"], ["AI Insights", "/insights"], ["Audit History", "/audit"], ["Users", "/users"], ["Automation", "/automation"], ["Settings", "/settings"],
+import { LanguageSwitcher } from "../ui/language-switcher";
+// Each nav item: [navKey, path]. navKey maps to i18n "nav.<key>".
+const nav: Array<[string, string]> = [
+  ["dashboard", "/"], ["products", "/products"], ["inventory", "/inventory"], ["suppliers", "/suppliers"],
+  ["categories", "/categories"], ["warehouses", "/warehouses"], ["assets", "/assets"], ["employees", "/employees"], ["expiryAlerts", "/expiry"], ["reports", "/reports"], ["aiInsights", "/insights"], ["auditHistory", "/audit"], ["users", "/users"], ["automation", "/automation"], ["settings", "/settings"],
 ];
 
 const readWorkflow = (requestedChanges: any) => requestedChanges?.__workflow ?? { requiredRoles: [], approvedBy: [] };
 export const AppShell = () => {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
   const { user, logout } = useAuth();
   const qc = useQueryClient();
@@ -59,42 +63,42 @@ export const AppShell = () => {
     const role = user?.role ?? "";
     if (["SALE_DEPARTMENT", "FINANCE_DEPARTMENT"].includes(role)) {
       return [
-        ["Reports", "/reports"],
-        ["Audit History", "/audit"],
-        ["Settings", "/settings"],
+        ["reports", "/reports"],
+        ["auditHistory", "/audit"],
+        ["settings", "/settings"],
       ] as Array<[string, string]>;
     }
     if (role === "CASHIER") {
       return [
-        ["Dashboard", "/"],
-        ["Products", "/products"],
-        ["Inventory", "/inventory"],
-        ["Reports", "/reports"],
-        ["Audit History", "/audit"],
-        ["Settings", "/settings"],
+        ["dashboard", "/"],
+        ["products", "/products"],
+        ["inventory", "/inventory"],
+        ["reports", "/reports"],
+        ["auditHistory", "/audit"],
+        ["settings", "/settings"],
       ] as Array<[string, string]>;
     }
     if (role === "WAREHOUSE_STAFF") {
       return [
-        ["Dashboard", "/"],
-        ["Products", "/products"],
-        ["Inventory", "/inventory"],
-        ["Suppliers", "/suppliers"],
-        ["Categories", "/categories"],
-        ["Warehouses", "/warehouses"],
-        ["Assets", "/assets"],
-        ["Expiry Alerts", "/expiry"],
-        ["Reports", "/reports"],
-        ["Audit History", "/audit"],
-        ["Settings", "/settings"],
+        ["dashboard", "/"],
+        ["products", "/products"],
+        ["inventory", "/inventory"],
+        ["suppliers", "/suppliers"],
+        ["categories", "/categories"],
+        ["warehouses", "/warehouses"],
+        ["assets", "/assets"],
+        ["expiryAlerts", "/expiry"],
+        ["reports", "/reports"],
+        ["auditHistory", "/audit"],
+        ["settings", "/settings"],
       ] as Array<[string, string]>;
     }
     if (role === "MANAGER") {
-      return nav.filter((n) => n[0] !== "Users") as Array<[string, string]>;
+      return nav.filter((n) => n[0] !== "users") as Array<[string, string]>;
     }
     return nav;
   }, [user?.role]);
-  const pageTitle = useMemo(() => visibleNav.find((x) => x[1] === pathname)?.[0] ?? "Dashboard", [pathname, visibleNav]);
+  const pageTitleKey = useMemo(() => visibleNav.find((x) => x[1] === pathname)?.[0] ?? "dashboard", [pathname, visibleNav]);
   return (
     <div className="grid h-screen bg-[var(--color-page)] md:grid-cols-[220px_1fr]">
       <aside className="overflow-y-auto border-r border-[#183a24] bg-[linear-gradient(180deg,var(--color-sidebar)_0%,var(--color-sidebar-deep)_100%)] p-3 text-[var(--color-sidebar-text)]">
@@ -107,31 +111,32 @@ export const AppShell = () => {
             <div className="min-w-0">
               <div className="truncate text-base font-extrabold leading-tight tracking-tight text-[#fff9ee]">{storeName}</div>
               <div className="mt-1 inline-flex rounded-full border border-white/10 bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#dfead7]">
-                Management System
+                {t("appShell.managementSystem")}
               </div>
             </div>
           </div>
         </div>
         <div className="mt-2 space-y-1">
-          {visibleNav.map(([label, to]) => <Link key={to} className={`block rounded px-3 py-2 text-sm transition ${pathname === to ? "bg-[var(--color-sidebar-active)] text-white shadow-sm" : "text-[#e8eddc] hover:bg-white/10"}`} to={to}>{label}</Link>)}
+          {visibleNav.map(([navKey, to]) => <Link key={to} className={`block rounded px-3 py-2 text-sm transition ${pathname === to ? "bg-[var(--color-sidebar-active)] text-white shadow-sm" : "text-[#e8eddc] hover:bg-white/10"}`} to={to}>{t(`nav.${navKey}`)}</Link>)}
         </div>
       </aside>
       <main className="overflow-y-auto">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-app)]/95 px-5 py-3 backdrop-blur">
           <div>
-            <div className="text-lg font-extrabold leading-tight tracking-tight text-[#15371f]">{pageTitle}</div>
+            <div className="text-lg font-extrabold leading-tight tracking-tight text-[#15371f]">{t(`nav.${pageTitleKey}`)}</div>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-[#ead6aa] bg-[#fff9ee]/70 p-1 shadow-[0_8px_20px_rgba(72,54,25,0.08)]">
+            <LanguageSwitcher />
             <button className="inline-flex h-10 items-center gap-2 rounded-full border border-[#b7c5a3] bg-[#f4f6e9] px-4 text-sm font-semibold text-[#15371f] transition hover:border-[#8faa7d] hover:bg-[#e9f0dc]">
               <Search size={16} />
-              Search
+              {t("common.search")}
             </button>
             {canReviewApprovals ? (
               <div className="relative">
                 <button
                   onClick={() => setNotificationsOpen((v) => !v)}
                   className={`relative grid h-10 w-10 place-items-center rounded-full border transition ${Number(pendingCount.data?.data?.count ?? 0) > 0 ? "border-[#c7a24e] bg-[#ead7a2] text-[#6f4f13] shadow-sm" : "border-[#ead6aa] bg-[#fffaf0] text-[#315f3d] hover:border-[#b7c5a3] hover:bg-[#f4f6e9]"}`}
-                  aria-label="Approval notifications"
+                  aria-label={t("appShell.approvalNotifications")}
                 >
                   <Bell size={16} className={Number(pendingCount.data?.data?.count ?? 0) > 0 ? "animate-pulse" : ""} />
                   {Number(pendingCount.data?.data?.count ?? 0) > 0 ? (
@@ -143,13 +148,13 @@ export const AppShell = () => {
                 {notificationsOpen ? (
                   <div className="surface-card absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] rounded-md border shadow-xl">
                     <div className="border-b border-[var(--color-border)] px-4 py-3">
-                      <div className="text-sm font-semibold">Approval requests</div>
-                      <div className="text-xs text-[var(--color-muted)]">Product updates and delete requests waiting for review.</div>
+                      <div className="text-sm font-semibold">{t("appShell.approvalRequests")}</div>
+                      <div className="text-xs text-[var(--color-muted)]">{t("appShell.approvalRequestsDesc")}</div>
                     </div>
                     <div className="max-h-96 overflow-auto p-2">
-                      {pendingApprovals.isLoading ? <div className="px-3 py-4 text-sm text-[var(--color-muted)]">Loading requests...</div> : null}
+                      {pendingApprovals.isLoading ? <div className="px-3 py-4 text-sm text-[var(--color-muted)]">{t("appShell.loadingRequests")}</div> : null}
                       {(pendingApprovals.data?.data ?? []).length === 0 && !pendingApprovals.isLoading ? (
-                        <div className="px-3 py-4 text-sm text-[var(--color-muted)]">No pending approval requests.</div>
+                        <div className="px-3 py-4 text-sm text-[var(--color-muted)]">{t("appShell.noPendingRequests")}</div>
                       ) : null}
                       {(pendingApprovals.data?.data ?? []).map((item: any) => (
                         <button
@@ -159,16 +164,16 @@ export const AppShell = () => {
                         >
                           <div className="flex items-center justify-between gap-3">
                             <span className={`rounded px-2 py-1 text-xs font-medium ${item.type === "PRODUCT_DELETE" ? "bg-[#f0c7bd] text-[#8f2f20]" : "bg-[#ead7a2] text-[#6f4f13]"}`}>
-                              {item.type === "PRODUCT_DELETE" ? "Delete" : "Edit"}
+                              {item.type === "PRODUCT_DELETE" ? t("appShell.badge.delete") : t("appShell.badge.edit")}
                             </span>
-                            <span className="text-xs text-[var(--color-muted)]">{new Date(item.createdAt).toLocaleString("en-US")}</span>
+                            <span className="text-xs text-[var(--color-muted)]">{new Date(item.createdAt).toLocaleString()}</span>
                           </div>
                           <div className="mt-2 text-sm font-medium text-[var(--color-ink)]">{item.product?.name}</div>
                           <div className="mt-1 line-clamp-2 text-xs text-[var(--color-muted)]">
-                            {item.requestedBy?.name} requests {item.type === "PRODUCT_DELETE" ? "deletion" : "changes"}: {item.reason}
+                            {item.requestedBy?.name} {item.type === "PRODUCT_DELETE" ? t("appShell.requestsDeletion") : t("appShell.requestsChanges")}: {item.reason}
                           </div>
                           <div className="mt-1 text-[11px] text-[var(--color-muted)]">
-                            Next required role: <span className="font-medium text-[var(--color-sidebar)]">{item.nextRequiredRole ?? "-"}</span>
+                            {t("appShell.nextRequiredRole")} <span className="font-medium text-[var(--color-sidebar)]">{item.nextRequiredRole ?? "-"}</span>
                           </div>
                         </button>
                       ))}
@@ -202,13 +207,13 @@ export const AppShell = () => {
                     </div>
                   </div>
                   <button className="mt-1 w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[#315f3d] hover:bg-[#e9f0dc]">
-                    Profile
+                    {t("appShell.profile")}
                   </button>
                   <button
                     className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-[#9b3f2e] hover:bg-[#f0c7bd]"
                     onClick={logout}
                   >
-                    Logout
+                    {t("appShell.logout")}
                   </button>
                 </div>
               ) : null}
@@ -224,12 +229,12 @@ export const AppShell = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <span className={`rounded px-2 py-1 text-xs font-medium ${selectedApproval.type === "PRODUCT_DELETE" ? "bg-[#f0c7bd] text-[#8f2f20]" : "bg-[#ead7a2] text-[#6f4f13]"}`}>
-                    {selectedApproval.type === "PRODUCT_DELETE" ? "Delete request" : "Edit request"}
+                    {selectedApproval.type === "PRODUCT_DELETE" ? t("appShell.deleteRequest") : t("appShell.editRequest")}
                   </span>
-                  <h2 className="text-lg font-semibold">Approval Detail</h2>
+                  <h2 className="text-lg font-semibold">{t("appShell.approvalDetail")}</h2>
                 </div>
                 <p className="mt-1 text-sm text-[var(--color-muted)]">
-                  Requested by {selectedApproval.requestedBy?.name ?? selectedApproval.requestedBy?.email}
+                  {t("appShell.requestedBy")} {selectedApproval.requestedBy?.name ?? selectedApproval.requestedBy?.email}
                 </p>
               </div>
               <button className="grid h-9 w-9 place-items-center rounded border border-[var(--color-border)] text-[var(--color-sidebar)] hover:bg-[#efe6d0]" onClick={() => setSelectedApproval(null)}>
@@ -239,55 +244,55 @@ export const AppShell = () => {
             <div className="max-h-[72vh] overflow-auto p-5">
               <div className="grid gap-4 md:grid-cols-2">
                 <section className="rounded-md border border-[var(--color-border)] bg-[#fbf6ea] p-4">
-                  <h3 className="text-sm font-semibold">Product</h3>
+                  <h3 className="text-sm font-semibold">{t("appShell.product")}</h3>
                   <div className="mt-3 space-y-2 text-sm">
-                    <div className="flex justify-between gap-4"><span className="text-[var(--color-muted)]">Name</span><span className="text-right font-medium">{selectedApproval.product?.name}</span></div>
-                    <div className="flex justify-between gap-4"><span className="text-[var(--color-muted)]">SKU</span><span className="text-right font-medium">{selectedApproval.product?.sku}</span></div>
-                    <div className="flex justify-between gap-4"><span className="text-[var(--color-muted)]">Current stock</span><span className="text-right font-medium">{selectedApproval.product?.currentStock}</span></div>
+                    <div className="flex justify-between gap-4"><span className="text-[var(--color-muted)]">{t("appShell.name")}</span><span className="text-right font-medium">{selectedApproval.product?.name}</span></div>
+                    <div className="flex justify-between gap-4"><span className="text-[var(--color-muted)]">{t("appShell.sku")}</span><span className="text-right font-medium">{selectedApproval.product?.sku}</span></div>
+                    <div className="flex justify-between gap-4"><span className="text-[var(--color-muted)]">{t("appShell.currentStock")}</span><span className="text-right font-medium">{selectedApproval.product?.currentStock}</span></div>
                   </div>
                 </section>
                 <section className="rounded-md border border-[var(--color-border)] bg-[#fbf6ea] p-4">
-                  <h3 className="text-sm font-semibold">Reason</h3>
+                  <h3 className="text-sm font-semibold">{t("appShell.reason")}</h3>
                   <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">{selectedApproval.reason}</p>
                 </section>
               </div>
 
               {selectedApproval.type === "PRODUCT_UPDATE" ? (
                 <section className="mt-4 rounded-md border border-[var(--color-border)]">
-                  <div className="border-b border-[var(--color-border)] bg-[#efe6d0] px-4 py-3 text-sm font-semibold">Requested changes</div>
+                  <div className="border-b border-[var(--color-border)] bg-[#efe6d0] px-4 py-3 text-sm font-semibold">{t("appShell.requestedChanges")}</div>
                   <div className="divide-y">
                     {Object.entries(selectedApproval.requestedChanges ?? {}).filter(([key]) => key !== "__workflow").map(([key, value]) => (
                       <div key={key} className="grid gap-3 px-4 py-3 text-sm md:grid-cols-[160px_1fr_1fr]">
                         <div className="font-medium text-[var(--color-sidebar)]">{key}</div>
-                        <div><span className="text-xs text-[var(--color-muted)]">Current</span><div className="break-words">{String(selectedApproval.before?.[key] ?? "-")}</div></div>
-                        <div><span className="text-xs text-[var(--color-muted)]">Requested</span><div className="break-words font-medium">{String(value ?? "-")}</div></div>
+                        <div><span className="text-xs text-[var(--color-muted)]">{t("appShell.current")}</span><div className="break-words">{String(selectedApproval.before?.[key] ?? "-")}</div></div>
+                        <div><span className="text-xs text-[var(--color-muted)]">{t("appShell.requested")}</span><div className="break-words font-medium">{String(value ?? "-")}</div></div>
                       </div>
                     ))}
                   </div>
                 </section>
               ) : (
                 <section className="mt-4 rounded-md border border-[#c87663] bg-[#f0c7bd] p-4 text-sm text-[#8f2f20]">
-                  This request will remove the product from active product management. Transaction history will be kept for audit safety.
+                  {t("appShell.deleteWarning")}
                 </section>
               )}
               <section className="mt-4 rounded-md border border-[var(--color-border)] bg-[#efe6d0] p-4 text-sm">
-                <div className="text-xs text-[var(--color-muted)]">Approval workflow</div>
+                <div className="text-xs text-[var(--color-muted)]">{t("appShell.approvalWorkflow")}</div>
                 <div className="mt-1">
-                  Required roles: {(readWorkflow(selectedApproval.requestedChanges).requiredRoles ?? []).join(" -> ") || "-"}
+                  {t("appShell.requiredRoles")} {(readWorkflow(selectedApproval.requestedChanges).requiredRoles ?? []).join(" -> ") || "-"}
                 </div>
                 <div className="mt-1">
-                  Approved steps: {(readWorkflow(selectedApproval.requestedChanges).approvedBy ?? []).length}
+                  {t("appShell.approvedSteps")} {(readWorkflow(selectedApproval.requestedChanges).approvedBy ?? []).length}
                 </div>
               </section>
               <section className="mt-4 rounded-md border border-[var(--color-border)] p-4">
-                <div className="text-sm font-medium">Review Note</div>
+                <div className="text-sm font-medium">{t("appShell.reviewNote")}</div>
                 <textarea
                   className="field-warm mt-2 min-h-24 w-full rounded border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25"
-                  placeholder="Add note for approve/reject action..."
+                  placeholder={t("appShell.reviewNotePlaceholder")}
                   value={reviewNote}
                   onChange={(e) => setReviewNote(e.target.value)}
                 />
-                <p className="mt-1 text-xs text-[var(--color-muted)]">Reject requires note with at least 3 characters.</p>
+                <p className="mt-1 text-xs text-[var(--color-muted)]">{t("appShell.reviewNoteHint")}</p>
               </section>
             </div>
             <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--color-border)] bg-[#efe6d0] px-5 py-4">
@@ -297,14 +302,14 @@ export const AppShell = () => {
                 disabled={reviewMutation.isPending}
                 onClick={() => reviewMutation.mutate({ id: selectedApproval.id, action: "reject", reviewNote })}
               >
-                <XCircle size={16} /> Reject
+                <XCircle size={16} /> {t("appShell.reject")}
               </button>
               <button
                 className="btn-gold inline-flex h-11 items-center gap-2 rounded border px-4 text-sm font-medium disabled:opacity-40"
                 disabled={reviewMutation.isPending}
                 onClick={() => reviewMutation.mutate({ id: selectedApproval.id, action: "approve", reviewNote })}
               >
-                <CheckCircle2 size={16} /> Approve
+                <CheckCircle2 size={16} /> {t("appShell.approve")}
               </button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { Bar as RechartsBar, BarChart, CartesianGrid, Cell, Pie as RechartsPie, 
 import { useState } from "react";
 import type { ComponentType } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { Card } from "../../../components/ui/basic";
 import { auditActionBadgeClass, auditActionButtonClass } from "../../../lib/audit-action-style";
@@ -125,6 +126,7 @@ const renderActiveExpiryShape = ({
 };
 
 export const DashboardPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
   const [activeExpiryIndex, setActiveExpiryIndex] = useState<number | null>(null);

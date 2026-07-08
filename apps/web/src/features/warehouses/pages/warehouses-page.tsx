@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { Button, Card, Input } from "../../../components/ui/basic";
 import { useAuth } from "../../auth/auth-context";
@@ -13,6 +14,7 @@ type Warehouse = {
 };
 
 export const WarehousesPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
@@ -31,7 +33,7 @@ export const WarehousesPage = () => {
   const createMutation = useMutation({
     mutationFn: () => api("/warehouses", { method: "POST", body: JSON.stringify(form) }),
     onSuccess: async () => {
-      setMessage("Warehouse created");
+      setMessage(t("pages.warehouses.messages.created"));
       setError("");
       setForm({ name: "", code: "", address: "", isActive: true });
       await qc.invalidateQueries({ queryKey: ["warehouses"] });
@@ -42,7 +44,7 @@ export const WarehousesPage = () => {
   const updateMutation = useMutation({
     mutationFn: () => api(`/warehouses/${editing?.id}`, { method: "PUT", body: JSON.stringify(form) }),
     onSuccess: async () => {
-      setMessage("Warehouse updated");
+      setMessage(t("pages.warehouses.messages.updated"));
       setError("");
       setEditing(null);
       setForm({ name: "", code: "", address: "", isActive: true });
@@ -54,7 +56,7 @@ export const WarehousesPage = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api(`/warehouses/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
-      setMessage("Warehouse deleted");
+      setMessage(t("pages.warehouses.messages.deleted"));
       setError("");
       await qc.invalidateQueries({ queryKey: ["warehouses"] });
     },
@@ -70,11 +72,11 @@ export const WarehousesPage = () => {
 
   const submit = () => {
     if (!canManage) {
-      setError("You do not have permission to change warehouse data.");
+      setError(t("pages.warehouses.messages.noPermission"));
       return;
     }
     if (!form.name.trim() || !form.code.trim()) {
-      setError("Warehouse name and code are required");
+      setError(t("pages.warehouses.messages.nameCodeRequired"));
       return;
     }
     setError("");

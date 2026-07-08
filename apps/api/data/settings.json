@@ -183,6 +183,52 @@
       },
       "savedFilters": [],
       "updatedAt": "2026-06-03T17:40:25.197Z"
+    },
+    "cmraot4ln0003s3aky24p4q0v": {
+      "preferences": {
+        "notifications": {
+          "approvalInApp": true,
+          "stockAlertEmail": false,
+          "expiryAlertEmail": false,
+          "dailySummaryEmail": false
+        },
+        "ui": {
+          "compactTables": false,
+          "defaultPageSize": 20,
+          "currency": "USD",
+          "dateFormat": "MM/dd/yyyy"
+        },
+        "roadmap": {
+          "aiPromoSuggestion": false,
+          "posScannerIntegration": false,
+          "advancedBiReports": false
+        }
+      },
+      "savedFilters": [],
+      "updatedAt": "2026-07-07T13:50:44.530Z"
+    },
+    "cmraritsg0000s3akxjdgg7wz": {
+      "preferences": {
+        "notifications": {
+          "approvalInApp": true,
+          "stockAlertEmail": false,
+          "expiryAlertEmail": false,
+          "dailySummaryEmail": false
+        },
+        "ui": {
+          "compactTables": false,
+          "defaultPageSize": 20,
+          "currency": "USD",
+          "dateFormat": "MM/dd/yyyy"
+        },
+        "roadmap": {
+          "aiPromoSuggestion": false,
+          "posScannerIntegration": false,
+          "advancedBiReports": false
+        }
+      },
+      "savedFilters": [],
+      "updatedAt": "2026-07-07T14:51:01.765Z"
     }
   },
   "system": {

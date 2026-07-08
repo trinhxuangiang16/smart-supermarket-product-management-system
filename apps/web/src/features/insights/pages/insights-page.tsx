@@ -1,5 +1,6 @@
 import { ComponentType, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Bar as RechartsBar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis as RechartsXAxis, YAxis as RechartsYAxis } from "recharts";
 
 const XAxis = RechartsXAxis as unknown as ComponentType<any>;
@@ -24,29 +25,29 @@ type InsightResult = {
   generatedAt: string;
 };
 
-const topics: Array<{ id: InsightTopic; label: string; description: string }> = [
-  { id: "hr", label: "Nhân sự (HR)", description: "Phân tích nhân sự theo phòng ban, chi phí lương, biến động tuyển dụng." },
-  { id: "inventory", label: "Tồn kho", description: "Hàng tồn, hết hạn, hao hụt, vòng quay và giá trị tồn theo danh mục." },
-  { id: "strategy", label: "Chiến lược", description: "Xu hướng bán ra theo tháng, danh mục chủ lực, đề xuất hành động." },
+const getTopics = (t: any): Array<{ id: InsightTopic; label: string; description: string }> => [
+  { id: "hr", label: t("pages.insights.topics.hr.label"), description: t("pages.insights.topics.hr.description") },
+  { id: "inventory", label: t("pages.insights.topics.inventory.label"), description: t("pages.insights.topics.inventory.description") },
+  { id: "strategy", label: t("pages.insights.topics.strategy.label"), description: t("pages.insights.topics.strategy.description") },
 ];
 
-const chartFor = (result: InsightResult): { title: string; data: Array<{ name: string; value: number }> } | null => {
+const chartFor = (result: InsightResult, t: any): { title: string; data: Array<{ name: string; value: number }> } | null => {
   const m = result.metrics ?? {};
   if (result.topic === "hr" && Array.isArray(m.byDepartment) && m.byDepartment.length) {
     return {
-      title: "Headcount theo phòng ban",
+      title: t("pages.insights.charts.headcount"),
       data: m.byDepartment.map((d: any) => ({ name: d.department, value: d.headcount })),
     };
   }
   if (result.topic === "inventory" && Array.isArray(m.topStockValueByCategory) && m.topStockValueByCategory.length) {
     return {
-      title: "Giá trị tồn kho theo danh mục (top 10)",
+      title: t("pages.insights.charts.stockValue"),
       data: m.topStockValueByCategory.map((d: any) => ({ name: d.category, value: d.stockValue })),
     };
   }
   if (result.topic === "strategy" && Array.isArray(m.monthlySales) && m.monthlySales.length) {
     return {
-      title: "Giá trị xuất bán theo tháng (6 tháng)",
+      title: t("pages.insights.charts.monthlySales"),
       data: m.monthlySales.map((d: any) => ({ name: d.month, value: d.value })),
     };
   }
@@ -54,9 +55,11 @@ const chartFor = (result: InsightResult): { title: string; data: Array<{ name: s
 };
 
 export const InsightsPage = () => {
+  const { t } = useTranslation();
   const [topic, setTopic] = useState<InsightTopic>("inventory");
   const [result, setResult] = useState<InsightResult | null>(null);
   const [error, setError] = useState("");
+  const topics = getTopics(t);
 
   const analyzeMutation = useMutation({
     mutationFn: (input: { topic: InsightTopic; forceRefresh?: boolean }) =>
@@ -71,14 +74,14 @@ export const InsightsPage = () => {
     onError: (e) => setError((e as Error).message),
   });
 
-  const chart = result ? chartFor(result) : null;
+  const chart = result ? chartFor(result, t) : null;
 
   return (
     <div className="space-y-4">
       <Card>
-        <h2 className="mb-1 flex items-center gap-2 text-base font-semibold"><Sparkles size={16} /> AI Insights</h2>
+        <h2 className="mb-1 flex items-center gap-2 text-base font-semibold"><Sparkles size={16} /> {t("pages.insights.title")}</h2>
         <p className="mb-3 text-xs text-muted-warm">
-          Chọn chủ đề phân tích. Hệ thống tổng hợp dữ liệu thật từ database, gửi tới AI provider (Groq/Gemini/Claude/OpenAI theo thứ tự fallback) và trả về nhận định + khuyến nghị. Kết quả được cache theo ngày và theo dữ liệu.
+          {t("pages.insights.description")}
         </p>
         <div className="grid gap-2 md:grid-cols-3">
           {topics.map((t) => (

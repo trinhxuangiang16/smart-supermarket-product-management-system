@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { api, getToken } from "../../../lib/api-client";
 import { Button, Card, Input } from "../../../components/ui/basic";
 
@@ -10,6 +11,7 @@ const currency = new Intl.NumberFormat("en-US", {
 });
 
 export const ReportsPage = () => {
+  const { t } = useTranslation();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [trendDays, setTrendDays] = useState(14);
@@ -52,7 +54,7 @@ export const ReportsPage = () => {
       headers: { Authorization: `Bearer ${getToken() ?? ""}` },
     });
     if (!response.ok) {
-      setExportError("Export failed. Please try again.");
+      setExportError(t("pages.reports.messages.exportFailed"));
       return;
     }
     const blob = await response.blob();

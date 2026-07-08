@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { useAuth } from "../../auth/auth-context";
 import { Button, Card, Input } from "../../../components/ui/basic";
@@ -18,6 +19,7 @@ type SupplierRow = {
 };
 
 export const SuppliersPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const canManage = ["ADMIN", "MANAGER"].includes(user?.role ?? "");
@@ -44,7 +46,7 @@ export const SuppliersPage = () => {
   const createMutation = useMutation({
     mutationFn: () => api<any>("/suppliers", { method: "POST", body: JSON.stringify(form) }),
     onSuccess: async () => {
-      setMessage("Supplier created.");
+      setMessage(t("pages.suppliers.messages.created"));
       setError("");
       setForm({ name: "", contactEmail: "", contactPhone: "", address: "", contactPerson: "", notes: "" });
       await qc.invalidateQueries({ queryKey: ["suppliers"] });
@@ -55,7 +57,7 @@ export const SuppliersPage = () => {
   const updateMutation = useMutation({
     mutationFn: () => api<any>(`/suppliers/${editing?.id}`, { method: "PUT", body: JSON.stringify(form) }),
     onSuccess: async () => {
-      setMessage("Supplier updated.");
+      setMessage(t("pages.suppliers.messages.updated"));
       setError("");
       setEditing(null);
       setForm({ name: "", contactEmail: "", contactPhone: "", address: "", contactPerson: "", notes: "" });
@@ -67,7 +69,7 @@ export const SuppliersPage = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api<any>(`/suppliers/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
-      setMessage("Supplier deleted.");
+      setMessage(t("pages.suppliers.messages.deleted"));
       setError("");
       await qc.invalidateQueries({ queryKey: ["suppliers"] });
     },
@@ -83,11 +85,11 @@ export const SuppliersPage = () => {
 
   const submit = () => {
     if (!canManage) {
-      setError("Only admin/manager can create or edit suppliers.");
+      setError(t("pages.suppliers.messages.noPermission"));
       return;
     }
     if (!form.name.trim()) {
-      setError("Supplier name is required.");
+      setError(t("pages.suppliers.messages.nameRequired"));
       return;
     }
     setError("");

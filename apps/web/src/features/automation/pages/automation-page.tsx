@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Button, Card } from "../../../components/ui/basic";
 import { api } from "../../../lib/api-client";
 
 export const AutomationPage = () => {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const jobs = useQuery({
     queryKey: ["automation-jobs"],
@@ -38,15 +40,15 @@ export const AutomationPage = () => {
       <Card>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-semibold">Expiry Status Sync</h2>
-            <p className="text-sm text-muted-warm">Recalculate expiry statuses from current date and expiry date.</p>
+            <h2 className="text-base font-semibold">{t("pages.automation.jobs.expiry.title")}</h2>
+            <p className="text-sm text-muted-warm">{t("pages.automation.jobs.expiry.description")}</p>
           </div>
           <Button
             className="h-10 px-4"
             onClick={() => runExpirySync.mutate()}
             disabled={runExpirySync.isPending}
           >
-            {runExpirySync.isPending ? "Running..." : "Run Job"}
+            {runExpirySync.isPending ? t("pages.automation.jobs.expiry.running") : t("pages.automation.jobs.expiry.run")}
           </Button>
         </div>
       </Card>
@@ -54,36 +56,36 @@ export const AutomationPage = () => {
       <Card>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-semibold">KPI Snapshot</h2>
-            <p className="text-sm text-muted-warm">Capture current KPI baseline for operations tracking.</p>
+            <h2 className="text-base font-semibold">{t("pages.automation.jobs.kpi.title")}</h2>
+            <p className="text-sm text-muted-warm">{t("pages.automation.jobs.kpi.description")}</p>
           </div>
           <Button
             className="h-10 px-4"
             onClick={() => runKpiSnapshot.mutate()}
             disabled={runKpiSnapshot.isPending}
           >
-            {runKpiSnapshot.isPending ? "Running..." : "Run Snapshot"}
+            {runKpiSnapshot.isPending ? t("pages.automation.jobs.kpi.running") : t("pages.automation.jobs.kpi.run")}
           </Button>
         </div>
       </Card>
 
       <Card>
-        <h3 className="text-sm font-semibold">Latest Expiry Sync Run</h3>
+        <h3 className="text-sm font-semibold">{t("pages.automation.labels.latest")} {t("pages.automation.jobs.expiry.title")}</h3>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <div className="panel-warm-muted rounded p-3 text-sm">
-            <div className="text-xs text-muted-warm">Status</div>
-            <div className="font-medium">{expiryJob?.status ?? "IDLE"}</div>
+            <div className="text-xs text-muted-warm">{t("pages.automation.labels.status")}</div>
+            <div className="font-medium">{expiryJob?.status ?? t("pages.automation.status.idle")}</div>
           </div>
           <div className="panel-warm-muted rounded p-3 text-sm">
-            <div className="text-xs text-muted-warm">Started At</div>
+            <div className="text-xs text-muted-warm">{t("pages.automation.labels.startedAt")}</div>
             <div className="font-medium">{expiryJob?.startedAt ? new Date(expiryJob.startedAt).toLocaleString("en-US") : "-"}</div>
           </div>
           <div className="panel-warm-muted rounded p-3 text-sm">
-            <div className="text-xs text-muted-warm">Finished At</div>
+            <div className="text-xs text-muted-warm">{t("pages.automation.labels.finishedAt")}</div>
             <div className="font-medium">{expiryJob?.finishedAt ? new Date(expiryJob.finishedAt).toLocaleString("en-US") : "-"}</div>
           </div>
           <div className="panel-warm-muted rounded p-3 text-sm">
-            <div className="text-xs text-muted-warm">Summary</div>
+            <div className="text-xs text-muted-warm">{t("pages.automation.labels.summary")}</div>
             <div className="font-medium">
               {expiryJob?.summary ? `Scanned: ${expiryJob.summary.scanned ?? 0}, Updated: ${expiryJob.summary.updated ?? 0}` : "-"}
             </div>
@@ -92,7 +94,7 @@ export const AutomationPage = () => {
       </Card>
 
       <Card>
-        <h3 className="text-sm font-semibold">Latest KPI Snapshot Run</h3>
+        <h3 className="text-sm font-semibold">{t("pages.automation.labels.latest")} {t("pages.automation.jobs.kpi.title")}</h3>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <div className="panel-warm-muted rounded p-3 text-sm">
             <div className="text-xs text-muted-warm">Status</div>

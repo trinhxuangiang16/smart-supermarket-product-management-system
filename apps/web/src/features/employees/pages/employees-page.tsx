@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { useAuth } from "../../auth/auth-context";
 import { Button, Card, Input } from "../../../components/ui/basic";
@@ -43,9 +44,11 @@ const emptyForm: EmployeeForm = {
   position: "", hireDate: "", salary: 0, status: "ACTIVE", userId: "",
 };
 
-const statusLabels: Record<string, string> = {
-  ACTIVE: "Active", ON_LEAVE: "On leave", TERMINATED: "Terminated",
-};
+const getStatusLabels = (t: any) => ({
+  ACTIVE: t("pages.employees.status.active"),
+  ON_LEAVE: t("pages.employees.status.onLeave"),
+  TERMINATED: t("pages.employees.status.terminated"),
+});
 
 const statusBadge: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-700",
@@ -56,10 +59,12 @@ const statusBadge: Record<string, string> = {
 const money = (n: number) => `$${Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
 export const EmployeesPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const { notify } = useToast();
   const canManage = ["ADMIN", "MANAGER"].includes(user?.role ?? "");
+  const statusLabels = getStatusLabels(t);
 
   const [search, setSearch] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("");
@@ -100,7 +105,7 @@ export const EmployeesPage = () => {
       ? api<any>(`/employees/${editing.id}`, { method: "PUT", body: JSON.stringify(form) })
       : api<any>("/employees", { method: "POST", body: JSON.stringify(form) }),
     onSuccess: async () => {
-      notify({ type: "success", message: editing ? "Employee updated" : "Employee created" });
+      notify({ type: "success", message: editing ? t("pages.employees.messages.updated") : t("pages.employees.messages.created") });
       setEditing(null);
       reset(emptyForm);
       await qc.invalidateQueries({ queryKey: ["employees"] });
@@ -111,7 +116,7 @@ export const EmployeesPage = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api<any>(`/employees/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
-      notify({ type: "success", message: "Employee deleted" });
+      notify({ type: "success", message: t("pages.employees.messages.deleted") });
       await qc.invalidateQueries({ queryKey: ["employees"] });
     },
     onError: (e) => notify({ type: "error", message: (e as Error).message }),

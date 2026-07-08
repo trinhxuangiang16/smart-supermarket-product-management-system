@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, KeyRound, Save, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api, getRefreshToken } from "../../../lib/api-client";
 import { useAuth } from "../../auth/auth-context";
 import { Button, Card, Input } from "../../../components/ui/basic";
@@ -109,6 +110,7 @@ const scopeRoute: Record<SavedFilterScope, string> = {
 };
 
 export const SettingsPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
 
@@ -165,7 +167,7 @@ export const SettingsPage = () => {
   const updatePreferencesMutation = useMutation({
     mutationFn: () => api<any>("/settings/preferences", { method: "PUT", body: JSON.stringify(prefs) }),
     onSuccess: async () => {
-      setMessage("Personal settings saved.");
+      setMessage(t("pages.settings.messages.personalSaved"));
       setError("");
       await qc.invalidateQueries({ queryKey: ["settings-preferences"] });
     },
@@ -175,7 +177,7 @@ export const SettingsPage = () => {
   const updateSystemMutation = useMutation({
     mutationFn: () => api<any>("/settings/system", { method: "PUT", body: JSON.stringify(system) }),
     onSuccess: async () => {
-      setMessage("System settings saved.");
+      setMessage(t("pages.settings.messages.systemSaved"));
       setError("");
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["settings-system"] }),
@@ -198,7 +200,7 @@ export const SettingsPage = () => {
       }),
     }),
     onSuccess: async () => {
-      setMessage("Saved filter created.");
+      setMessage(t("pages.settings.savedFilters.messages.created"));
       setError("");
       setFilterName("");
       setFilterQuery("");
@@ -210,7 +212,7 @@ export const SettingsPage = () => {
   const deleteFilterMutation = useMutation({
     mutationFn: (id: string) => api<any>(`/settings/saved-filters/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
-      setMessage("Saved filter deleted.");
+      setMessage(t("pages.settings.savedFilters.messages.deleted"));
       setError("");
       await qc.invalidateQueries({ queryKey: ["settings-saved-filters"] });
     },
@@ -221,7 +223,7 @@ export const SettingsPage = () => {
     mutationFn: (sessionId: string) =>
       api<any>("/auth/sessions/revoke", { method: "POST", body: JSON.stringify({ sessionId }) }),
     onSuccess: async () => {
-      setMessage("Session revoked.");
+      setMessage(t("pages.settings.sessions.messages.sessionRevoked"));
       setError("");
       await qc.invalidateQueries({ queryKey: ["auth-sessions"] });
     },
@@ -235,7 +237,7 @@ export const SettingsPage = () => {
         body: JSON.stringify({ currentRefreshToken: getRefreshToken() ?? undefined }),
       }),
     onSuccess: async (result) => {
-      setMessage(`Other sessions revoked: ${result?.data?.revoked ?? 0}`);
+      setMessage(`${t("pages.settings.sessions.messages.othersRevoked")} ${result?.data?.revoked ?? 0}`);
       setError("");
       await qc.invalidateQueries({ queryKey: ["auth-sessions"] });
     },
@@ -288,14 +290,14 @@ export const SettingsPage = () => {
       <section className={`space-y-3 rounded-md border p-3 ${canEditSystem ? "border-[#ead6aa] bg-[#fff9ee]/70" : "border-[#ead6aa] bg-[#fff9ee]/70"}`}>
         <div className="flex flex-wrap items-start justify-between gap-3 rounded-md border bg-[#fff9ee] px-4 py-3">
           <div>
-            <h2 className="text-base font-semibold">System Settings</h2>
+            <h2 className="text-base font-semibold">{t("pages.settings.system.title")}</h2>
             <p className="text-xs text-[#6d5935]">
-              Applies to the whole system: dashboard, products, notifications, and report exports.
+              {t("pages.settings.system.subtitle")}
             </p>
             <p className={`mt-1 text-xs ${canEditSystem ? "text-[#315f3d]" : "text-[#8b6727]"}`}>
               {canEditSystem
-                ? "Editable by ADMIN and MANAGER."
-                : "Read-only for this role. Only ADMIN or MANAGER can edit."}
+                ? t("pages.settings.system.notice")
+                : t("pages.settings.personal.readonlyNotice")}
             </p>
           </div>
           <Button
@@ -304,15 +306,15 @@ export const SettingsPage = () => {
             disabled={!canEditSystem || updateSystemMutation.isPending || systemQuery.isLoading}
           >
             <Save size={14} />
-            {updateSystemMutation.isPending ? "Saving..." : "Save System Settings"}
+            {updateSystemMutation.isPending ? t("pages.settings.messages.saving") : t("pages.settings.system.button")}
           </Button>
         </div>
 
         <Card>
-          <h3 className="mb-3 text-base font-semibold">Store Profile</h3>
+          <h3 className="mb-3 text-base font-semibold">{t("pages.settings.system.profile.title")}</h3>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Store name</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.profile.storeName")}</div>
             <Input
               value={system.profile.storeName}
               disabled={!canEditSystem}
@@ -320,7 +322,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Branch name</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.profile.branchName")}</div>
             <Input
               value={system.profile.branchName}
               disabled={!canEditSystem}
@@ -328,7 +330,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Address</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.profile.address")}</div>
             <Input
               value={system.profile.address}
               disabled={!canEditSystem}
@@ -336,7 +338,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Contact phone</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.profile.contactPhone")}</div>
             <Input
               value={system.profile.contactPhone}
               disabled={!canEditSystem}
@@ -344,7 +346,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Contact email</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.profile.contactEmail")}</div>
             <Input
               value={system.profile.contactEmail}
               disabled={!canEditSystem}
@@ -352,7 +354,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Tax code</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.profile.taxCode")}</div>
             <Input
               value={system.profile.taxCode}
               disabled={!canEditSystem}
@@ -363,10 +365,10 @@ export const SettingsPage = () => {
         </Card>
 
         <Card>
-          <h3 className="mb-3 text-base font-semibold">Operations Rules</h3>
+          <h3 className="mb-3 text-base font-semibold">{t("pages.settings.system.operations.title")}</h3>
         <div className="grid gap-3 md:grid-cols-3">
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Low stock threshold</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.operations.lowStockThreshold")}</div>
             <Input
               type="number"
               min={0}
@@ -382,7 +384,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Default reorder level</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.operations.defaultReorderLevel")}</div>
             <Input
               type="number"
               min={0}
@@ -398,7 +400,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Recent activities on dashboard</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.operations.recentActivitiesCount")}</div>
             <Input
               type="number"
               min={3}
@@ -415,7 +417,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Approval bell refresh (seconds)</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.operations.approvalBellRefresh")}</div>
             <Input
               type="number"
               min={2}
@@ -432,7 +434,7 @@ export const SettingsPage = () => {
             />
           </div>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Dashboard refresh (seconds)</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.operations.dashboardRefresh")}</div>
             <Input
               type="number"
               min={2}
@@ -455,10 +457,10 @@ export const SettingsPage = () => {
         </Card>
 
         <Card>
-          <h3 className="mb-3 text-base font-semibold">Report Output</h3>
+          <h3 className="mb-3 text-base font-semibold">{t("pages.settings.system.report.title")}</h3>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Prepared by</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.report.preparedBy")}</div>
             <Input
               value={system.reports.preparedBy}
               disabled={!canEditSystem}
@@ -472,10 +474,10 @@ export const SettingsPage = () => {
               disabled={!canEditSystem}
               onChange={(e) => setSystem({ ...system, reports: { ...system.reports, includeContactInExport: e.target.checked } })}
             />
-            Include store contact block in exported report
+            {t("pages.settings.system.report.includeStoreContact")}
           </label>
           <div className="md:col-span-2">
-            <div className="mb-1 text-xs text-muted-warm">Footer note</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.system.report.footerNote")}</div>
             <textarea
               className="field-warm min-h-24 w-full rounded border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25"
               value={system.reports.footerNote}
@@ -489,44 +491,44 @@ export const SettingsPage = () => {
         {canEditSystem ? <AiSettingsSection /> : null}
 
         <Card>
-          <h3 className="mb-3 text-base font-semibold">Active Sessions</h3>
+          <h3 className="mb-3 text-base font-semibold">{t("pages.settings.sessions.title")}</h3>
           <div className="mb-3 flex justify-end">
             <Button
               className="btn-danger-warm h-9 px-3 text-xs"
               onClick={() => revokeOtherSessionsMutation.mutate()}
               disabled={revokeOtherSessionsMutation.isPending}
             >
-              {revokeOtherSessionsMutation.isPending ? "Revoking..." : "Revoke Other Sessions"}
+              {revokeOtherSessionsMutation.isPending ? t("pages.settings.messages.saving") : t("pages.settings.sessions.buttons.revokeOthers")}
             </Button>
           </div>
           <div className="overflow-auto">
             <table className="table-warm w-full min-w-[860px] text-sm">
               <thead>
                 <tr>
-                  <th className="px-3 py-2 text-left">Device</th>
-                  <th className="px-3 py-2 text-left">IP</th>
-                  <th className="px-3 py-2 text-left">Created</th>
-                  <th className="px-3 py-2 text-left">Last Active</th>
-                  <th className="px-3 py-2 text-left">Status</th>
-                  <th className="px-3 py-2 text-right">Action</th>
+                  <th className="px-3 py-2 text-left">{t("pages.settings.sessions.table.headers.device")}</th>
+                  <th className="px-3 py-2 text-left">{t("pages.settings.sessions.table.headers.ip")}</th>
+                  <th className="px-3 py-2 text-left">{t("pages.settings.sessions.table.headers.created")}</th>
+                  <th className="px-3 py-2 text-left">{t("pages.settings.sessions.table.headers.lastActive")}</th>
+                  <th className="px-3 py-2 text-left">{t("pages.settings.sessions.table.headers.status")}</th>
+                  <th className="px-3 py-2 text-right">{t("common.edit")}</th>
                 </tr>
               </thead>
               <tbody>
                 {sessionsQuery.isLoading ? (
-                  <tr><td colSpan={6} className="px-3 py-6 text-center text-muted-warm">Loading sessions...</td></tr>
+                  <tr><td colSpan={6} className="px-3 py-6 text-center text-muted-warm">{t("pages.settings.sessions.table.states.loading")}</td></tr>
                 ) : null}
                 {!sessionsQuery.isLoading && !sessions.length ? (
-                  <tr><td colSpan={6} className="px-3 py-6 text-center text-muted-warm">No sessions found.</td></tr>
+                  <tr><td colSpan={6} className="px-3 py-6 text-center text-muted-warm">{t("pages.settings.sessions.table.states.empty")}</td></tr>
                 ) : null}
                 {sessions.map((s: any) => (
                   <tr key={s.id} className="border-b">
-                    <td className="px-3 py-2">{s.deviceLabel ?? "Unknown device"}</td>
+                    <td className="px-3 py-2">{s.deviceLabel ?? "-"}</td>
                     <td className="px-3 py-2">{s.ipAddress ?? "-"}</td>
-                    <td className="px-3 py-2">{new Date(s.createdAt).toLocaleString("en-US")}</td>
-                    <td className="px-3 py-2">{new Date(s.lastActiveAt).toLocaleString("en-US")}</td>
+                    <td className="px-3 py-2">{new Date(s.createdAt).toLocaleString()}</td>
+                    <td className="px-3 py-2">{new Date(s.lastActiveAt).toLocaleString()}</td>
                     <td className="px-3 py-2">
                       <span className={`inline-flex rounded px-2 py-1 text-xs font-medium ${s.revokedAt ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-700"}`}>
-                        {s.revokedAt ? "Revoked" : "Active"}
+                        {s.revokedAt ? t("pages.settings.sessions.table.status.revoked") : t("pages.settings.sessions.table.status.active")}
                       </span>
                     </td>
                     <td className="px-3 py-2 text-right">
@@ -535,7 +537,7 @@ export const SettingsPage = () => {
                         disabled={Boolean(s.revokedAt) || revokeSessionMutation.isPending}
                         onClick={() => revokeSessionMutation.mutate(s.id)}
                       >
-                        Revoke
+                        {t("pages.settings.sessions.buttons.revoke")}
                       </Button>
                     </td>
                   </tr>
@@ -548,14 +550,14 @@ export const SettingsPage = () => {
 
       <section className="space-y-3 rounded-md border border-[#ead6aa] bg-[#fff9ee] p-3">
         <div className="rounded-md border bg-[#f7ebd5] px-4 py-3">
-          <h2 className="text-base font-semibold">Personal Settings</h2>
+          <h2 className="text-base font-semibold">{t("pages.settings.personal.title")}</h2>
           <p className="text-xs text-[#6d5935]">
-            Applies only to your account: <span className="font-medium">{user?.email ?? "-"}</span>
+            {t("pages.settings.personal.notice")} <span className="font-medium">{user?.email ?? "-"}</span>
           </p>
         </div>
 
         <Card>
-          <h3 className="mb-3 text-base font-semibold">Personal Preferences</h3>
+          <h3 className="mb-3 text-base font-semibold">{t("pages.settings.personal.subtitle")}</h3>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="inline-flex items-center gap-2 text-sm">
             <input
@@ -563,7 +565,7 @@ export const SettingsPage = () => {
               checked={prefs.notifications.approvalInApp}
               onChange={(e) => setPrefs({ ...prefs, notifications: { ...prefs.notifications, approvalInApp: e.target.checked } })}
             />
-            In-app approval notifications
+            {t("pages.settings.personal.preferences.notifications.inAppApprovals")}
           </label>
           <label className="inline-flex items-center gap-2 text-sm">
             <input
@@ -571,7 +573,7 @@ export const SettingsPage = () => {
               checked={prefs.notifications.stockAlertEmail}
               onChange={(e) => setPrefs({ ...prefs, notifications: { ...prefs.notifications, stockAlertEmail: e.target.checked } })}
             />
-            Stock alert email
+            {t("pages.settings.personal.preferences.notifications.stockAlert")}
           </label>
           <label className="inline-flex items-center gap-2 text-sm">
             <input
@@ -579,7 +581,7 @@ export const SettingsPage = () => {
               checked={prefs.notifications.expiryAlertEmail}
               onChange={(e) => setPrefs({ ...prefs, notifications: { ...prefs.notifications, expiryAlertEmail: e.target.checked } })}
             />
-            Expiry alert email
+            {t("pages.settings.personal.preferences.notifications.expiryAlert")}
           </label>
           <label className="inline-flex items-center gap-2 text-sm">
             <input
@@ -587,7 +589,7 @@ export const SettingsPage = () => {
               checked={prefs.notifications.dailySummaryEmail}
               onChange={(e) => setPrefs({ ...prefs, notifications: { ...prefs.notifications, dailySummaryEmail: e.target.checked } })}
             />
-            Daily summary email
+            {t("pages.settings.personal.preferences.notifications.dailySummary")}
           </label>
           <label className="inline-flex items-center gap-2 text-sm">
             <input
@@ -595,10 +597,10 @@ export const SettingsPage = () => {
               checked={prefs.ui.compactTables}
               onChange={(e) => setPrefs({ ...prefs, ui: { ...prefs.ui, compactTables: e.target.checked } })}
             />
-            Compact table density
+            {t("pages.settings.personal.preferences.ui.compactDensity")}
           </label>
           <div>
-            <div className="mb-1 text-xs text-muted-warm">Default page size</div>
+            <div className="mb-1 text-xs text-muted-warm">{t("pages.settings.personal.preferences.ui.defaultPageSize")}</div>
             <select
               className="field-warm h-11 w-full rounded border px-3 text-sm outline-none focus:ring-2 focus:ring-[#bb9645]/25"
               value={String(prefs.ui.defaultPageSize)}
@@ -613,42 +615,42 @@ export const SettingsPage = () => {
         </div>
         <div className="mt-3">
           <Button onClick={() => updatePreferencesMutation.mutate()} disabled={updatePreferencesMutation.isPending || preferencesQuery.isLoading}>
-            {updatePreferencesMutation.isPending ? "Saving..." : "Save Personal Preferences"}
+            {updatePreferencesMutation.isPending ? t("pages.settings.messages.saving") : t("pages.settings.personal.button")}
           </Button>
         </div>
         </Card>
 
         <Card>
-          <h3 className="mb-3 text-base font-semibold">Change My Password</h3>
+          <h3 className="mb-3 text-base font-semibold">{t("pages.settings.personal.password.title")}</h3>
         <div className="grid gap-3 md:grid-cols-3">
           <Input
             type="password"
-            placeholder="Current password"
+            placeholder={t("pages.settings.personal.password.currentPassword")}
             value={passwordForm.currentPassword}
             onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
           />
           <Input
             type="password"
-            placeholder="New password"
+            placeholder={t("pages.settings.personal.password.newPassword")}
             value={passwordForm.newPassword}
             onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
           />
           <Input
             type="password"
-            placeholder="Confirm new password"
+            placeholder={t("pages.settings.personal.password.confirmPassword")}
             value={passwordForm.confirmPassword}
             onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
           />
         </div>
         <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="text-xs text-muted-warm">Minimum 8 characters. Use a password you do not use on other systems.</p>
+          <p className="text-xs text-muted-warm">{t("pages.settings.personal.password.hint")}</p>
           <Button
             className="inline-flex items-center gap-2"
             onClick={() => changePasswordMutation.mutate()}
             disabled={!canSubmitPasswordChange || changePasswordMutation.isPending}
           >
             <KeyRound size={14} />
-            {changePasswordMutation.isPending ? "Updating..." : "Update Password"}
+            {changePasswordMutation.isPending ? t("pages.settings.messages.saving") : t("pages.settings.personal.password.button")}
           </Button>
         </div>
         </Card>

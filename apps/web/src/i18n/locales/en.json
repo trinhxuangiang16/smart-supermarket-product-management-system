@@ -1,0 +1,1057 @@
+{
+  "common": {
+    "search": "Search",
+    "profile": "Profile",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "submit": "Submit"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "inventory": "Inventory",
+    "suppliers": "Suppliers",
+    "categories": "Categories",
+    "warehouses": "Warehouses",
+    "assets": "Assets",
+    "employees": "Employees",
+    "expiryAlerts": "Expiry Alerts",
+    "reports": "Reports",
+    "aiInsights": "AI Insights",
+    "auditHistory": "Audit History",
+    "users": "Users",
+    "automation": "Automation",
+    "settings": "Settings"
+  },
+  "appShell": {
+    "managementSystem": "Management System",
+    "approvalNotifications": "Approval notifications",
+    "approvalRequests": "Approval requests",
+    "approvalRequestsDesc": "Product updates and delete requests waiting for review.",
+    "loadingRequests": "Loading requests...",
+    "noPendingRequests": "No pending approval requests.",
+    "badge": {
+      "delete": "Delete",
+      "edit": "Edit"
+    },
+    "requestsDeletion": "requests deletion",
+    "requestsChanges": "requests changes",
+    "nextRequiredRole": "Next required role:",
+    "approvalDetail": "Approval Detail",
+    "deleteRequest": "Delete request",
+    "editRequest": "Edit request",
+    "requestedBy": "Requested by",
+    "product": "Product",
+    "name": "Name",
+    "sku": "SKU",
+    "currentStock": "Current stock",
+    "reason": "Reason",
+    "requestedChanges": "Requested changes",
+    "current": "Current",
+    "requested": "Requested",
+    "deleteWarning": "This request will remove the product from active product management. Transaction history will be kept for audit safety.",
+    "approvalWorkflow": "Approval workflow",
+    "requiredRoles": "Required roles:",
+    "approvedSteps": "Approved steps:",
+    "reviewNote": "Review Note",
+    "reviewNotePlaceholder": "Add note for approve/reject action...",
+    "reviewNoteHint": "Reject requires note with at least 3 characters.",
+    "reject": "Reject",
+    "approve": "Approve",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "pages": {
+    "login": {
+      "heading": "Login",
+      "button": {
+        "signin": "Sign in"
+      }
+    },
+    "dashboard": {
+      "kpi": {
+        "totalProducts": "Total Products",
+        "totalStockValue": "Total Stock Value",
+        "expiringSoon": "Expiring Soon",
+        "expired": "Expired",
+        "lowStock": "Low Stock"
+      },
+      "charts": {
+        "expiry": {
+          "title": "Expiry Distribution",
+          "subtitle": "Current product expiry status mix"
+        },
+        "stockValue": {
+          "title": "Stock Value by Category",
+          "subtitle": "Inventory value grouped by product category"
+        }
+      },
+      "table": {
+        "title": "Recent Transactions",
+        "subtitle": "Latest database activity across the system",
+        "headers": {
+          "action": "Action",
+          "entity": "Entity",
+          "target": "Target",
+          "by": "By",
+          "when": "When",
+          "detail": "Detail"
+        },
+        "moreDetail": "More detail",
+        "states": {
+          "loading": "Loading activities...",
+          "empty": "No recent activity."
+        }
+      },
+      "modal": {
+        "detail": {
+          "title": "Activity Detail",
+          "subtitle": "Clear summary and field-level changes for this action",
+          "loading": "Loading activity detail...",
+          "labels": {
+            "what": "What",
+            "entity": "Entity",
+            "target": "Target",
+            "when": "When",
+            "actor": "Actor",
+            "entityId": "Entity ID",
+            "changedFields": "Changed Fields",
+            "field": "Field",
+            "before": "Before",
+            "after": "After",
+            "technical": "Technical data (JSON)"
+          }
+        }
+      }
+    },
+    "products": {
+      "search": {
+        "placeholder": "Search by product name, SKU, brand..."
+      },
+      "filters": {
+        "button": "Filters",
+        "advanced": {
+          "title": "Advanced filters",
+          "subtitle": "Keep rare filters here so the product table stays compact.",
+          "reset": "Reset"
+        },
+        "presets": {
+          "all": "All Products",
+          "stockValue": "Stock Value Focus",
+          "expiringSoon": "Expiring Soon",
+          "expired": "Expired",
+          "lowStock": "Low Stock"
+        },
+        "category": {
+          "label": "All categories",
+          "applied": "Category"
+        },
+        "supplier": {
+          "label": "All suppliers",
+          "applied": "Supplier"
+        },
+        "expiry": {
+          "label": "All expiry status",
+          "applied": "Expiry:",
+          "options": {
+            "normal": "Normal",
+            "warning15": "Warning 4-15 days",
+            "alert3": "Alert 0-3 days",
+            "expired": "Expired",
+            "destroyed": "Destroyed"
+          }
+        },
+        "stock": {
+          "label": "All stock levels",
+          "applied": "Stock:",
+          "options": {
+            "low": "Low stock",
+            "outOfStock": "Out of stock",
+            "normal": "Normal stock"
+          }
+        },
+        "sortBy": {
+          "updated": "Sort by updated time",
+          "name": "Sort by name",
+          "sellingPrice": "Sort by selling price",
+          "costPrice": "Sort by cost price",
+          "stock": "Sort by stock",
+          "expiryDate": "Sort by expiry date"
+        },
+        "sortOrder": {
+          "desc": "Desc",
+          "asc": "Asc"
+        },
+        "priceRange": "Price range",
+        "customSort": "Custom sort",
+        "appliedSummary": "Applied:",
+        "clearAll": "Clear all",
+        "minPrice": "Min price",
+        "maxPrice": "Max price"
+      },
+      "buttons": {
+        "import": "Import CSV",
+        "importing": "Importing...",
+        "archive": "Archive",
+        "create": "Create",
+        "duplicate": "Duplicate",
+        "edit": "Edit",
+        "delete": "Delete",
+        "send": "Send",
+        "previous": "Previous",
+        "next": "Next",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "createProduct": "Create Product",
+        "creating": "Creating..."
+      },
+      "table": {
+        "headers": {
+          "name": "Name",
+          "sku": "SKU",
+          "brand": "Brand",
+          "stock": "Stock",
+          "status": "Status",
+          "action": "Action"
+        },
+        "pagination": {
+          "perPage10": "10 / page",
+          "perPage20": "20 / page",
+          "perPage50": "50 / page",
+          "perPage100": "100 / page",
+          "page": "Page"
+        },
+        "total": "Total products:",
+        "states": {
+          "loading": "Loading products...",
+          "empty": "No products found."
+        }
+      },
+      "status": {
+        "expired": "Expired",
+        "destroyed": "Destroyed",
+        "alert": "Alert",
+        "warning": "Warning",
+        "normal": "Normal"
+      },
+      "form": {
+        "labels": {
+          "name": "Product name",
+          "brand": "Brand",
+          "manufacturer": "Manufacturer",
+          "sku": "SKU",
+          "barcode": "Barcode",
+          "costPrice": "Cost price",
+          "sellingPrice": "Selling price",
+          "currentStock": "Current stock",
+          "reorderLevel": "Reorder level",
+          "imageUrl": "Image URL",
+          "notes": "Notes"
+        },
+        "types": {
+          "freshFood": "Fresh Food",
+          "dryGoods": "Dry Goods",
+          "cosmetics": "Cosmetics",
+          "household": "Household",
+          "custom": "Custom"
+        },
+        "units": {
+          "piece": "PIECE",
+          "kg": "KG",
+          "g": "G",
+          "l": "L",
+          "ml": "ML",
+          "box": "BOX"
+        },
+        "selects": {
+          "selectCategory": "Select category",
+          "selectSupplier": "Select supplier"
+        },
+        "preview": {
+          "profitMargin": "Profit margin preview:",
+          "daysUntilExpiry": "Days until expiry:",
+          "warning15Active": "Warning 15 days active",
+          "alert3Active": "Alert 3 days active"
+        },
+        "reasonLabel": "Reason for approval"
+      },
+      "modal": {
+        "create": {
+          "title": "Create Product",
+          "subtitle": "Fill the product basics, pricing, stock and expiry data in one focused modal."
+        },
+        "edit": {
+          "action": "Send this request to manager and admin for approval."
+        },
+        "delete": {
+          "confirmMessage": "Confirm to delete this product now.",
+          "updateMessage": "Confirm to save product changes now.",
+          "approvalMessage": "This will request removal of the product from active operations. Inventory and audit history stay available.",
+          "directMessage": "This action will remove the product from active operations immediately.",
+          "reasonPlaceholder": "Explain why this product should be updated or deleted..."
+        },
+        "titles": {
+          "new": "New product",
+          "deleteRequest": "Delete request",
+          "editRequest": "Edit request"
+        },
+        "actions": {
+          "deleteAction": "Delete",
+          "editAction": "Edit"
+        },
+        "closeCreate": "Close create product modal"
+      },
+      "messages": {
+        "created": "Product created",
+        "updated": "Product updated",
+        "deleted": "Product deleted",
+        "duplicated": "Product duplicated",
+        "approvalSent": "Approval request sent",
+        "archived": "Archived {{count}} products",
+        "importDone": "Import done. Created: {{created}}, Updated: {{updated}}, Skipped: {{skipped}}",
+        "importFailed": "Import failed",
+        "requiredFields": "Name, SKU and category are required",
+        "reasonTooShort": "Reason must be at least 8 characters",
+        "noFieldChanged": "Change at least one field before sending an edit request",
+        "nonNegative": "Price and reorder level must be non-negative"
+      }
+    },
+    "inventory": {
+      "buttons": {
+        "submit": "Submit Transaction",
+        "retry": "Retry"
+      },
+      "filters": {
+        "search": "Search transaction...",
+        "button": "Filters",
+        "reset": "Reset",
+        "types": {
+          "label": "All types",
+          "in": "IN",
+          "out": "OUT",
+          "adjustment": "ADJUSTMENT",
+          "destroy": "DESTROY"
+        },
+        "warehouses": "All warehouses",
+        "expiry": "All expiry status",
+        "appliedSummary": "Applied:",
+        "type": "Type:",
+        "warehouse": "Warehouse",
+        "dateRange": "Date range",
+        "clearAll": "Clear all"
+      },
+      "pagination": {
+        "perPage10": "10 / page",
+        "perPage20": "20 / page",
+        "perPage50": "50 / page",
+        "perPage100": "100 / page",
+        "perPageChip": "{{count}} / page",
+        "page": "Page",
+        "previous": "Previous",
+        "next": "Next"
+      },
+      "table": {
+        "headers": {
+          "type": "Type",
+          "product": "Product",
+          "qty": "Qty",
+          "reason": "Reason",
+          "supplier": "Supplier",
+          "warehouse": "Warehouse",
+          "invoice": "Invoice",
+          "date": "Date"
+        },
+        "total": "Total transactions:",
+        "states": {
+          "loading": "Loading transactions...",
+          "empty": "No inventory transactions yet."
+        }
+      },
+      "modal": {
+        "title": "Submit Transaction",
+        "subtitle": "Create inventory in, out, adjustment or destroy movement in one focused modal.",
+        "closeAria": "Close transaction modal",
+        "transactionTypes": {
+          "in": "IN",
+          "out": "OUT",
+          "adjustment": "ADJUSTMENT",
+          "destroy": "DESTROY"
+        },
+        "adjustment": {
+          "increase": "Increase stock",
+          "decrease": "Decrease stock"
+        },
+        "destroyReasons": {
+          "damaged": "Damaged",
+          "expired": "Expired",
+          "contaminated": "Contaminated",
+          "other": "Other"
+        },
+        "selects": {
+          "selectProduct": "Select product",
+          "selectReason": "Select reason",
+          "loadingProducts": "Loading products...",
+          "loadingWarehouses": "Loading warehouses...",
+          "loadingSuppliers": "Loading suppliers...",
+          "warehouseOptional": "Warehouse (optional)",
+          "supplierName": "Supplier name"
+        },
+        "inputs": {
+          "deliveredBy": "Delivered by (person name)",
+          "invoiceNumber": "Invoice number"
+        },
+        "button": {
+          "submitting": "Submitting...",
+          "submit": "Submit Transaction",
+          "cancel": "Cancel"
+        }
+      },
+      "advanced": {
+        "title": "Advanced filters",
+        "subtitle": "Keep warehouse, date range and density filters here so the transaction table stays compact.",
+        "reset": "Reset"
+      }
+    },
+    "settings": {
+      "system": {
+        "title": "System Settings",
+        "subtitle": "Applies to the whole system: dashboard, products, notifications, and report exports.",
+        "profile": {
+          "title": "Store Profile",
+          "storeName": "Store name",
+          "branchName": "Branch name",
+          "address": "Address",
+          "contactPhone": "Contact phone",
+          "contactEmail": "Contact email",
+          "taxCode": "Tax code"
+        },
+        "operations": {
+          "title": "Operations Rules",
+          "lowStockThreshold": "Low stock threshold",
+          "defaultReorderLevel": "Default reorder level",
+          "recentActivitiesCount": "Recent activities on dashboard",
+          "approvalBellRefresh": "Approval bell refresh (seconds)",
+          "dashboardRefresh": "Dashboard refresh (seconds)"
+        },
+        "report": {
+          "title": "Report Output",
+          "preparedBy": "Prepared by",
+          "footerNote": "Footer note",
+          "includeStoreContact": "Include store contact block in exported report"
+        },
+        "button": "Save System Settings",
+        "notice": "Editable by ADMIN and MANAGER."
+      },
+      "personal": {
+        "title": "Personal Settings",
+        "subtitle": "Personal Preferences",
+        "preferences": {
+          "notifications": {
+            "title": "Notifications",
+            "inAppApprovals": "In-app approval notifications",
+            "stockAlert": "Stock alert email",
+            "expiryAlert": "Expiry alert email",
+            "dailySummary": "Daily summary email"
+          },
+          "ui": {
+            "title": "UI",
+            "compactDensity": "Compact table density",
+            "defaultPageSize": "Default page size"
+          }
+        },
+        "password": {
+          "title": "Change My Password",
+          "currentPassword": "Current password",
+          "newPassword": "New password",
+          "confirmPassword": "Confirm new password",
+          "hint": "Minimum 8 characters. Use a password you do not use on other systems.",
+          "button": "Update Password"
+        },
+        "button": "Save Personal Preferences",
+        "notice": "Applies only to your account:",
+        "readonlyNotice": "Read-only for this role. Only ADMIN or MANAGER can edit."
+      },
+      "sessions": {
+        "title": "Active Sessions",
+        "table": {
+          "headers": {
+            "device": "Device",
+            "ip": "IP",
+            "created": "Created",
+            "lastActive": "Last Active",
+            "status": "Status"
+          },
+          "status": {
+            "active": "Active",
+            "revoked": "Revoked"
+          },
+          "states": {
+            "loading": "Loading sessions...",
+            "empty": "No sessions found."
+          }
+        },
+        "buttons": {
+          "revoke": "Revoke",
+          "revokeOthers": "Revoke Other Sessions"
+        },
+        "messages": {
+          "sessionRevoked": "Session revoked.",
+          "othersRevoked": "Other sessions revoked:"
+        }
+      },
+      "savedFilters": {
+        "title": "Saved Filters",
+        "table": {
+          "headers": {
+            "name": "Name",
+            "scope": "Scope",
+            "query": "Query",
+            "actions": "Actions"
+          },
+          "scopes": {
+            "products": "Products",
+            "inventory": "Inventory",
+            "expiry": "Expiry"
+          },
+          "actions": {
+            "open": "Open",
+            "delete": "Delete"
+          },
+          "states": {
+            "loading": "Loading saved filters...",
+            "empty": "No saved filters yet."
+          }
+        },
+        "form": {
+          "filterName": "Filter name",
+          "queryString": "Query string, ex: search=fish&expiryStatus=WARNING_15",
+          "button": "Save"
+        },
+        "messages": {
+          "created": "Saved filter created.",
+          "deleted": "Saved filter deleted."
+        }
+      },
+      "permissions": {
+        "title": "Role Permission Matrix",
+        "table": {
+          "headers": {
+            "role": "Role",
+            "permissions": "Permissions"
+          }
+        }
+      },
+      "messages": {
+        "systemSaved": "System settings saved.",
+        "personalSaved": "Personal settings saved.",
+        "saving": "Saving..."
+      }
+    },
+    "assets": {
+      "title": "Assets",
+      "search": {
+        "placeholder": "Search by asset code, name..."
+      },
+      "filters": {
+        "button": "Filters",
+        "status": "All statuses",
+        "warehouse": "All warehouses",
+        "reset": "Reset"
+      },
+      "buttons": {
+        "create": "Create Asset",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "table": {
+        "headers": {
+          "code": "Code",
+          "name": "Name",
+          "type": "Type",
+          "status": "Status",
+          "purchaseDate": "Purchase Date",
+          "currentValue": "Current Value",
+          "monthlyDepreciation": "Monthly Depreciation",
+          "warehouse": "Warehouse",
+          "assignedUser": "Assigned To",
+          "action": "Action"
+        },
+        "states": {
+          "loading": "Loading assets...",
+          "empty": "No assets found."
+        }
+      },
+      "status": {
+        "active": "Active",
+        "inRepair": "In repair",
+        "retired": "Retired",
+        "lost": "Lost"
+      },
+      "form": {
+        "labels": {
+          "code": "Asset code",
+          "name": "Asset name",
+          "type": "Asset type",
+          "status": "Status",
+          "purchaseDate": "Purchase date",
+          "cost": "Cost",
+          "depreciationMonths": "Depreciation months",
+          "warehouse": "Warehouse",
+          "assignedUser": "Assigned to",
+          "notes": "Notes"
+        }
+      },
+      "modal": {
+        "title": "Create Asset",
+        "editTitle": "Edit Asset"
+      },
+      "messages": {
+        "created": "Asset created",
+        "updated": "Asset updated",
+        "deleted": "Asset deleted"
+      }
+    },
+    "categories": {
+      "title": "Categories",
+      "search": {
+        "placeholder": "Search by category name, description..."
+      },
+      "buttons": {
+        "create": "Create Category",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "table": {
+        "headers": {
+          "name": "Name",
+          "description": "Description",
+          "parent": "Parent Category",
+          "products": "Products",
+          "children": "Subcategories",
+          "status": "Status",
+          "action": "Action"
+        },
+        "states": {
+          "loading": "Loading categories...",
+          "empty": "No categories found."
+        }
+      },
+      "form": {
+        "labels": {
+          "name": "Category name",
+          "description": "Description",
+          "parent": "Parent category",
+          "status": "Status",
+          "isActive": "Active"
+        }
+      },
+      "modal": {
+        "title": "Create Category",
+        "editTitle": "Edit Category"
+      },
+      "messages": {
+        "created": "Category created",
+        "updated": "Category updated",
+        "deleted": "Category deleted",
+        "visibilityUpdated": "Category visibility updated",
+        "nameRequired": "Category name is required"
+      }
+    },
+    "employees": {
+      "title": "Employees",
+      "search": {
+        "placeholder": "Search by employee code, name, email..."
+      },
+      "filters": {
+        "button": "Filters",
+        "department": "All departments",
+        "status": "All statuses",
+        "reset": "Reset"
+      },
+      "buttons": {
+        "create": "Create Employee",
+        "createDepartment": "Create Department",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "table": {
+        "headers": {
+          "code": "Code",
+          "name": "Name",
+          "email": "Email",
+          "phone": "Phone",
+          "department": "Department",
+          "position": "Position",
+          "hireDate": "Hire Date",
+          "salary": "Salary",
+          "status": "Status",
+          "action": "Action"
+        },
+        "states": {
+          "loading": "Loading employees...",
+          "empty": "No employees found."
+        }
+      },
+      "status": {
+        "active": "Active",
+        "onLeave": "On leave",
+        "terminated": "Terminated"
+      },
+      "form": {
+        "labels": {
+          "code": "Employee code",
+          "fullName": "Full name",
+          "email": "Email",
+          "phone": "Phone",
+          "department": "Department",
+          "position": "Position",
+          "hireDate": "Hire date",
+          "salary": "Salary",
+          "status": "Status",
+          "userId": "System user"
+        },
+        "selects": {
+          "selectDepartment": "Select department",
+          "selectUser": "Select user"
+        }
+      },
+      "modal": {
+        "title": "Create Employee",
+        "editTitle": "Edit Employee",
+        "deptTitle": "Create Department"
+      },
+      "messages": {
+        "created": "Employee created",
+        "updated": "Employee updated",
+        "deleted": "Employee deleted"
+      }
+    },
+    "suppliers": {
+      "title": "Suppliers",
+      "search": {
+        "placeholder": "Search by supplier name, contact, email..."
+      },
+      "buttons": {
+        "create": "Create Supplier",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "table": {
+        "headers": {
+          "name": "Name",
+          "contact": "Contact Person",
+          "email": "Email",
+          "phone": "Phone",
+          "address": "Address",
+          "products": "Products",
+          "createdAt": "Created",
+          "action": "Action"
+        },
+        "states": {
+          "loading": "Loading suppliers...",
+          "empty": "No suppliers found."
+        }
+      },
+      "form": {
+        "labels": {
+          "name": "Supplier name",
+          "contactPerson": "Contact person",
+          "email": "Contact email",
+          "phone": "Contact phone",
+          "address": "Address",
+          "notes": "Notes"
+        }
+      },
+      "modal": {
+        "title": "Create Supplier",
+        "editTitle": "Edit Supplier"
+      },
+      "messages": {
+        "created": "Supplier created.",
+        "updated": "Supplier updated.",
+        "deleted": "Supplier deleted.",
+        "nameRequired": "Supplier name is required.",
+        "noPermission": "Only admin/manager can create or edit suppliers."
+      }
+    },
+    "users": {
+      "title": "Users",
+      "search": {
+        "placeholder": "Search by name, email..."
+      },
+      "filters": {
+        "button": "Filters",
+        "role": "All roles",
+        "status": "All statuses",
+        "reset": "Reset"
+      },
+      "buttons": {
+        "create": "Create User",
+        "edit": "Edit",
+        "delete": "Delete",
+        "changePassword": "Change Password",
+        "resetPassword": "Reset Password"
+      },
+      "table": {
+        "headers": {
+          "name": "Name",
+          "email": "Email",
+          "role": "Role",
+          "status": "Status",
+          "createdAt": "Created",
+          "lastLogin": "Last Login",
+          "action": "Action"
+        },
+        "states": {
+          "loading": "Loading users...",
+          "empty": "No users found."
+        }
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "roles": {
+        "ADMIN": "Admin",
+        "MANAGER": "Manager",
+        "WAREHOUSE_STAFF": "Warehouse Staff",
+        "CASHIER": "Cashier",
+        "SALE_DEPARTMENT": "Sales",
+        "FINANCE_DEPARTMENT": "Finance"
+      },
+      "form": {
+        "labels": {
+          "name": "Full name",
+          "email": "Email address",
+          "role": "Role",
+          "password": "Password",
+          "confirmPassword": "Confirm password",
+          "isActive": "Active"
+        }
+      },
+      "modal": {
+        "title": "Create User",
+        "editTitle": "Edit User",
+        "passwordTitle": "Change Password",
+        "confirmTitle": "Confirm Action"
+      },
+      "messages": {
+        "created": "User created",
+        "updated": "User updated",
+        "deleted": "User deleted",
+        "passwordChanged": "Password changed successfully",
+        "passwordReset": "Password reset successfully",
+        "confirmDelete": "Are you sure you want to delete this user?",
+        "confirmPasswordReset": "Reset password for this user?"
+      }
+    },
+    "warehouses": {
+      "title": "Warehouses",
+      "search": {
+        "placeholder": "Search by warehouse name, code, address..."
+      },
+      "buttons": {
+        "create": "Create Warehouse",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "table": {
+        "headers": {
+          "code": "Code",
+          "name": "Name",
+          "address": "Address",
+          "status": "Status",
+          "action": "Action"
+        },
+        "states": {
+          "loading": "Loading warehouses...",
+          "empty": "No warehouses found."
+        }
+      },
+      "form": {
+        "labels": {
+          "name": "Warehouse name",
+          "code": "Warehouse code",
+          "address": "Address",
+          "isActive": "Active"
+        }
+      },
+      "messages": {
+        "created": "Warehouse created",
+        "updated": "Warehouse updated",
+        "deleted": "Warehouse deleted",
+        "nameCodeRequired": "Warehouse name and code are required",
+        "noPermission": "You do not have permission to change warehouse data."
+      }
+    },
+    "expiry": {
+      "title": "Expiry Alerts",
+      "table": {
+        "headers": {
+          "product": "Product",
+          "expiryStatus": "Expiry Status",
+          "suggestedAction": "Suggested Action"
+        },
+        "actions": {
+          "discount20": "Discount 20-30%",
+          "discount10": "Discount 10-15%",
+          "destroy": "Destroy",
+          "monitor": "Monitor"
+        }
+      }
+    },
+    "reports": {
+      "title": "Reports",
+      "dateRange": {
+        "from": "From date",
+        "to": "To date"
+      },
+      "sections": {
+        "inventory": "Inventory Snapshot",
+        "waste": "Waste Analysis",
+        "profit": "Profit by Category",
+        "trends": "Transaction Trends",
+        "supplier": "Supplier Performance",
+        "warehouse": "Warehouse Overview"
+      },
+      "buttons": {
+        "exportCsv": "Export CSV",
+        "exportXlsx": "Export XLSX",
+        "exportHtml": "Export HTML",
+        "exportPdf": "Export PDF"
+      },
+      "trendDays": {
+        "label": "Trend days",
+        "7": "Last 7 days",
+        "14": "Last 14 days",
+        "30": "Last 30 days",
+        "90": "Last 90 days"
+      },
+      "messages": {
+        "exportFailed": "Export failed. Please try again."
+      }
+    },
+    "automation": {
+      "title": "Automation",
+      "jobs": {
+        "expiry": {
+          "title": "Expiry Status Sync",
+          "description": "Recalculate expiry statuses from current date and expiry date.",
+          "run": "Run Job",
+          "running": "Running..."
+        },
+        "kpi": {
+          "title": "KPI Snapshot",
+          "description": "Capture current KPI baseline for operations tracking.",
+          "run": "Run Snapshot",
+          "running": "Running..."
+        }
+      },
+      "labels": {
+        "status": "Status",
+        "startedAt": "Started At",
+        "finishedAt": "Finished At",
+        "summary": "Summary",
+        "latest": "Latest"
+      },
+      "status": {
+        "idle": "IDLE",
+        "running": "RUNNING",
+        "completed": "COMPLETED",
+        "failed": "FAILED"
+      }
+    },
+    "insights": {
+      "title": "AI Insights",
+      "description": "Select a topic to analyze. The system aggregates real data from database, sends to AI provider (Groq/Gemini/Claude/OpenAI in fallback order) and returns insights + recommendations. Results are cached by date and data.",
+      "topics": {
+        "hr": {
+          "label": "HR",
+          "description": "Employee analysis by department, salary costs, hiring trends."
+        },
+        "inventory": {
+          "label": "Inventory",
+          "description": "Stock levels, expiry, waste, turnover, and inventory value by category."
+        },
+        "strategy": {
+          "label": "Strategy",
+          "description": "Sales trends by month, top categories, action recommendations."
+        }
+      },
+      "buttons": {
+        "analyze": "Analyze",
+        "refresh": "Refresh"
+      },
+      "labels": {
+        "summary": "Summary",
+        "findings": "Findings",
+        "recommendations": "Recommendations",
+        "provider": "AI Provider",
+        "model": "Model",
+        "cached": "Cached result",
+        "generatedAt": "Generated"
+      },
+      "charts": {
+        "headcount": "Headcount by Department",
+        "stockValue": "Stock Value by Category (Top 10)",
+        "monthlySales": "Monthly Sales (6 months)"
+      },
+      "messages": {
+        "loading": "Analyzing...",
+        "error": "Analysis failed"
+      }
+    },
+    "audit": {
+      "title": "Audit History",
+      "search": {
+        "placeholder": "Search by action, entity, user..."
+      },
+      "filters": {
+        "action": "Action",
+        "entity": "Entity",
+        "requestId": "Request ID",
+        "from": "From date",
+        "to": "To date",
+        "exportCsv": "Export CSV"
+      },
+      "table": {
+        "headers": {
+          "action": "Action",
+          "entity": "Entity",
+          "target": "Target",
+          "by": "By",
+          "when": "When",
+          "detail": "Detail"
+        },
+        "states": {
+          "loading": "Loading audit logs...",
+          "empty": "No audit logs found."
+        }
+      },
+      "detail": {
+        "title": "Audit Detail",
+        "labels": {
+          "what": "What",
+          "entity": "Entity",
+          "target": "Target",
+          "when": "When",
+          "actor": "Actor",
+          "entityId": "Entity ID",
+          "changedFields": "Changed Fields",
+          "field": "Field",
+          "before": "Before",
+          "after": "After",
+          "technical": "Technical data (JSON)",
+          "timeline": "Timeline"
+        },
+        "loading": "Loading detail..."
+      }
+    }
+  }
+}

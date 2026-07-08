@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit3, KeyRound, Trash2, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { useAuth } from "../../auth/auth-context";
 import { Button, Card, Input } from "../../../components/ui/basic";
@@ -19,6 +20,7 @@ const statusBadgeClass = (isActive: boolean) => (
 );
 
 export const UsersPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
@@ -80,7 +82,7 @@ export const UsersPage = () => {
   const createMutation = useMutation({
     mutationFn: () => api<any>("/users", { method: "POST", body: JSON.stringify(createForm) }),
     onSuccess: async () => {
-      setMessage("User created");
+      setMessage(t("pages.users.messages.created"));
       setError("");
       setCreateForm({ ...createForm, name: "", email: "", password: "Password123!" });
       await qc.invalidateQueries({ queryKey: ["users"] });
@@ -91,7 +93,7 @@ export const UsersPage = () => {
   const updateMutation = useMutation({
     mutationFn: () => api<any>(`/users/${editingUser.id}`, { method: "PUT", body: JSON.stringify(editForm) }),
     onSuccess: async () => {
-      setMessage("User updated");
+      setMessage(t("pages.users.messages.updated"));
       setError("");
       setEditingUser(null);
       await qc.invalidateQueries({ queryKey: ["users"] });

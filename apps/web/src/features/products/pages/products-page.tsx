@@ -2,17 +2,18 @@ import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Archive, Edit3, Filter, Plus, Send, Trash2, Upload, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api } from "../../../lib/api-client";
 import { Button, Card, Input } from "../../../components/ui/basic";
 import { useToast } from "../../../components/ui/toast";
 import { useAuth } from "../../auth/auth-context";
 
-const productStatus = (product: any) => {
-  if (product.expiryStatus === "EXPIRED") return { label: "Expired", className: "border border-[#d77a55] bg-[#f0d1b0] text-[#9c4326]" };
-  if (product.expiryStatus === "DESTROYED") return { label: "Destroyed", className: "border border-[#cdbf9f] bg-[#eadfc9] text-[#5d563f]" };
-  if (product.isAlert3) return { label: "Alert", className: "border border-[#e77c4f] bg-[#f7c29b] text-[#9c4326]" };
-  if (product.isWarning15) return { label: "Warning", className: "border border-[#e0bd63] bg-[#ffecbe] text-[#7d5c19]" };
-  return { label: "Normal", className: "border border-[#a8c5a0] bg-[#dfead7] text-[#315f3d]" };
+const productStatus = (product: any, t: any) => {
+  if (product.expiryStatus === "EXPIRED") return { label: t("pages.products.status.expired"), className: "border border-[#d77a55] bg-[#f0d1b0] text-[#9c4326]" };
+  if (product.expiryStatus === "DESTROYED") return { label: t("pages.products.status.destroyed"), className: "border border-[#cdbf9f] bg-[#eadfc9] text-[#5d563f]" };
+  if (product.isAlert3) return { label: t("pages.products.status.alert"), className: "border border-[#e77c4f] bg-[#f7c29b] text-[#9c4326]" };
+  if (product.isWarning15) return { label: t("pages.products.status.warning"), className: "border border-[#e0bd63] bg-[#ffecbe] text-[#7d5c19]" };
+  return { label: t("pages.products.status.normal"), className: "border border-[#a8c5a0] bg-[#dfead7] text-[#315f3d]" };
 };
 
 const productFieldClass = "border-[#e8c983] bg-[#ffecbe] text-[#4f4127] placeholder:text-[#8f7d5a] focus:ring-[#c55f3b]/20";
@@ -112,15 +113,10 @@ const defaultProductForm = {
   imageUrl: "",
 };
 
-const presetOptions = [
-  ["all", "All Products"],
-  ["stockValue", "Stock Value Focus"],
-  ["expiringSoon", "Expiring Soon"],
-  ["expired", "Expired"],
-  ["lowStock", "Low Stock"],
-];
+const presetOptions = ["all", "stockValue", "expiringSoon", "expired", "lowStock"];
 
 export const ProductsPage = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const qc = useQueryClient();
   const { user } = useAuth();
@@ -225,7 +221,7 @@ export const ProductsPage = () => {
     mutationFn: (payload: any) =>
       api("/products", { method: "POST", body: JSON.stringify(payload) }),
     onSuccess: async () => {
-      notify({ type: "success", message: "Product created" });
+      notify({ type: "success", message: t("pages.products.messages.created") });
       setError("");
       setShowCreateModal(false);
       setForm(defaultProductForm);
@@ -242,7 +238,7 @@ export const ProductsPage = () => {
     mutationFn: ({ id, payload }: { id: string; payload: any }) =>
       api(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
     onSuccess: async () => {
-      notify({ type: "success", message: "Product updated" });
+      notify({ type: "success", message: t("pages.products.messages.updated") });
       setError("");
       setActionModal(null);
       setEditForm({});
@@ -264,7 +260,7 @@ export const ProductsPage = () => {
     mutationFn: (id: string) =>
       api(`/products/${id}`, { method: "DELETE" }),
     onSuccess: async () => {
-      notify({ type: "success", message: "Product deleted" });
+      notify({ type: "success", message: t("pages.products.messages.deleted") });
       setError("");
       setActionModal(null);
       setEditForm({});
@@ -286,7 +282,7 @@ export const ProductsPage = () => {
     mutationFn: (payload: any) =>
       api("/approvals/product", { method: "POST", body: JSON.stringify(payload) }),
     onSuccess: async () => {
-      notify({ type: "success", message: "Approval request sent" });
+      notify({ type: "success", message: t("pages.products.messages.approvalSent") });
       setError("");
       setActionModal(null);
       setRequestReason("");
@@ -307,7 +303,7 @@ export const ProductsPage = () => {
   const duplicateProduct = useMutation({
     mutationFn: (id: string) => api(`/products/${id}/duplicate`, { method: "POST" }),
     onSuccess: async () => {
-      notify({ type: "success", message: "Product duplicated" });
+      notify({ type: "success", message: t("pages.products.messages.duplicated") });
       await qc.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (e) => {
@@ -321,7 +317,7 @@ export const ProductsPage = () => {
     mutationFn: (productIds: string[]) =>
       api("/products/bulk/archive", { method: "POST", body: JSON.stringify({ productIds }) }),
     onSuccess: async (result: any) => {
-      notify({ type: "success", message: `Archived ${result?.data?.archivedCount ?? selectedIds.length} products` });
+      notify({ type: "success", message: t("pages.products.messages.archived", { count: result?.data?.archivedCount ?? selectedIds.length }) });
       setSelectedIds([]);
       await qc.invalidateQueries({ queryKey: ["products"] });
     },
@@ -353,7 +349,7 @@ export const ProductsPage = () => {
 
   const submit = () => {
     if (!form.name || !form.sku || !form.categoryId) {
-      const message = "Name, SKU and category are required";
+      const message = t("pages.products.messages.requiredFields");
       setError(message);
       notify({ type: "warning", message });
       return;
@@ -399,7 +395,7 @@ export const ProductsPage = () => {
   const sendApprovalRequest = () => {
     if (!actionModal) return;
     if (requestReason.trim().length < 8) {
-      const message = "Reason must be at least 8 characters";
+      const message = t("pages.products.messages.reasonTooShort");
       setError(message);
       notify({ type: "warning", message });
       return;
@@ -426,7 +422,7 @@ export const ProductsPage = () => {
     }
 
     if (Object.keys(requestedChanges).length === 0) {
-      const message = "Change at least one field before sending an edit request";
+      const message = t("pages.products.messages.noFieldChanged");
       setError(message);
       notify({ type: "warning", message });
       return;
@@ -450,13 +446,13 @@ export const ProductsPage = () => {
 
     const payload = buildDirectUpdatePayload(actionModal.product, editForm);
     if (!payload.name || !payload.sku || !payload.categoryId) {
-      const message = "Name, SKU and category are required";
+      const message = t("pages.products.messages.requiredFields");
       setError(message);
       notify({ type: "warning", message });
       return;
     }
     if (payload.costPrice < 0 || payload.sellingPrice < 0 || payload.reorderLevel < 0) {
-      const message = "Price and reorder level must be non-negative";
+      const message = t("pages.products.messages.nonNegative");
       setError(message);
       notify({ type: "warning", message });
       return;
@@ -525,11 +521,11 @@ export const ProductsPage = () => {
       const summary = result?.data?.summary;
       notify({
         type: "success",
-        message: `Import done. Created: ${summary?.created ?? 0}, Updated: ${summary?.updated ?? 0}, Skipped: ${summary?.skipped ?? 0}`,
+        message: t("pages.products.messages.importDone", { created: summary?.created ?? 0, updated: summary?.updated ?? 0, skipped: summary?.skipped ?? 0 }),
       });
       await qc.invalidateQueries({ queryKey: ["products"] });
     } catch (e: any) {
-      const message = e?.message || "Import failed";
+      const message = e?.message || t("pages.products.messages.importFailed");
       setError(message);
       notify({ type: "error", message });
     } finally {
@@ -579,7 +575,7 @@ export const ProductsPage = () => {
         <div className="grid gap-3 lg:grid-cols-[minmax(260px,1fr)_220px_auto] lg:items-center">
           <Input
             className={productFieldClass}
-            placeholder="Search by product name, SKU, brand..."
+            placeholder={t("pages.products.search.placeholder")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -594,89 +590,89 @@ export const ProductsPage = () => {
               setPage(1);
             }}
           >
-            {presetOptions.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+            {presetOptions.map((key) => <option key={key} value={key}>{t(`pages.products.filters.presets.${key}`)}</option>)}
           </select>
           <div className="flex flex-wrap items-center justify-end gap-2">
             <button
               className={`inline-flex h-11 items-center gap-2 px-3 text-sm font-semibold ${productToolbarButtonClass}`}
               onClick={() => setShowAdvancedFilters((value) => !value)}
             >
-              <Filter size={16} /> Filters {activeFilterCount ? `(${activeFilterCount})` : ""}
+              <Filter size={16} /> {t("pages.products.filters.button")} {activeFilterCount ? `(${activeFilterCount})` : ""}
             </button>
             <label className={`inline-flex h-11 cursor-pointer items-center gap-2 px-3 text-sm font-semibold ${productToolbarButtonClass}`}>
               <input type="file" accept=".csv" className="hidden" onChange={handleImportCsv} />
-              <Upload size={16} /> {importing ? "Importing..." : "Import CSV"}
+              <Upload size={16} /> {importing ? t("pages.products.buttons.importing") : t("pages.products.buttons.import")}
             </label>
             <button
               className={`inline-flex h-11 items-center gap-2 px-3 text-sm font-medium ${productArchiveButtonClass}`}
               disabled={!selectedIds.length || bulkArchive.isPending}
               onClick={() => bulkArchive.mutate(selectedIds)}
             >
-              <Archive size={16} /> Archive ({selectedIds.length})
+              <Archive size={16} /> {t("pages.products.buttons.archive")} ({selectedIds.length})
             </button>
             <Button className="inline-flex items-center gap-2" onClick={openCreateModal}>
-              <Plus size={16} /> Create
+              <Plus size={16} /> {t("pages.products.buttons.create")}
             </Button>
           </div>
         </div>
         {activeFilterCount ? (
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-semibold text-[#6d5935]">Applied:</span>
-            {preset !== "all" ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{presetOptions.find(([key]) => key === preset)?.[1]}</span> : null}
-            {categoryFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">Category</span> : null}
-            {supplierFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">Supplier</span> : null}
-            {expiryStatusFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">Expiry: {expiryStatusFilter}</span> : null}
-            {stockLevelFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">Stock: {stockLevelFilter}</span> : null}
-            {minPriceFilter || maxPriceFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">Price range</span> : null}
-            {sortBy !== "updatedAt" || sortOrder !== "desc" ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">Custom sort</span> : null}
-            <button className="text-xs font-semibold text-[#b35228] hover:underline" onClick={resetFilters}>Clear all</button>
+            <span className="font-semibold text-[#6d5935]">{t("pages.products.filters.appliedSummary")}</span>
+            {preset !== "all" ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{t(`pages.products.filters.presets.${preset}`)}</span> : null}
+            {categoryFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{t("pages.products.filters.category.applied")}</span> : null}
+            {supplierFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{t("pages.products.filters.supplier.applied")}</span> : null}
+            {expiryStatusFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{t("pages.products.filters.expiry.applied")} {expiryStatusFilter}</span> : null}
+            {stockLevelFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{t("pages.products.filters.stock.applied")} {stockLevelFilter}</span> : null}
+            {minPriceFilter || maxPriceFilter ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{t("pages.products.filters.priceRange")}</span> : null}
+            {sortBy !== "updatedAt" || sortOrder !== "desc" ? <span className="rounded-full border border-[#ead6aa] bg-[#fff9ee] px-2 py-1 text-[#6d5935]">{t("pages.products.filters.customSort")}</span> : null}
+            <button className="text-xs font-semibold text-[#b35228] hover:underline" onClick={resetFilters}>{t("pages.products.filters.clearAll")}</button>
           </div>
         ) : null}
         {showAdvancedFilters ? (
           <div className="mt-4 rounded-md border border-[#ead6aa] bg-[#fff9ee] p-3">
             <div className="mb-3 flex items-center justify-between gap-2">
               <div>
-                <div className="text-sm font-semibold text-[#2f2b20]">Advanced filters</div>
-                <div className="text-xs text-[#8f7d5a]">Keep rare filters here so the product table stays compact.</div>
+                <div className="text-sm font-semibold text-[#2f2b20]">{t("pages.products.filters.advanced.title")}</div>
+                <div className="text-xs text-[#8f7d5a]">{t("pages.products.filters.advanced.subtitle")}</div>
               </div>
-              <button className={`h-9 px-3 text-xs font-medium ${productGhostButtonClass}`} onClick={resetFilters}>Reset</button>
+              <button className={`h-9 px-3 text-xs font-medium ${productGhostButtonClass}`} onClick={resetFilters}>{t("pages.products.filters.advanced.reset")}</button>
             </div>
             <div className="grid gap-2 md:grid-cols-4">
               <select className={productSelectClass} value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}>
-                <option value="">All categories</option>
+                <option value="">{t("pages.products.filters.category.label")}</option>
                 {(cats.data?.data ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
               <select className={productSelectClass} value={supplierFilter} onChange={(e) => { setSupplierFilter(e.target.value); setPage(1); }}>
-                <option value="">All suppliers</option>
+                <option value="">{t("pages.products.filters.supplier.label")}</option>
                 {(sups.data?.data ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
               <select className={productSelectClass} value={expiryStatusFilter} onChange={(e) => { setExpiryStatusFilter(e.target.value); setPage(1); }}>
-                <option value="">All expiry status</option>
-                <option value="NORMAL">Normal</option>
-                <option value="WARNING_15">Warning 4-15 days</option>
-                <option value="ALERT_3">Alert 0-3 days</option>
-                <option value="EXPIRED">Expired</option>
-                <option value="DESTROYED">Destroyed</option>
+                <option value="">{t("pages.products.filters.expiry.label")}</option>
+                <option value="NORMAL">{t("pages.products.filters.expiry.options.normal")}</option>
+                <option value="WARNING_15">{t("pages.products.filters.expiry.options.warning15")}</option>
+                <option value="ALERT_3">{t("pages.products.filters.expiry.options.alert3")}</option>
+                <option value="EXPIRED">{t("pages.products.filters.expiry.options.expired")}</option>
+                <option value="DESTROYED">{t("pages.products.filters.expiry.options.destroyed")}</option>
               </select>
               <select className={productSelectClass} value={stockLevelFilter} onChange={(e) => { setStockLevelFilter(e.target.value); setPage(1); }}>
-                <option value="">All stock levels</option>
-                <option value="LOW">Low stock ({"<="} {lowStockThreshold})</option>
-                <option value="OUT">Out of stock</option>
-                <option value="NORMAL">Normal stock ({">"} {lowStockThreshold})</option>
+                <option value="">{t("pages.products.filters.stock.label")}</option>
+                <option value="LOW">{t("pages.products.filters.stock.options.low")} ({"<="} {lowStockThreshold})</option>
+                <option value="OUT">{t("pages.products.filters.stock.options.outOfStock")}</option>
+                <option value="NORMAL">{t("pages.products.filters.stock.options.normal")} ({">"} {lowStockThreshold})</option>
               </select>
-              <Input className={productFieldClass} placeholder="Min price" type="number" min={0} value={minPriceFilter} onChange={(e) => { setMinPriceFilter(e.target.value); setPage(1); }} />
-              <Input className={productFieldClass} placeholder="Max price" type="number" min={0} value={maxPriceFilter} onChange={(e) => { setMaxPriceFilter(e.target.value); setPage(1); }} />
+              <Input className={productFieldClass} placeholder={t("pages.products.filters.minPrice")} type="number" min={0} value={minPriceFilter} onChange={(e) => { setMinPriceFilter(e.target.value); setPage(1); }} />
+              <Input className={productFieldClass} placeholder={t("pages.products.filters.maxPrice")} type="number" min={0} value={maxPriceFilter} onChange={(e) => { setMaxPriceFilter(e.target.value); setPage(1); }} />
               <select className={productSelectClass} value={sortBy} onChange={(e) => { setSortBy(e.target.value); setPage(1); }}>
-                <option value="updatedAt">Sort by updated time</option>
-                <option value="name">Sort by name</option>
-                <option value="sellingPrice">Sort by selling price</option>
-                <option value="costPrice">Sort by cost price</option>
-                <option value="currentStock">Sort by stock</option>
-                <option value="expiryDate">Sort by expiry date</option>
+                <option value="updatedAt">{t("pages.products.filters.sortBy.updated")}</option>
+                <option value="name">{t("pages.products.filters.sortBy.name")}</option>
+                <option value="sellingPrice">{t("pages.products.filters.sortBy.sellingPrice")}</option>
+                <option value="costPrice">{t("pages.products.filters.sortBy.costPrice")}</option>
+                <option value="currentStock">{t("pages.products.filters.sortBy.stock")}</option>
+                <option value="expiryDate">{t("pages.products.filters.sortBy.expiryDate")}</option>
               </select>
               <select className={productSelectClass} value={sortOrder} onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}>
-                <option value="desc">Desc</option>
-                <option value="asc">Asc</option>
+                <option value="desc">{t("pages.products.filters.sortOrder.desc")}</option>
+                <option value="asc">{t("pages.products.filters.sortOrder.asc")}</option>
               </select>
             </div>
           </div>
@@ -694,26 +690,26 @@ export const ProductsPage = () => {
               <col className="w-[10%]" />
               <col className="w-[22%]" />
             </colgroup>
-            <thead><tr className="bg-[#f2dfb8] text-[#2f2b20]"><th className="border-b border-[#d9bd80] px-2 py-3 text-left font-semibold"><input type="checkbox" checked={allSelected} onChange={toggleSelectAll} /></th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">Name</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">SKU</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">Brand</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">Stock</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">Status</th><th className="border-b border-[#d9bd80] px-6 py-3 text-right font-semibold">Action</th></tr></thead>
+            <thead><tr className="bg-[#f2dfb8] text-[#2f2b20]"><th className="border-b border-[#d9bd80] px-2 py-3 text-left font-semibold"><input type="checkbox" checked={allSelected} onChange={toggleSelectAll} /></th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">{t("pages.products.table.headers.name")}</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">{t("pages.products.table.headers.sku")}</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">{t("pages.products.table.headers.brand")}</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">{t("pages.products.table.headers.stock")}</th><th className="border-b border-[#d9bd80] px-6 py-3 text-left font-semibold">{t("pages.products.table.headers.status")}</th><th className="border-b border-[#d9bd80] px-6 py-3 text-right font-semibold">{t("pages.products.table.headers.action")}</th></tr></thead>
             <tbody>{rows.map((p: any) => {
-              const status = productStatus(p);
-              return <tr key={p.id} className="bg-[#fbf7ee] transition-colors hover:bg-[#fff0cf]"><td className="border-b border-[#ead6aa] px-2 py-4 align-middle"><input type="checkbox" checked={selectedIds.includes(p.id)} onChange={(e) => setSelectedIds((prev) => e.target.checked ? Array.from(new Set([...prev, p.id])) : prev.filter((id) => id !== p.id))} /></td><td className="truncate border-b border-[#ead6aa] px-6 py-4 font-medium text-[#2f2b20] align-middle" title={p.name}>{p.name}</td><td className="truncate border-b border-[#ead6aa] px-6 py-4 text-[#6d5935] align-middle" title={p.sku}>{p.sku}</td><td className="truncate border-b border-[#ead6aa] px-6 py-4 text-[#6d5935] align-middle" title={p.brand ?? "-"}>{p.brand ?? "-"}</td><td className="border-b border-[#ead6aa] px-6 py-4 text-left font-medium tabular-nums text-[#2f2b20] align-middle">{p.currentStock}</td><td className="border-b border-[#ead6aa] px-6 py-4 align-middle"><span className={`inline-flex min-w-24 justify-center rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${status.className}`}>{status.label}</span></td><td className="border-b border-[#ead6aa] px-6 py-4 align-middle"><div className="flex flex-nowrap justify-end gap-2"><button onClick={() => duplicateProduct.mutate(p.id)} className={`inline-flex h-9 items-center gap-2 px-3 text-xs font-semibold transition active:translate-y-px ${productDuplicateButtonClass}`}>Duplicate</button><button onClick={() => openEditRequest(p)} className={`inline-flex h-9 items-center gap-2 px-3 text-xs font-semibold transition active:translate-y-px ${productEditButtonClass}`}><Edit3 size={14} /> Edit</button><button onClick={() => openDeleteRequest(p)} className={`inline-flex h-9 items-center gap-2 px-3 text-xs font-semibold transition active:translate-y-px ${productDeleteButtonClass}`}><Trash2 size={14} /> Delete</button></div></td></tr>;
+              const status = productStatus(p, t);
+              return <tr key={p.id} className="bg-[#fbf7ee] transition-colors hover:bg-[#fff0cf]"><td className="border-b border-[#ead6aa] px-2 py-4 align-middle"><input type="checkbox" checked={selectedIds.includes(p.id)} onChange={(e) => setSelectedIds((prev) => e.target.checked ? Array.from(new Set([...prev, p.id])) : prev.filter((id) => id !== p.id))} /></td><td className="truncate border-b border-[#ead6aa] px-6 py-4 font-medium text-[#2f2b20] align-middle" title={p.name}>{p.name}</td><td className="truncate border-b border-[#ead6aa] px-6 py-4 text-[#6d5935] align-middle" title={p.sku}>{p.sku}</td><td className="truncate border-b border-[#ead6aa] px-6 py-4 text-[#6d5935] align-middle" title={p.brand ?? "-"}>{p.brand ?? "-"}</td><td className="border-b border-[#ead6aa] px-6 py-4 text-left font-medium tabular-nums text-[#2f2b20] align-middle">{p.currentStock}</td><td className="border-b border-[#ead6aa] px-6 py-4 align-middle"><span className={`inline-flex min-w-24 justify-center rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${status.className}`}>{status.label}</span></td><td className="border-b border-[#ead6aa] px-6 py-4 align-middle"><div className="flex flex-nowrap justify-end gap-2"><button onClick={() => duplicateProduct.mutate(p.id)} className={`inline-flex h-9 items-center gap-2 px-3 text-xs font-semibold transition active:translate-y-px ${productDuplicateButtonClass}`}>{t("pages.products.buttons.duplicate")}</button><button onClick={() => openEditRequest(p)} className={`inline-flex h-9 items-center gap-2 px-3 text-xs font-semibold transition active:translate-y-px ${productEditButtonClass}`}><Edit3 size={14} /> {t("pages.products.buttons.edit")}</button><button onClick={() => openDeleteRequest(p)} className={`inline-flex h-9 items-center gap-2 px-3 text-xs font-semibold transition active:translate-y-px ${productDeleteButtonClass}`}><Trash2 size={14} /> {t("pages.products.buttons.delete")}</button></div></td></tr>;
             })}
             {q.isLoading ? (
               <tr>
-                <td colSpan={7} className="border-b border-[#ead6aa] px-6 py-8 text-center text-[#8f7d5a]">Loading products...</td>
+                <td colSpan={7} className="border-b border-[#ead6aa] px-6 py-8 text-center text-[#8f7d5a]">{t("pages.products.table.states.loading")}</td>
               </tr>
             ) : null}
             {!q.isLoading && !rows.length ? (
               <tr>
-                <td colSpan={7} className="border-b border-[#ead6aa] px-6 py-8 text-center text-[#8f7d5a]">No products found.</td>
+                <td colSpan={7} className="border-b border-[#ead6aa] px-6 py-8 text-center text-[#8f7d5a]">{t("pages.products.table.states.empty")}</td>
               </tr>
             ) : null}
             </tbody>
           </table>
         </div>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-          <div className="text-[#8f7d5a]">Total products: {total}</div>
+          <div className="text-[#8f7d5a]">{t("pages.products.table.total")} {total}</div>
           <div className="flex items-center gap-2">
             <select
               className={productSmallSelectClass}
@@ -723,17 +719,17 @@ export const ProductsPage = () => {
                 setPage(1);
               }}
             >
-              <option value="10">10 / page</option>
-              <option value="20">20 / page</option>
-              <option value="50">50 / page</option>
-              <option value="100">100 / page</option>
+              <option value="10">{t("pages.products.table.pagination.perPage10")}</option>
+              <option value="20">{t("pages.products.table.pagination.perPage20")}</option>
+              <option value="50">{t("pages.products.table.pagination.perPage50")}</option>
+              <option value="100">{t("pages.products.table.pagination.perPage100")}</option>
             </select>
             <button className={`h-9 px-3 disabled:opacity-40 ${productGhostButtonClass}`} disabled={page <= 1} onClick={() => setPage((v) => Math.max(1, v - 1))}>
-              Previous
+              {t("pages.products.buttons.previous")}
             </button>
-            <span>Page {page} / {totalPages}</span>
+            <span>{t("pages.products.table.pagination.page")} {page} / {totalPages}</span>
             <button className={`h-9 px-3 disabled:opacity-40 ${productGhostButtonClass}`} disabled={page >= totalPages} onClick={() => setPage((v) => Math.min(totalPages, v + 1))}>
-              Next
+              {t("pages.products.buttons.next")}
             </button>
           </div>
         </div>
@@ -744,17 +740,17 @@ export const ProductsPage = () => {
             <div className="flex items-start justify-between border-b border-[#ead6aa] bg-[#f7ebd5] px-5 py-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded bg-[#ffecbe] px-2 py-1 text-xs font-semibold text-[#8b6727]">New product</span>
-                  <h2 className="text-lg font-semibold">Create Product</h2>
+                  <span className="rounded bg-[#ffecbe] px-2 py-1 text-xs font-semibold text-[#8b6727]">{t("pages.products.modal.titles.new")}</span>
+                  <h2 className="text-lg font-semibold">{t("pages.products.modal.create.title")}</h2>
                 </div>
-                <p className="mt-1 text-sm text-[#8f7d5a]">Fill the product basics, pricing, stock and expiry data in one focused modal.</p>
+                <p className="mt-1 text-sm text-[#8f7d5a]">{t("pages.products.modal.create.subtitle")}</p>
               </div>
               <button
                 className={`grid h-9 w-9 place-items-center ${productGhostButtonClass}`}
                 onClick={() => {
                   if (!create.isPending) setShowCreateModal(false);
                 }}
-                aria-label="Close create product modal"
+                aria-label={t("pages.products.modal.closeCreate")}
               >
                 <X size={16} />
               </button>
@@ -762,22 +758,22 @@ export const ProductsPage = () => {
 
             <div className="max-h-[74vh] overflow-auto p-5">
               <div className="grid gap-3 md:grid-cols-4">
-                <Input className={productFieldClass} placeholder="Product name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                <Input className={productFieldClass} placeholder="Brand" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} />
-                <Input className={productFieldClass} placeholder="Manufacturer" value={form.manufacturer} onChange={(e) => setForm({ ...form, manufacturer: e.target.value })} />
-                <Input className={productFieldClass} placeholder="SKU" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
-                <Input className={productFieldClass} placeholder="Barcode" value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
+                <Input className={productFieldClass} placeholder={t("pages.products.form.labels.name")} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input className={productFieldClass} placeholder={t("pages.products.form.labels.brand")} value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} />
+                <Input className={productFieldClass} placeholder={t("pages.products.form.labels.manufacturer")} value={form.manufacturer} onChange={(e) => setForm({ ...form, manufacturer: e.target.value })} />
+                <Input className={productFieldClass} placeholder={t("pages.products.form.labels.sku")} value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
+                <Input className={productFieldClass} placeholder={t("pages.products.form.labels.barcode")} value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
                 <select className={productSelectClass} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                  <option value="FRESH_FOOD">Fresh Food</option><option value="DRY_GOODS">Dry Goods</option><option value="COSMETICS">Cosmetics</option><option value="HOUSEHOLD">Household</option><option value="CUSTOM">Custom</option>
+                  <option value="FRESH_FOOD">{t("pages.products.form.types.freshFood")}</option><option value="DRY_GOODS">{t("pages.products.form.types.dryGoods")}</option><option value="COSMETICS">{t("pages.products.form.types.cosmetics")}</option><option value="HOUSEHOLD">{t("pages.products.form.types.household")}</option><option value="CUSTOM">{t("pages.products.form.types.custom")}</option>
                 </select>
                 <select className={productSelectClass} value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })}>
-                  <option value="PIECE">PIECE</option><option value="KG">KG</option><option value="G">G</option><option value="L">L</option><option value="ML">ML</option><option value="BOX">BOX</option>
+                  <option value="PIECE">{t("pages.products.form.units.piece")}</option><option value="KG">{t("pages.products.form.units.kg")}</option><option value="G">{t("pages.products.form.units.g")}</option><option value="L">{t("pages.products.form.units.l")}</option><option value="ML">{t("pages.products.form.units.ml")}</option><option value="BOX">{t("pages.products.form.units.box")}</option>
                 </select>
                 <select className={productSelectClass} value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>
-                  <option value="">Select category</option>{(cats.data?.data ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  <option value="">{t("pages.products.form.selects.selectCategory")}</option>{(cats.data?.data ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
                 <select className={productSelectClass} value={form.supplierId} onChange={(e) => setForm({ ...form, supplierId: e.target.value })}>
-                  <option value="">Select supplier</option>{(sups.data?.data ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  <option value="">{t("pages.products.form.selects.selectSupplier")}</option>{(sups.data?.data ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
                 <Input className={productFieldClass} placeholder="Cost price" type="number" min={0} value={form.costPrice} onChange={(e) => setForm({ ...form, costPrice: e.target.value })} />
                 <Input className={productFieldClass} placeholder="Selling price" type="number" min={0} value={form.sellingPrice} onChange={(e) => setForm({ ...form, sellingPrice: e.target.value })} />
@@ -848,16 +844,16 @@ export const ProductsPage = () => {
                   <Input className={productFieldClass} placeholder="SKU" value={editForm.sku ?? ""} onChange={(e) => setEditForm({ ...editForm, sku: e.target.value })} />
                   <Input className={productFieldClass} placeholder="Barcode" value={editForm.barcode ?? ""} onChange={(e) => setEditForm({ ...editForm, barcode: e.target.value })} />
                   <select className={productSelectClass} value={editForm.type ?? "DRY_GOODS"} onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}>
-                    <option value="FRESH_FOOD">Fresh Food</option><option value="DRY_GOODS">Dry Goods</option><option value="COSMETICS">Cosmetics</option><option value="HOUSEHOLD">Household</option><option value="CUSTOM">Custom</option>
+                    <option value="FRESH_FOOD">{t("pages.products.form.types.freshFood")}</option><option value="DRY_GOODS">{t("pages.products.form.types.dryGoods")}</option><option value="COSMETICS">{t("pages.products.form.types.cosmetics")}</option><option value="HOUSEHOLD">{t("pages.products.form.types.household")}</option><option value="CUSTOM">{t("pages.products.form.types.custom")}</option>
                   </select>
                   <select className={productSelectClass} value={editForm.unit ?? "PIECE"} onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })}>
-                    <option value="PIECE">PIECE</option><option value="KG">KG</option><option value="G">G</option><option value="L">L</option><option value="ML">ML</option><option value="BOX">BOX</option>
+                    <option value="PIECE">{t("pages.products.form.units.piece")}</option><option value="KG">{t("pages.products.form.units.kg")}</option><option value="G">{t("pages.products.form.units.g")}</option><option value="L">{t("pages.products.form.units.l")}</option><option value="ML">{t("pages.products.form.units.ml")}</option><option value="BOX">{t("pages.products.form.units.box")}</option>
                   </select>
                   <select className={productSelectClass} value={editForm.categoryId ?? ""} onChange={(e) => setEditForm({ ...editForm, categoryId: e.target.value })}>
-                    <option value="">Select category</option>{(cats.data?.data ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    <option value="">{t("pages.products.form.selects.selectCategory")}</option>{(cats.data?.data ?? []).map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                   <select className={productSelectClass} value={editForm.supplierId ?? ""} onChange={(e) => setEditForm({ ...editForm, supplierId: e.target.value })}>
-                    <option value="">Select supplier</option>{(sups.data?.data ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    <option value="">{t("pages.products.form.selects.selectSupplier")}</option>{(sups.data?.data ?? []).map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                   <Input className={productFieldClass} placeholder="Cost price" type="number" min={0} value={editForm.costPrice ?? "0"} onChange={(e) => setEditForm({ ...editForm, costPrice: e.target.value })} />
                   <Input className={productFieldClass} placeholder="Selling price" type="number" min={0} value={editForm.sellingPrice ?? "0"} onChange={(e) => setEditForm({ ...editForm, sellingPrice: e.target.value })} />
